@@ -17,7 +17,7 @@ namespace Inventory_Management._DbContext
             modelBuilder.Entity<User>().HasIndex(x => x.Username).IsUnique();
 
             modelBuilder.Entity<User>().HasData(
-             new User { Id = 1, Username = "Admin", IsAdmin = true, HashedPassword = "$2a$11$FodwrXysOiJ9lFlf1PZGZOQZH1fvBzBivVnSewumv5QTqlDIXh1/e", Role = "Manager" });
+             new User { Id = 1, Username = "Admin", IsAdmin = true, HashedPassword = "$2a$11$FodwrXysOiJ9lFlf1PZGZOQZH1fvBzBivVnSewumv5QTqlDIXh1/e", Role = "Manager" }); // Admin@123 pass
         }
 
 

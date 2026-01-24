@@ -19,7 +19,7 @@ builder.Configuration.GetConnectionString("AppDbContext")));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        var key = Encoding.UTF8.GetBytes("SECRET-KEY"); // Define the secret key
+        var key = Encoding.UTF8.GetBytes("WHAFWEI#!@S!!112312WQEQW@RWQEQW432"); // Define the secret key
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = false, // The Source Where The Token Is Issued
@@ -40,6 +40,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
