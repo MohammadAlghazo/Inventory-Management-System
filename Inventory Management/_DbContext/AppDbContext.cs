@@ -12,6 +12,7 @@ namespace Inventory_Management._DbContext
 
         //Tables
         public DbSet<Product> Products { get; set; }
+        public DbSet<InventoryLog> InventoryLogs { get; set; }
     }
 
 }
