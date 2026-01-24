@@ -1,6 +1,7 @@
 ﻿using Inventory_Management._DbContext;
 using Inventory_Management.Dtos.Inventory_Dtos;
 using Inventory_Management.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace Inventory_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class InventoryController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -17,6 +19,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpPost("AddItem")]
+        [Authorize(Roles = "Manager,Employee")]
         public IActionResult AddItem([FromBody] AddInventoryDto dto)
         {
             try {
@@ -49,6 +52,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpPost("SellProduct")]
+        [Authorize(Roles = "Manager,Employee")]
         public IActionResult SellProduct([FromBody] SellProductDto dto)
         {
             try
@@ -84,6 +88,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet("logs/{productId}")]
+        [Authorize(Roles = "Manager,Employee")]
         public IActionResult GetLogs(int productId)
         {
             try
