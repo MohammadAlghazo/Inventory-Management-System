@@ -105,7 +105,7 @@ namespace Inventory_Management.Controllers
 
         }
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         [Authorize(Roles = "Manager,Employee")]
         public IActionResult Update([FromBody] UpdateProductDto productDto)
         {

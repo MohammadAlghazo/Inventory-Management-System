@@ -2,7 +2,7 @@
 {
     public class AddInventoryDto
     {
-        public long ProductId { get; set; }
+        public int ProductId { get; set; }
         public int QuantityToAdd { get; set; }
     }
 }
