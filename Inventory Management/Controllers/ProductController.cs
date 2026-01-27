@@ -20,7 +20,8 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet("GetAllProduct")]
-        [Authorize(Roles = "Manager,Employee")]
+        //[Authorize(Roles = "Manager,Employee")]
+        [AllowAnonymous]
         public IActionResult GetAllProduct()
         {
             try
