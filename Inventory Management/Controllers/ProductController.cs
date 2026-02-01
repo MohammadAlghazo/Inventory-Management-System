@@ -8,8 +8,7 @@ namespace Inventory_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
-    [Authorize]
+    // [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -32,7 +31,9 @@ namespace Inventory_Management.Controllers
                     Name = p.Name,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    MinQuantity = p.MinQuantity
+                    MinQuantity = p.MinQuantity,
+                    Category = p.Category,
+                    Description = p.Description
                 }).ToList();
 
                 return Ok(product);
@@ -41,19 +42,15 @@ namespace Inventory_Management.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
 
         [HttpGet("GetById/{id}")]
-        [Authorize(Roles = "Manager,Employee")]
-        public IActionResult GetById (long id)
+        //[Authorize(Roles = "Manager,Employee")]
+        public IActionResult GetById(long id)
         {
             try
             {
-                if (id == 0)
-                {
-                    return BadRequest("Invalid Product Id");
-                }
+                if (id == 0) return BadRequest("Invalid Product Id");
 
                 var product = _context.Products.Select(p => new ProductDto
                 {
@@ -61,13 +58,12 @@ namespace Inventory_Management.Controllers
                     Name = p.Name,
                     Price = p.Price,
                     Quantity = p.Quantity,
-                    MinQuantity = p.MinQuantity
+                    MinQuantity = p.MinQuantity,
+                    Category = p.Category,
+                    Description = p.Description
                 }).FirstOrDefault(p => p.Id == id);
 
-                if (product == null)
-                {
-                    return NotFound("Product not found");
-                }
+                if (product == null) return NotFound("Product not found");
 
                 return Ok(product);
             }
@@ -77,9 +73,8 @@ namespace Inventory_Management.Controllers
             }
         }
 
-
         [HttpPost("Add")]
-        [Authorize(Roles = "Manager")]
+        // [Authorize(Roles = "Manager")]
         public IActionResult Add([FromBody] CreateProductDto productDto)
         {
             try
@@ -90,43 +85,43 @@ namespace Inventory_Management.Controllers
                     Name = productDto.Name,
                     Price = productDto.Price,
                     Quantity = productDto.Quantity,
-                    MinQuantity = productDto.minQuantity
+                    MinQuantity = productDto.minQuantity,
+                    Category = productDto.Category,
+                    Description = productDto.Description
                 };
                 _context.Products.Add(product);
                 _context.SaveChanges();
 
                 return Ok();
             }
-
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-
             }
-
         }
 
         [HttpPut("Update")]
-        [Authorize(Roles = "Manager,Employee")]
+        //[Authorize(Roles = "Manager,Employee")]
         public IActionResult Update([FromBody] UpdateProductDto productDto)
         {
             try
-            { 
+            {
                 var product = _context.Products.FirstOrDefault(x => x.Id == productDto.Id);
 
-                if (product == null)
-                {
-                    return NotFound("Product not found");
-                }
+                if (product == null) return NotFound("Product not found");
 
                 product.Name = productDto.Name;
                 product.Price = productDto.Price;
                 product.MinQuantity = productDto.MinQuantity;
+                product.Quantity = productDto.Quantity;
+
+                product.Category = productDto.Category;
+                product.Description = productDto.Description;
+
                 _context.SaveChanges();
 
                 return Ok();
             }
-
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -134,17 +129,13 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         public IActionResult Delete(long id)
         {
             try
             {
                 var product = _context.Products.FirstOrDefault(x => x.Id == id);
-
-                if (product == null)
-                {
-                    return NotFound("Product not found");
-                }
+                if (product == null) return NotFound("Product not found");
 
                 _context.Products.Remove(product);
                 _context.SaveChanges();
@@ -157,7 +148,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet("LowStockProducts")]
-        [Authorize(Roles = "Manager,Employee")]
+        //[Authorize(Roles = "Manager,Employee")]
         public IActionResult LowStockProducts()
         {
             try
@@ -170,7 +161,9 @@ namespace Inventory_Management.Controllers
                         Name = p.Name,
                         Price = p.Price,
                         Quantity = p.Quantity,
-                        MinQuantity = p.MinQuantity
+                        MinQuantity = p.MinQuantity,
+                        Category = p.Category,
+                        Description = p.Description
                     })
                     .ToList();
                 return Ok(lowStockProducts);
@@ -179,8 +172,6 @@ namespace Inventory_Management.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
-
     }
 }
