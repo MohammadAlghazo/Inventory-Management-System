@@ -9,7 +9,7 @@ namespace Inventory_Management.Controllers
     [Route("api/[controller]")]
     [ApiController]
 
-    [Authorize]
+   // [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -45,7 +45,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet("GetById/{id}")]
-        [Authorize(Roles = "Manager,Employee")]
+        //[Authorize(Roles = "Manager,Employee")]
         public IActionResult GetById (long id)
         {
             try
@@ -79,7 +79,7 @@ namespace Inventory_Management.Controllers
 
 
         [HttpPost("Add")]
-        [Authorize(Roles = "Manager")]
+       // [Authorize(Roles = "Manager")]
         public IActionResult Add([FromBody] CreateProductDto productDto)
         {
             try
@@ -107,7 +107,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpPut("Update")]
-        [Authorize(Roles = "Manager,Employee")]
+        //[Authorize(Roles = "Manager,Employee")]
         public IActionResult Update([FromBody] UpdateProductDto productDto)
         {
             try
@@ -134,7 +134,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        [Authorize(Roles = "Manager")]
+       // [Authorize(Roles = "Manager")]
         public IActionResult Delete(long id)
         {
             try
@@ -157,7 +157,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet("LowStockProducts")]
-        [Authorize(Roles = "Manager,Employee")]
+       // [Authorize(Roles = "Manager,Employee")]
         public IActionResult LowStockProducts()
         {
             try
