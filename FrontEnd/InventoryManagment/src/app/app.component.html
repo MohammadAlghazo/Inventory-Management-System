@@ -1,1 +1,28 @@
-<router-outlet></router-outlet>
+<nav class="navbar navbar-expand navbar-dark bg-primary shadow-sm mb-4">
+  <div class="container">
+    
+    <a class="navbar-brand fw-bold fs-4" routerLink="/">
+      📦 Inventory System
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+      
+      <a routerLink="/" class="text-white text-decoration-none fw-semibold">
+        📊 Dashboard
+      </a>
+
+      <a routerLink="/products" class="text-white text-decoration-none fw-semibold">
+        📦 Products
+      </a>
+
+      <a routerLink="/products/create" class="btn btn-light text-primary fw-bold btn-sm">
+        Add New ➕
+      </a>
+
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <router-outlet></router-outlet>
+</div>

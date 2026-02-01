@@ -16,14 +16,16 @@ export class ProductFormComponent implements OnInit {
   productService = inject(ProductService);
   router = inject(Router);
   route = inject(ActivatedRoute);
+  categories: string[] = ['Electronics', 'Groceries', 'Clothing', 'Furniture', 'Accessories', 'Stationery'];
 
   isEditMode: boolean = false;
   productId: number = 0;
 
-  product: any = {
+product: any = {
     name: '',
     price: 0,
     quantity: 0,
+    minQuantity: 5,
     category: '',
     description: ''
   };

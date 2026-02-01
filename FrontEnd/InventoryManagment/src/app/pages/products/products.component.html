@@ -2,30 +2,50 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>📦 Products List</h2>
     
-    <a routerLink="/products/create" class="btn btn-primary">
-      Add New Product
-    </a>
+    <div>
+
+      <a routerLink="/products/create" class="btn btn-primary">
+        Add New Product ➕
+      </a>
+    </div>
+
+  </div>
+
+  <div class="mb-3">
+    <input 
+      type="text" 
+      class="form-control" 
+      placeholder="Search by name or category... 🔍" 
+      [(ngModel)]="searchTerm" 
+      (input)="onSearch()">
   </div>
 
   <div *ngIf="products.length === 0" class="alert alert-warning">
     No products found, or data is loading...
   </div>
 
-  <table *ngIf="products.length > 0" class="table table-striped table-bordered mt-3">
+<table *ngIf="filteredProducts.length > 0" class="table table-striped table-bordered mt-3">
     <thead class="table-dark">
       <tr>
         <th>Name</th>
         <th>Price</th>
         <th>Quantity</th>
-        <th>Category</th>
+        <th>Min Qty ⚠️</th> <th>Category</th>
         <th>Description</th>
-        <th>Actions</th> </tr>
+        <th>Actions</th> 
+      </tr>
     </thead>
-<tbody>
-      <tr *ngFor="let item of products">
+    <tbody>
+      <tr *ngFor="let item of filteredProducts">
         <td>{{ item.name }}</td>
         <td>{{ item.price | currency }}</td>
-        <td>{{ item.quantity }}</td>
+        
+        <td [class.text-danger]="item.quantity <= item.minQuantity" [class.fw-bold]="item.quantity <= item.minQuantity">
+          {{ item.quantity }}
+        </td>
+
+        <td>{{ item.minQuantity }}</td> 
+
         <td>{{ item.category }}</td>
         <td>{{ item.description }}</td>
         
@@ -42,4 +62,9 @@
       </tr>
     </tbody>
   </table>
+
+  <div *ngIf="products.length > 0 && filteredProducts.length === 0" class="alert alert-info mt-3">
+    No results found matching "{{ searchTerm }}" 🤷‍♂️
+  </div>
+
 </div>
