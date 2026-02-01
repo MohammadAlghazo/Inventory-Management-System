@@ -1,5 +1,4 @@
-<nav class="navbar navbar-expand navbar-dark bg-primary shadow-sm mb-4">
-  <div class="container">
+<nav *ngIf="router.url !== '/login'" class="navbar navbar-expand navbar-dark bg-primary shadow-sm mb-4">  <div class="container">
     
     <a class="navbar-brand fw-bold fs-4" routerLink="/">
       📦 Inventory System
@@ -18,6 +17,10 @@
       <a routerLink="/products/create" class="btn btn-light text-primary fw-bold btn-sm">
         Add New ➕
       </a>
+
+      <button (click)="onLogout()" class="btn btn-danger btn-sm fw-bold">
+        Logout 🚪
+      </button>
 
     </div>
   </div>
