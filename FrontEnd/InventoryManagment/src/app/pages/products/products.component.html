@@ -4,13 +4,12 @@
     
     <div>
 
-    <button 
-      *ngIf="authService.getUserRole() === 'Manager'" 
-      routerLink="/products/create" 
-      class="btn btn-primary">
+    <button *ngIf="authService.getUserRole() === 'Manager'" 
+            routerLink="/products/create" 
+            class="btn btn-primary mb-3">
       Add New Product ➕
     </button>
-    
+
     </div>
 
   </div>
@@ -58,10 +57,9 @@
             Edit ✏️
           </a>
 
-        <button 
-          *ngIf="authService.getUserRole() === 'Manager'" 
-          (click)="onDelete(item.id)" 
-          class="btn btn-danger btn-sm">
+        <button *ngIf="authService.getUserRole() === 'Manager'" 
+                (click)="onDelete(item.id)" 
+                class="btn btn-danger btn-sm">
           Delete 🗑️
         </button>
         </td>

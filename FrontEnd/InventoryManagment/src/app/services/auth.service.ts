@@ -23,8 +23,8 @@ login(loginData: any) {
     
     try {
       const decoded: any = jwtDecode(token);
-      // تأكد من مسمى الحقل في التوكن (غالباً يكون بهذا الشكل في .NET)
-      return decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || '';
+      const roleKey = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+      return decoded[roleKey] || '';
     } catch (error) {
       return '';
     }

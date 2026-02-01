@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
+import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -11,22 +12,27 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
 })
-export class ProductsComponent {
+export class ProductsComponent implements OnInit {
+  
   productService = inject(ProductService);
   router = inject(Router);
+  authService = inject(AuthService);
 
   products: any[] = [];
   filteredProducts: any[] = [];
   searchTerm: string = '';   
-authService: any;
 
   constructor() {
+  }
+
+  ngOnInit() {
     this.loadProducts();
   }
 
   loadProducts() {
     this.productService.getProducts().subscribe({
       next: (res: any) => {
+        console.log("Products loaded:", res);
         this.products = res;
         this.filteredProducts = res;
       },
@@ -51,9 +57,7 @@ authService: any;
       this.productService.deleteProduct(id).subscribe({
         next: () => {
           alert("Product Deleted Successfully! ✅");
-
           this.products = this.products.filter(p => p.id !== id);
-          
           this.onSearch();
         },
         error: (err) => {
@@ -63,5 +67,4 @@ authService: any;
       });
     }
   }
-
 }
