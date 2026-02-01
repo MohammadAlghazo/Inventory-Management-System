@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { jwtDecode } from "jwt-decode";
 
 @Injectable({
   providedIn: 'root'
@@ -14,5 +15,18 @@ export class AuthService {
 
 login(loginData: any) {
     return this.http.post(this.apiUrl, loginData, { responseType: 'text' });
+  }
+
+  getUserRole(): string {
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    
+    try {
+      const decoded: any = jwtDecode(token);
+      // تأكد من مسمى الحقل في التوكن (غالباً يكون بهذا الشكل في .NET)
+      return decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || '';
+    } catch (error) {
+      return '';
+    }
   }
 }

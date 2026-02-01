@@ -18,6 +18,7 @@ export class ProductsComponent {
   products: any[] = [];
   filteredProducts: any[] = [];
   searchTerm: string = '';   
+authService: any;
 
   constructor() {
     this.loadProducts();
