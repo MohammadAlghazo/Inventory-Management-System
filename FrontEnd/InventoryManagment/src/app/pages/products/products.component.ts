@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-products',
@@ -51,20 +52,39 @@ export class ProductsComponent implements OnInit {
   }
 
   onDelete(id: number) {
-    const isConfirmed = confirm("Are you sure you want to delete this product? 🗑️");
-    
-    if (isConfirmed) {
-      this.productService.deleteProduct(id).subscribe({
-        next: () => {
-          alert("Product Deleted Successfully! ✅");
-          this.products = this.products.filter(p => p.id !== id);
-          this.onSearch();
-        },
-        error: (err) => {
-          console.log(err);
-          alert("Error deleting product ❌");
-        }
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      
+      if (result.isConfirmed) {
+        
+        this.productService.deleteProduct(id).subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'Product has been deleted.',
+              icon: 'success'
+            });
+
+            this.products = this.products.filter(p => p.id !== id);
+            this.onSearch();
+          },
+          error: (err) => {
+            console.log(err);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Something went wrong.',
+              icon: 'error'
+            });
+          }
+        });
+      }
+    });
   }
 }
