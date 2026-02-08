@@ -41,6 +41,43 @@ namespace Inventory_Management.Controllers
             }
         }
 
+        [HttpPost("Register")]
+        public IActionResult Register([FromBody] RegisterDto registerDto)
+        {
+            try
+            {
+                if (registerDto == null)
+                    return BadRequest("Invalid data");
+
+                if (_dbContext.Users.Any(u => u.Username.ToLower() == registerDto.Username.ToLower()))
+                {
+                    return BadRequest(new { message = "Username is already taken" });
+                }
+
+                var role = registerDto.Roles?.FirstOrDefault() ?? "Employee";
+                var isAdmin = role.Equals("Manager", StringComparison.OrdinalIgnoreCase);
+
+                var newUser = new User
+                {
+                    Username = registerDto.Username,
+
+                    HashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+
+                    Role = role,
+                    IsAdmin = isAdmin
+                };
+
+                _dbContext.Users.Add(newUser);
+                _dbContext.SaveChanges();
+
+                return Ok(new { message = "User Registered Successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Error", error = ex.Message });
+            }
+        }
+
         private string GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
