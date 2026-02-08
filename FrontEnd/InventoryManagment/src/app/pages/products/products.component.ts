@@ -37,7 +37,6 @@ export class ProductsComponent implements OnInit {
         this.filteredProducts = res;
       },
       error: (err) => {
-        console.log("Error fetching products:", err);
       }
     });
   }
@@ -76,7 +75,6 @@ export class ProductsComponent implements OnInit {
             this.onSearch();
           },
           error: (err) => {
-            console.log(err);
             Swal.fire({
               title: 'Error!',
               text: 'Something went wrong.',
