@@ -2,8 +2,12 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
+    background-color: #f3f5f9; 
     color: #2c3e50;
+}
+
+.card, .navbar, .footer {
+    background-color: #ffffff;
 }
 
 ::-webkit-scrollbar {

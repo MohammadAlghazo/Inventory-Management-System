@@ -1,11 +1,12 @@
 <div class="container-fluid py-4">
   
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="fw-bold text-dark m-0">Dashboard Overview</h2>
-    </div>
-    <button routerLink="/products/create" class="btn btn-primary rounded-pill px-4 shadow-sm">
-      <i class="bi bi-plus-lg me-2"></i> Add Product
+    <h3 class="fw-bold text-dark m-0">Dashboard Overview</h3>
+    
+    <button *ngIf="authService.getUserRole() === 'Manager'" 
+            routerLink="/products/create" 
+            class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i> Add Product
     </button>
   </div>
 
@@ -69,7 +70,7 @@
                 <th class="ps-4">Product Name</th>
                 <th>Current Qty</th>
                 <th>Status</th>
-                <th class="text-end pe-4">Action</th>
+                <th *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-4">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -81,14 +82,16 @@
                     Critical
                   </span>
                 </td>
-                <td class="text-end pe-4">
+                
+                <td *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-4">
                   <a [routerLink]="['/products/edit', item.id]" class="btn btn-sm btn-outline-dark rounded-pill">
-                    Restock
+                    Edit
                   </a>
                 </td>
               </tr>
+              
               <tr *ngIf="lowStockProducts.length === 0">
-                <td colspan="4" class="text-center py-4 text-muted">
+                <td [attr.colspan]="authService.getUserRole() === 'Manager' ? 4 : 3" class="text-center py-4 text-muted">
                   <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
                   No low stock items
                 </td>

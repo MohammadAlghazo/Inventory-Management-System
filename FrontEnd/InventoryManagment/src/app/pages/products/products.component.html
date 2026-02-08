@@ -43,7 +43,8 @@
             <th class="border-0">Price</th>
             <th class="border-0">Stock Status</th>
             <th class="border-0">Min Qty</th>
-            <th class="border-0 text-end pe-3 rounded-end">Actions</th> 
+            
+            <th *ngIf="authService.getUserRole() === 'Manager'" class="border-0 text-end pe-3 rounded-end">Actions</th> 
           </tr>
         </thead>
         <tbody>
@@ -73,15 +74,14 @@
 
             <td class="text-muted">{{ item.minQuantity }}</td> 
 
-            <td class="text-end pe-3">
+            <td *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-3">
               <div class="d-flex justify-content-end gap-2">
+                
                 <a [routerLink]="['/products/edit', item.id]" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
                   <i class="bi bi-pencil-fill"></i>
                 </a>
 
-                <button *ngIf="authService.getUserRole() === 'Manager'" 
-                        (click)="onDelete(item.id)" 
-                        class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                <button (click)="onDelete(item.id)" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
                   <i class="bi bi-trash-fill"></i>
                 </button>
               </div>

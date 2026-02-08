@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,7 +14,7 @@ import { RouterLink } from '@angular/router';
 export class DashboardComponent implements OnInit {
   
   productService = inject(ProductService);
-
+ public authService = inject(AuthService);
   totalProducts: number = 0;
   totalValue: number = 0;
   lowStockCount: number = 0;

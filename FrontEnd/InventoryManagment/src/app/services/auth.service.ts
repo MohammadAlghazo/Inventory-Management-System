@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { jwtDecode } from "jwt-decode";
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -8,13 +9,23 @@ import { jwtDecode } from "jwt-decode";
 export class AuthService {
   
   http = inject(HttpClient);
-  
-  apiUrl = 'https://localhost:44374/api/Auth/Login';
+  router = inject(Router);
+
+  private baseUrl = 'https://localhost:44374/api/Auth/';
 
   constructor() { }
 
-login(loginData: any) {
-    return this.http.post(this.apiUrl, loginData, { responseType: 'text' });
+  register(userData: any) {
+    return this.http.post(`${this.baseUrl}Register`, userData);
+  }
+
+  login(loginData: any) {
+    return this.http.post(`${this.baseUrl}Login`, loginData, { responseType: 'text' });
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
   }
 
   getUserRole(): string {
@@ -28,5 +39,9 @@ login(loginData: any) {
     } catch (error) {
       return '';
     }
+  }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('token');
   }
 }

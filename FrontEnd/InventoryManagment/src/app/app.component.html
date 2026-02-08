@@ -1,59 +1,66 @@
 <div class="d-flex flex-column min-vh-100">
 
-<nav *ngIf="router.url !== '/login'" class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm py-3 mb-4">
-  <div class="container-fluid px-4">
-    
-    <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-3 me-5" routerLink="/">
-      <div class="rounded-3 p-2 bg-warning text-dark shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-        <i class="bi bi-box-fill fs-4"></i>
-      </div>
-      <div style="line-height: 1;">
-        <span class="d-block">Inventory</span>
-        <small class="text-white-50 fw-normal">Management Pro</small>
-      </div>
-    </a>
-
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarContent">
+  <nav *ngIf="router.url !== '/login'" class="navbar navbar-expand-lg navbar-dark custom-navbar shadow-sm py-3 mb-4">
+    <div class="container-fluid px-4">
       
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a routerLink="/" class="nav-link nav-link-custom d-flex align-items-center gap-2 fs-5" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="bi bi-speedometer2"></i> Dashboard
-          </a>
-        </li>
-        <li class="nav-item">
-          <a routerLink="/products" class="nav-link nav-link-custom d-flex align-items-center gap-2 fs-5 ms-3" routerLinkActive="active">
-            <i class="bi bi-box"></i> Products
-          </a>
-        </li>
-      </ul>
-
-      <div class="d-flex align-items-center gap-3">
+      <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-3 me-5" routerLink="/">
+        <div class="rounded-3 p-2 bg-warning text-dark shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+          <i class="bi bi-box-fill fs-4"></i>
+        </div>
+        <div style="line-height: 1;">
+          <span class="d-block">Inventory</span>
+          <small class="text-white-50 fw-normal">Management Pro</small>
+        </div>
+      </a>
+  
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+  
+      <div class="collapse navbar-collapse" id="navbarContent">
         
-        <a routerLink="/products/create" class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" style="font-size: 1rem;">
-          <i class="bi bi-plus-circle-fill"></i> Add Product
-        </a>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a routerLink="/" class="nav-link nav-link-custom d-flex align-items-center gap-2 fs-5" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/products" class="nav-link nav-link-custom d-flex align-items-center gap-2 fs-5 ms-3" routerLinkActive="active">
+              <i class="bi bi-box"></i> Products
+            </a>
+          </li>
+        </ul>
+  
+        <div class="d-flex align-items-center gap-3">
+          
+          <a *ngIf="authService.getUserRole() === 'Manager'" 
+             routerLink="/register" 
+             class="btn btn-outline-light fw-bold rounded-pill px-3 d-flex align-items-center gap-2" 
+             title="Manage Users">
+            <i class="bi bi-people-fill"></i> <span class="d-none d-md-inline">Users</span>
+          </a>
 
-        <div class="vr text-white opacity-50 mx-2" style="height: 30px;"></div>
-
-        <button (click)="onLogout()" class="btn btn-danger fw-bold rounded-pill px-4 shadow d-flex align-items-center gap-2" style="font-size: 1rem;">
-          <span>Logout</span> <i class="bi bi-box-arrow-right"></i> 
-        </button>
-
+          <a *ngIf="authService.getUserRole() === 'Manager'" routerLink="/products/create" class="btn btn-light text-primary fw-bold rounded-pill px-4 shadow-sm d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <i class="bi bi-plus-circle-fill"></i> Add Product
+          </a>
+  
+          <div *ngIf="authService.getUserRole() === 'Manager'" class="vr text-white opacity-50 mx-2" style="height: 30px;"></div>
+  
+          <button (click)="onLogout()" class="btn btn-danger fw-bold rounded-pill px-4 shadow d-flex align-items-center gap-2" style="font-size: 1rem;">
+            <span>Logout</span> <i class="bi bi-box-arrow-right"></i> 
+          </button>
+  
+        </div>
+  
       </div>
-
     </div>
-  </div>
-</nav>
-
-  <div class="container-fluid px-4 flex-grow-1">
+  </nav>
+  
+  <div [ngClass]="{'container-fluid px-4': router.url !== '/login', 'w-100 p-0': router.url === '/login'}" class="flex-grow-1">
     <router-outlet></router-outlet>
   </div>
-
+  
   <footer *ngIf="router.url !== '/login'" class="text-center py-4 mt-5 text-muted border-top bg-white">
     <div class="container">
       <small>
@@ -63,5 +70,5 @@
       </small>
     </div>
   </footer>
-
+  
 </div>

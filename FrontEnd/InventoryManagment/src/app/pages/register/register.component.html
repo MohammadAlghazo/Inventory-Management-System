@@ -1,0 +1,75 @@
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-6">
+    
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      
+      <div class="card-header bg-white border-0 py-4 px-4 pb-0">
+        <h4 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+          <i class="bi bi-person-plus-fill text-primary"></i>
+          Register New User
+        </h4>
+        <p class="text-muted small mt-1">Create a new account for an employee or manager</p>
+      </div>
+
+      <div class="card-body p-4">
+        <form (ngSubmit)="onSubmit()">
+          
+          <div class="row g-3">
+            
+            <div class="col-12">
+              <label class="form-label fw-semibold text-secondary small">Username</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="e.g. AhmadAli"
+                       [(ngModel)]="registerObj.userName" name="userName" required>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold text-secondary small">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+                <input type="email" class="form-control border-start-0 ps-0" placeholder="name@company.com"
+                       [(ngModel)]="registerObj.email" name="email" required>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold text-secondary small">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-shield-lock"></i></span>
+                <input type="password" class="form-control border-start-0 ps-0" placeholder="••••••••"
+                       [(ngModel)]="registerObj.password" name="password" required minlength="6">
+              </div>
+              <div class="form-text small text-muted">Must be at least 6 characters long</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold text-secondary small">Role</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-award"></i></span>
+                <select class="form-select border-start-0 ps-0" [(ngModel)]="registerObj.roles" name="roles" required>
+                  <option value="" disabled selected>Select Role...</option>
+                  <option value="Manager">Manager</option>
+                  <option value="Employee">Employee</option>
+                </select>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+            <button type="button" routerLink="/" class="btn btn-light px-4 fw-bold text-secondary">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm rounded-pill">
+              <i class="bi bi-check-lg me-2"></i> Create Account
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>

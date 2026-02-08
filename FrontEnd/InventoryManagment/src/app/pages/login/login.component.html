@@ -1,36 +1,48 @@
-<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+<div class="login-page d-flex align-items-center justify-content-center min-vh-100">
   
-  <div class="card shadow p-4" style="width: 400px;">
-    <div class="card-body text-center">
+  <div class="card border-0 shadow-lg login-card rounded-4 overflow-hidden">
+    <div class="card-body p-5">
       
-      <h2 class="mb-4 text-primary fw-bold">Login</h2>
-
-      <form>
-        <div class="mb-3 text-start">
-        <label class="form-label">Username / Email</label>
-        <input 
-            type="text" 
-            [(ngModel)]="loginObj.username"  
-            name="username"
-            class="form-control" 
-            placeholder="Enter your username">
+      <div class="text-center mb-5">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 mb-3 shadow-sm" style="width: 60px; height: 60px;">
+          <i class="bi bi-box-fill fs-2"></i>
         </div>
-        <div class="mb-3 text-start">
-        <label class="form-label">Password</label>
-        <input 
-            type="password" 
-            [(ngModel)]="loginObj.password" 
-            name="password"
-            class="form-control" 
-            placeholder="••••••••">
+        <h3 class="fw-bold text-dark">Welcome!</h3>
+        <p class="text-muted small">Sign in to manage your inventory</p>
+      </div>
+
+      <form (ngSubmit)="onLogin()">
+        
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-secondary small">Username / Email</label>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+            <input type="text" class="form-control bg-light border-start-0 ps-0" 
+                   [(ngModel)]="loginObj.userName" name="userName" 
+                   placeholder="Enter your username" required>
+          </div>
         </div>
 
-        <button type="button" (click)="onLogin()" class="btn btn-primary w-100 fw-bold">
-        Login
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-secondary small">Password</label>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control bg-light border-start-0 ps-0" 
+                   [(ngModel)]="loginObj.password" name="password" 
+                   placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold rounded-pill shadow-sm mt-3">
+          Sign In <i class="bi bi-arrow-right-short ms-1"></i>
         </button>
 
       </form>
-      
+
+      <div class="text-center mt-5 text-muted small">
+        &copy; 2026 Inventory Pro System
+      </div>
+
     </div>
   </div>
 

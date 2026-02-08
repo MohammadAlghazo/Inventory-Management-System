@@ -17,11 +17,11 @@ export class ProductsComponent implements OnInit {
   
   productService = inject(ProductService);
   router = inject(Router);
-  authService = inject(AuthService);
+  public authService = inject(AuthService);
 
   products: any[] = [];
   filteredProducts: any[] = [];
-  searchTerm: string = '';   
+  searchTerm: string = '';    
 
   constructor() {
   }
@@ -33,7 +33,6 @@ export class ProductsComponent implements OnInit {
   loadProducts() {
     this.productService.getProducts().subscribe({
       next: (res: any) => {
-        console.log("Products loaded:", res);
         this.products = res;
         this.filteredProducts = res;
       },
@@ -45,9 +44,10 @@ export class ProductsComponent implements OnInit {
 
   onSearch() {
     const term = this.searchTerm.toLowerCase();
+    
     this.filteredProducts = this.products.filter(item => 
-      item.name.toLowerCase().includes(term) || 
-      item.category.toLowerCase().includes(term)
+      (item.name && item.name.toLowerCase().includes(term)) || 
+      (item.category && item.category.toLowerCase().includes(term))
     );
   }
 
@@ -65,7 +65,7 @@ export class ProductsComponent implements OnInit {
       if (result.isConfirmed) {
         
         this.productService.deleteProduct(id).subscribe({
-          next: () => {
+          next: (res: any) => {
             Swal.fire({
               title: 'Deleted!',
               text: 'Product has been deleted.',
