@@ -2,7 +2,8 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../services/product.service';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router'; 
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-product-form',
@@ -21,7 +22,7 @@ export class ProductFormComponent implements OnInit {
   isEditMode: boolean = false;
   productId: number = 0;
 
-product: any = {
+  product: any = {
     name: '',
     price: 0,
     quantity: 0,
@@ -46,7 +47,11 @@ product: any = {
         this.product = data;
       },
       error: (err) => {
-        alert("Error loading product data ❌");
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Error loading product data!',
+        });
         console.error(err);
       }
     });
@@ -56,11 +61,18 @@ product: any = {
     if (this.isEditMode) {
       this.productService.updateProduct(this.productId, this.product).subscribe({
         next: () => {
-          alert("Product Updated Successfully! ✅");
-          this.router.navigate(['/products']);
+          Swal.fire({
+            title: "Updated!",
+            text: "Product updated successfully ✨",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            this.router.navigate(['/products']);
+          });
         },
         error: (err) => {
-          alert("Error updating product ❌");
+          Swal.fire("Error", "Could not update product ❌", "error");
           console.error(err);
         }
       });
@@ -68,11 +80,17 @@ product: any = {
     } else {
       this.productService.addProduct(this.product).subscribe({
         next: () => {
-          alert("Product Added Successfully! ✅");
-          this.router.navigate(['/products']);
+          Swal.fire({
+            title: "Great Job!",
+            text: "Product added successfully 🚀",
+            icon: "success",
+            confirmButtonText: "Go to List"
+          }).then(() => {
+            this.router.navigate(['/products']);
+          });
         },
         error: (err) => {
-          alert("Error adding product ❌");
+          Swal.fire("Error", "Could not add product ❌", "error");
           console.error(err);
         }
       });

@@ -1,71 +1,89 @@
-<div class="container mt-5">
-  <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-      <h3 class="mb-0">{{ isEditMode ? 'Edit Product ✏️' : 'Add New Product ➕' }}</h3>
-    </div>
-    <div class="card-body">
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-xl-8"> <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
       
-      <form (ngSubmit)="onSubmit()">
-        
-        <div class="mb-3">
-          <label class="form-label">Product Name</label>
-          <input type="text" [(ngModel)]="product.name" name="name" class="form-control" placeholder="Enter product name" required>
-        </div>
+      <div class="card-header bg-white border-0 py-4 px-4 pb-0">
+        <h4 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+          <i class="bi" [ngClass]="isEditMode ? 'bi-pencil-square text-warning' : 'bi-plus-circle-fill text-primary'"></i>
+          {{ isEditMode ? 'Edit Product' : 'Add New Product' }}
+        </h4>
+        <p class="text-muted small mt-1">Fill in the details below to {{ isEditMode ? 'update' : 'create' }} a product.</p>
+      </div>
 
-        <div class="row">
+      <div class="card-body p-4">
+        <form (ngSubmit)="onSubmit()">
           
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Price ($)</label>
-            <input type="number" [(ngModel)]="product.price" name="price" class="form-control" lang="en" style="direction: ltr;" required>
+          <div class="row g-4">
+            
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-secondary small">Product Name</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-tag"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" placeholder="e.g. iPhone 15 Pro"
+                       [(ngModel)]="product.name" name="name" required>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold text-secondary small">Category</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-folder"></i></span>
+                <select class="form-select border-start-0 ps-0" [(ngModel)]="product.category" name="category" required>
+                  <option value="" disabled selected>Select Category...</option>
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold text-secondary small">Price ($)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-currency-dollar"></i></span>
+                <input type="number" class="form-control border-start-0 ps-0" placeholder="0.00"
+                       [(ngModel)]="product.price" name="price" required min="0">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold text-secondary small">Quantity</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-layers"></i></span>
+                <input type="number" class="form-control border-start-0 ps-0" placeholder="0"
+                       [(ngModel)]="product.quantity" name="quantity" required min="0">
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold text-secondary small">Min Quantity (Alert)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-bell"></i></span>
+                <input type="number" class="form-control border-start-0 ps-0" placeholder="5"
+                       [(ngModel)]="product.minQuantity" name="minQuantity" required min="1">
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold text-secondary small">Description</label>
+              <textarea class="form-control" rows="3" placeholder="Enter product details..."
+                        [(ngModel)]="product.description" name="description"></textarea>
+            </div>
+
           </div>
-          
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Quantity</label>
-            <input type="number" [(ngModel)]="product.quantity" name="quantity" class="form-control" lang="en" style="direction: ltr;" required>
+
+          <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4">
+            
+            <a routerLink="/products" class="btn btn-light px-4 fw-bold text-secondary">
+              Cancel
+            </a>
+
+            <button type="submit" class="btn btn-primary px-5 fw-bold shadow-sm rounded-pill">
+              <i class="bi bi-check-lg me-2"></i> {{ isEditMode ? 'Update Product' : 'Save Product' }}
+            </button>
+            
           </div>
 
-          <div class="col-md-4 mb-3">
-            <label class="form-label">Min Quantity (Alert)</label>
-            <input 
-              type="number" 
-              [(ngModel)]="product.minQuantity" 
-              name="minQuantity" 
-              class="form-control" 
-              lang="en" 
-              style="direction: ltr;" 
-              placeholder="e.g. 5">
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Category</label>
-          <select 
-            [(ngModel)]="product.category" 
-            name="category" 
-            class="form-select" 
-            required>
-            <option value="" disabled selected>Select a category...</option>
-            <option *ngFor="let cat of categories" [value]="cat">
-              {{ cat }}
-            </option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <textarea [(ngModel)]="product.description" name="description" class="form-control" rows="3"></textarea>
-        </div>
-
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-success px-4">
-            {{ isEditMode ? 'Update' : 'Save' }}
-          </button>
-          
-          <a routerLink="/products" class="btn btn-secondary px-4">Cancel</a>
-        </div>
-
-      </form>
-
+        </form>
+      </div>
     </div>
+
   </div>
 </div>

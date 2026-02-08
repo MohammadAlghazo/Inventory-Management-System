@@ -1,44 +1,130 @@
-<div class="container mt-4">
+<div class="container-fluid py-4">
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>📊 Dashboard Overview</h2>
-    <a routerLink="/products" class="btn btn-outline-primary">View All Products ➡️</a>
+    <h3 class="fw-bold text-dark m-0">Dashboard Overview</h3>
+    
+    <button *ngIf="authService.getUserRole() === 'Manager'" 
+            routerLink="/products/create" 
+            class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm">
+        <i class="bi bi-plus-lg me-2"></i> Add Product
+    </button>
   </div>
 
-  <div class="row">
+  <div class="row g-4 mb-5">
     
     <div class="col-md-4">
-      <div class="card text-white bg-primary mb-3 shadow">
-        <div class="card-header">Total Products</div>
-        <div class="card-body">
-          <h1 class="card-title display-4">{{ totalProducts }}</h1>
-          <p class="card-text">Items in your inventory.</p>
+      <div class="card border-0 shadow-sm h-100 p-3 stat-card bg-primary-subtle">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small">Total Products</h6>
+            <h2 class="fw-bold text-primary mb-0">{{ totalProducts }}</h2>
+          </div>
+          <div class="icon-box bg-white text-primary rounded-circle shadow-sm">
+            <i class="bi bi-box-seam fs-4"></i>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="col-md-4">
-      <div class="card text-white bg-success mb-3 shadow">
-        <div class="card-header">Total Inventory Value</div>
-        <div class="card-body">
-          <h1 class="card-title display-4">{{ totalValue | currency }}</h1>
-          <p class="card-text">Total worth of stock.</p>
+      <div class="card border-0 shadow-sm h-100 p-3 stat-card bg-success-subtle">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small">Total Value</h6>
+            <h2 class="fw-bold text-success mb-0">${{ totalValue | number }}</h2>
+          </div>
+          <div class="icon-box bg-white text-success rounded-circle shadow-sm">
+            <i class="bi bi-cash-stack fs-4"></i>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="col-md-4">
-      <div class="card text-white bg-danger mb-3 shadow">
-        <div class="card-header">Low Stock Alert ⚠️</div>
-        <div class="card-body">
-          <h1 class="card-title display-4">{{ lowStockCount }}</h1>
-          <p class="card-text">Products with less than 5 items.</p>
+      <div class="card border-0 shadow-sm h-100 p-3 stat-card bg-danger-subtle">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small">Low Stock Items</h6>
+            <h2 class="fw-bold text-danger mb-0">{{ lowStockCount }}</h2>
+          </div>
+          <div class="icon-box bg-white text-danger rounded-circle shadow-sm">
+            <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 
-  <div class="text-center mt-5">
-    <h4 class="text-muted">Welcome to your Inventory Management System 👋</h4>
+  <div class="row g-4">
+    
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white border-0 py-3 d-flex align-items-center">
+          <i class="bi bi-graph-down-arrow text-danger me-2"></i>
+          <h5 class="mb-0 fw-bold">Low Stock Alerts</h5>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+              <tr>
+                <th class="ps-4">Product Name</th>
+                <th>Current Qty</th>
+                <th>Status</th>
+                <th *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of lowStockProducts">
+                <td class="ps-4 fw-semibold text-dark">{{ item.name }}</td>
+                <td class="fw-bold text-danger">{{ item.quantity }} / {{ item.minQuantity }}</td>
+                <td>
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
+                    Critical
+                  </span>
+                </td>
+                
+                <td *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-4">
+                  <a [routerLink]="['/products/edit', item.id]" class="btn btn-sm btn-outline-dark rounded-pill">
+                    Edit
+                  </a>
+                </td>
+              </tr>
+              
+              <tr *ngIf="lowStockProducts.length === 0">
+                <td [attr.colspan]="authService.getUserRole() === 'Manager' ? 4 : 3" class="text-center py-4 text-muted">
+                  <i class="bi bi-check-circle-fill text-success fs-3 d-block mb-2"></i>
+                  No low stock items
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-0 py-3">
+          <h5 class="mb-0 fw-bold">Recent Additions</h5>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            <li *ngFor="let item of recentProducts" class="list-group-item d-flex justify-content-between align-items-center py-3 px-4 border-light">
+              <div class="d-flex align-items-center">
+                <div class="rounded-3 bg-light p-2 me-3 text-secondary">
+                  <i class="bi bi-box"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-bold text-dark">{{ item.name }}</h6>
+                  <small class="text-muted">{{ item.category }}</small>
+                </div>
+              </div>
+              <span class="fw-bold text-primary">${{ item.price }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

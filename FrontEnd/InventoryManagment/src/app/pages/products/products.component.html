@@ -1,70 +1,102 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>📦 Products List</h2>
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  
+  <div class="card-body p-4">
     
-    <div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+      
+      <div>
+        <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2">
+          <i class="bi bi-box-seam text-primary"></i> Products List
+        </h3>
+      </div>
 
-      <a routerLink="/products/create" class="btn btn-primary">
-        Add New Product ➕
-      </a>
+      <div class="d-flex gap-2 w-100 w-md-auto">
+        <div class="input-group shadow-sm" style="max-width: 300px;">
+          <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+          <input 
+            type="text" 
+            class="form-control border-start-0 ps-0" 
+            placeholder="Search products..." 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearch()">
+        </div>
+
+        <button *ngIf="authService.getUserRole() === 'Manager'" 
+                routerLink="/products/create" 
+                class="btn btn-primary shadow-sm d-flex align-items-center gap-2">
+          <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Add Product</span>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="products.length === 0" class="text-center py-5 text-muted">
+      <div class="spinner-border text-primary mb-3" role="status"></div>
+      <p>Loading products or list is empty...</p>
+    </div>
+
+    <div *ngIf="filteredProducts.length > 0" class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light text-secondary text-uppercase small">
+          <tr>
+            <th class="py-3 ps-3 border-0 rounded-start">Name</th>
+            <th class="border-0">Category</th>
+            <th class="border-0">Price</th>
+            <th class="border-0">Stock Status</th>
+            <th class="border-0">Min Qty</th>
+            
+            <th *ngIf="authService.getUserRole() === 'Manager'" class="border-0 text-end pe-3 rounded-end">Actions</th> 
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of filteredProducts">
+            
+            <td class="ps-3">
+              <div class="fw-bold text-dark">{{ item.name }}</div>
+              <small class="text-muted d-block text-truncate" style="max-width: 200px;">{{ item.description }}</small>
+            </td>
+
+            <td>
+              <span class="badge bg-light text-dark border fw-normal">{{ item.category }}</span>
+            </td>
+
+            <td class="fw-bold text-primary">{{ item.price | currency }}</td>
+            
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="fw-bold" [ngClass]="{'text-danger': item.quantity <= item.minQuantity, 'text-dark': item.quantity > item.minQuantity}">
+                  {{ item.quantity }}
+                </span>
+                <span *ngIf="item.quantity <= item.minQuantity" class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill" style="font-size: 0.7rem;">
+                  Low Stock
+                </span>
+              </div>
+            </td>
+
+            <td class="text-muted">{{ item.minQuantity }}</td> 
+
+            <td *ngIf="authService.getUserRole() === 'Manager'" class="text-end pe-3">
+              <div class="d-flex justify-content-end gap-2">
+                
+                <a [routerLink]="['/products/edit', item.id]" class="btn btn-sm btn-outline-primary rounded-pill" title="Edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </a>
+
+                <button (click)="onDelete(item.id)" class="btn btn-sm btn-outline-danger rounded-pill" title="Delete">
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="products.length > 0 && filteredProducts.length === 0" class="text-center py-5">
+      <i class="bi bi-search display-6 text-muted mb-3 d-block"></i>
+      <h5 class="text-muted">No products found for "{{ searchTerm }}"</h5>
+      <button class="btn btn-link text-decoration-none" (click)="searchTerm = ''; onSearch()">Clear Search</button>
     </div>
 
   </div>
-
-  <div class="mb-3">
-    <input 
-      type="text" 
-      class="form-control" 
-      placeholder="Search by name or category... 🔍" 
-      [(ngModel)]="searchTerm" 
-      (input)="onSearch()">
-  </div>
-
-  <div *ngIf="products.length === 0" class="alert alert-warning">
-    No products found, or data is loading...
-  </div>
-
-<table *ngIf="filteredProducts.length > 0" class="table table-striped table-bordered mt-3">
-    <thead class="table-dark">
-      <tr>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Quantity</th>
-        <th>Min Qty ⚠️</th> <th>Category</th>
-        <th>Description</th>
-        <th>Actions</th> 
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of filteredProducts">
-        <td>{{ item.name }}</td>
-        <td>{{ item.price | currency }}</td>
-        
-        <td [class.text-danger]="item.quantity <= item.minQuantity" [class.fw-bold]="item.quantity <= item.minQuantity">
-          {{ item.quantity }}
-        </td>
-
-        <td>{{ item.minQuantity }}</td> 
-
-        <td>{{ item.category }}</td>
-        <td>{{ item.description }}</td>
-        
-        <td>
-          <a [routerLink]="['/products/edit', item.id]" class="btn btn-primary btn-sm me-2">
-            Edit ✏️
-          </a>
-
-          <button (click)="onDelete(item.id)" class="btn btn-danger btn-sm">
-            Delete 🗑️
-          </button>
-        </td>
-
-      </tr>
-    </tbody>
-  </table>
-
-  <div *ngIf="products.length > 0 && filteredProducts.length === 0" class="alert alert-info mt-3">
-    No results found matching "{{ searchTerm }}" 🤷‍♂️
-  </div>
-
 </div>
