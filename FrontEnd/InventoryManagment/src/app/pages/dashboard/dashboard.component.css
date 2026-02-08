@@ -1,0 +1,30 @@
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 16px;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.table thead th {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.card {
+    border-radius: 16px;
+    overflow: hidden;
+}

@@ -1,31 +1,32 @@
-<nav *ngIf="router.url !== '/login'" class="navbar navbar-expand navbar-dark bg-primary shadow-sm mb-4">  <div class="container">
+<nav *ngIf="router.url !== '/login'" class="navbar navbar-expand navbar-dark bg-primary shadow-sm mb-4">
+  <div class="container-fluid px-4">
     
-    <a class="navbar-brand fw-bold fs-4" routerLink="/">
-      📦 Inventory System
+    <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" routerLink="/">
+      <i class="bi bi-box-seam-fill"></i> Inventory System
     </a>
 
     <div class="d-flex align-items-center gap-3">
       
-      <a routerLink="/" class="text-white text-decoration-none fw-semibold">
-        📊 Dashboard
+      <a routerLink="/" class="text-white text-decoration-none fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-speedometer2"></i> Dashboard
       </a>
 
-      <a routerLink="/products" class="text-white text-decoration-none fw-semibold">
-        📦 Products
+      <a routerLink="/products" class="text-white text-decoration-none fw-semibold d-flex align-items-center gap-2">
+        <i class="bi bi-box"></i> Products
       </a>
 
-      <a routerLink="/products/create" class="btn btn-light text-primary fw-bold btn-sm">
-        Add New ➕
+      <a routerLink="/products/create" class="btn btn-light text-primary fw-bold btn-sm d-flex align-items-center gap-2 shadow-sm">
+        <i class="bi bi-plus-lg"></i> Add New
       </a>
 
-      <button (click)="onLogout()" class="btn btn-danger btn-sm fw-bold">
-        Logout 🚪
+      <button (click)="onLogout()" class="btn btn-danger btn-sm fw-bold d-flex align-items-center gap-2 shadow-sm">
+        <i class="bi bi-box-arrow-right"></i> Logout
       </button>
 
     </div>
   </div>
 </nav>
 
-<div class="container">
+<div class="container-fluid px-4">
   <router-outlet></router-outlet>
 </div>

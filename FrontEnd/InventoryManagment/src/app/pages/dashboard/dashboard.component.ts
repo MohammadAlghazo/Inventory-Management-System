@@ -17,24 +17,25 @@ export class DashboardComponent implements OnInit {
   totalProducts: number = 0;
   totalValue: number = 0;
   lowStockCount: number = 0;
-
-  ngOnInit(): void {
-    this.loadStats();
+  
+  lowStockProducts: any[] = [];
+  recentProducts: any[] = [];
+  ngOnInit() {
+    this.loadDashboardData();
   }
 
-loadStats() {
+  loadDashboardData() {
     this.productService.getProducts().subscribe({
       next: (res: any) => {
-
         this.totalProducts = res.length;
-
         this.totalValue = res.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
-
-        this.lowStockCount = res.filter((item: any) => item.quantity <= item.minQuantity).length;
-      },
-      error: (err) => {
-        console.error("Error fetching data", err);
+        this.recentProducts = res.slice(-5).reverse();
       }
+    });
+
+    this.productService.getProducts().subscribe((res: any) => {
+       this.lowStockProducts = res.filter((p: any) => p.quantity <= p.minQuantity);
+       this.lowStockCount = this.lowStockProducts.length;
     });
   }
 }
