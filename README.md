@@ -1,12 +1,12 @@
 # 📦 Inventory Management System
 
-A professional **Inventory Management System** built with **Angular 17** and **.NET 8**. Designed to streamline product tracking, stock management, and user permissions for businesses.
+ This **Inventory Management System** built with **Angular 17** and **.NET 8**. Designed to provide a professional solution that helps businesses manage their inventory, track product movement, and manage user permissions.
 
-## 🚀 Key Features
-- **📊 Interactive Dashboard:** Real-time insights, stock value analysis, and low-stock alerts.
-- **📦 Product Management:** Easily Add, Edit, and Delete products with full details.
-- **🔐 Secure Authentication:** Role-based access (Manager vs Employee) using JWT & BCrypt.
-- **⚡ High Performance:** Built with the latest tech stack for speed and reliability.
+## Highlights
+- **📊 Interactive Dashboard:** Gain useful information about your products, including how much they're worth and alerting you when they reach a low quantity on your inventory list in real-time.
+- **📦 Product Management:** Quickly add, edit or delete products from your inventory along with complete item detail(s).
+- **🔐 Secure Authentication:** Control who has access to the system by assigning roles (Manager vs Employee) using JWT and BCrypt.
+- **⚡ High Performance:** Leverage an advanced technology stack that produces products at high speeds and reliably.
 
 ## 🛠️ Tech Stack
 - **Frontend:** Angular 17, Bootstrap 5
