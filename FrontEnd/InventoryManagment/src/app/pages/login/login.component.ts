@@ -27,7 +27,7 @@ onLogin() {
         
         localStorage.setItem('token', res); 
         
-        alert("Login Success! ✅");
+        
         this.router.navigate(['/']);
       },
       error: (err) => {
