@@ -10,7 +10,6 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink], 
   templateUrl: './product-form.component.html',
-  styleUrl: './product-form.component.css'
 })
 export class ProductFormComponent implements OnInit {
   

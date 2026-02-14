@@ -11,7 +11,6 @@ import Swal from 'sweetalert2';
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule], 
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css'
 })
 export class ProductsComponent implements OnInit {
   
