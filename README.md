@@ -1,45 +1,76 @@
-# 📦 Inventory Management System
+# 📦 Inventory Management System v2.0 (Professional Edition)
 
- This **Inventory Management System** built with **Angular 17** and **.NET 8**. Designed to provide a professional solution that helps businesses manage their inventory, track product movement, and manage user permissions.
+Welcome to the **Inventory Management System**, fully refactored and transformed from a primitive API to a $10,000 professional-grade full-stack application.
 
-## Highlights
-- **📊 Interactive Dashboard:** Gain useful information about your products, including how much they're worth and alerting you when they reach a low quantity on your inventory list in real-time.
-- **📦 Product Management:** Quickly add, edit or delete products from your inventory along with complete item detail(s).
-- **🔐 Secure Authentication:** Control who has access to the system by assigning roles (Manager vs Employee) using JWT and BCrypt.
-- **⚡ High Performance:** Leverage an advanced technology stack that produces products at high speeds and reliably.
+## 🌟 Key Features
 
-## 🛠️ Tech Stack
-- **Frontend:** Angular 17, Bootstrap 5
-- **Backend:** ASP.NET Core Web API (.NET 8)
-- **Database:** SQL Server
+### 🖥️ Frontend (React + Vite + TypeScript)
+- **Stunning UI/UX**: Built with a custom Design System, Glassmorphism, and smooth micro-animations.
+- **PWA Ready**: Installable Progressive Web App with offline caching support.
+- **Bilingual (i18n)**: Full support for English and Arabic (RTL).
+- **Theme Support**: Seamless Dark / Light mode toggling.
+- **State Management**: Optimized with `Zustand` and `TanStack React Query`.
+- **Advanced Reports**: Real-time charts using `Recharts` (Area, Bar, Donut).
+- **Excel Export**: Export product and inventory data to Excel (`.xlsx`) with one click.
+- **Dynamic Notifications**: Real-time low-stock alerts built directly into the header.
 
----
+### ⚙️ Backend (ASP.NET Core 8 Web API)
+- **Clean Architecture**: Strict separation of concerns using the Service Layer Pattern.
+- **Robust Security**: 
+  - JWT Authentication (Securely managed via configuration).
+  - Global Exception Handling Middleware.
+  - Rate Limiting (Protects login endpoints from brute-force attacks).
+- **Data Validation**: Comprehensive DTO validation using `FluentValidation`.
+- **Database**: Entity Framework Core with SQL Server. Implements Soft Deletion for data integrity.
+- **Performance**: Response Compression (Gzip) configured.
 
-## 📸 Project Screenshots
+## 🚀 Getting Started
 
-### 1. Dashboard Overview
-> Shows total products, total value, and critical low stock alerts.
-![Dashboard](./images/dashboard.png)
+### Prerequisites
+- .NET 8/9 SDK
+- Node.js (v18+)
+- SQL Server (LocalDB or full)
 
-### 2. Products Management
-> A complete list of products with search and stock status capabilities.
-![Products List](./images/products.png)
+### 1. Backend Setup
+1. Navigate to the backend folder:
+   ```powershell
+   cd "Inventory Management"
+   ```
+2. Run database migrations:
+   ```powershell
+   dotnet ef database update
+   ```
+3. Run the API:
+   ```powershell
+   dotnet run
+   ```
+   *The API will start on `https://localhost:7001` with Swagger available at `/swagger`.*
 
-### 3. Add New Product
-> Simple interface to add new items to the inventory.
-![Add Product](./images/add-product.png)
+### 2. Frontend Setup
+1. Navigate to the frontend folder:
+   ```powershell
+   cd inventory-frontend
+   ```
+2. Install dependencies:
+   ```powershell
+   npm install
+   ```
+3. Run the development server:
+   ```powershell
+   npm run dev
+   ```
+   *The app will start on `http://localhost:5173`.*
 
-### 4. Login Screen
-> Secure entry point for Managers and Employees.
-![Login](./images/login.png)
+### 🔑 Default Credentials
+- **Username**: `Admin`
+- **Password**: `Admin@123`
+- **Role**: `Manager`
 
----
+## 🧪 Testing
+The solution includes a dedicated xUnit test project (`Inventory_Management.Tests`) with unit tests covering core services using Moq and FluentAssertions.
+```powershell
+dotnet test
+```
 
-## ⚙️ How to Run
-1. **Backend:** Update `appsettings.json` with your SQL connection string and run the .NET API.
-2. **Frontend:** Navigate to the frontend folder and run:
-   ```bash
-   ng serve -o
-
-## Enjoy: Access the system at http://localhost:4200
-## Developed by Mohammad Alghazo & Mohammad Frehat
+## 📄 License
+All rights reserved. Designed and developed by Mohammad Alghazo.

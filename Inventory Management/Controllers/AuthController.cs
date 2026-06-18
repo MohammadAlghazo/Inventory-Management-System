@@ -1,113 +1,68 @@
-﻿using Inventory_Management._DbContext;
 using Inventory_Management.Dtos.Auth_Dto;
-using Inventory_Management.Models;
+using Inventory_Management.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
-using System.Text;
 
 namespace Inventory_Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _dbContext;
-        public AuthController(AppDbContext dbContext)
+        private readonly IAuthService _authService;
+
+        public AuthController(IAuthService authService)
         {
-            _dbContext = dbContext;
+            _authService = authService;
         }
 
-        [HttpPost("Login")]
-        public IActionResult Login([FromBody] LoginDto loginDto)
+        /// <summary>Login and receive JWT + Refresh Token</summary>
+        [HttpPost("login")]
+        [EnableRateLimiting("LoginPolicy")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            try
-            {
-                var user = _dbContext.Users.FirstOrDefault(x => x.Username.ToUpper() == loginDto.Username.ToUpper());
-
-                if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword))
-                {
-                    return BadRequest("Invalid Username Or Password");
-                }
-
-                var token = GenerateJwtToken(user);
-                return Ok(token);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _authService.LoginAsync(dto);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("Register")]
-        public IActionResult Register([FromBody] RegisterDto registerDto)
+        /// <summary>Register a new user — Manager only</summary>
+        [HttpPost("register")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            try
-            {
-                if (registerDto == null)
-                    return BadRequest("Invalid data");
-
-                if (_dbContext.Users.Any(u => u.Username.ToLower() == registerDto.Username.ToLower()))
-                {
-                    return BadRequest(new { message = "Username is already taken" });
-                }
-
-                var role = registerDto.Roles?.FirstOrDefault() ?? "Employee";
-                var isAdmin = role.Equals("Manager", StringComparison.OrdinalIgnoreCase);
-
-                var newUser = new User
-                {
-                    Username = registerDto.Username,
-
-                    HashedPassword = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
-
-                    Role = role,
-                    IsAdmin = isAdmin
-                };
-
-                _dbContext.Users.Add(newUser);
-                _dbContext.SaveChanges();
-
-                return Ok(new { message = "User Registered Successfully!" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Error", error = ex.Message });
-            }
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _authService.RegisterAsync(dto, userId);
+            return StatusCode(result.StatusCode, result);
         }
 
-        private string GenerateJwtToken(User user)
+        /// <summary>Refresh JWT using a valid refresh token</summary>
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto dto)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username)
-            };
+            var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
+            return StatusCode(result.StatusCode, result);
+        }
 
-            if (user.IsAdmin)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "Manager"));
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.Role, user.Role ?? "Employee"));
-            }
+        /// <summary>Get currently authenticated user's profile</summary>
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _authService.GetCurrentUserAsync(userId);
+            return StatusCode(result.StatusCode, result);
+        }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("WHAFWEI#!@S!!112312WQEQW@RWQEQW432"));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var tokenSettings = new JwtSecurityToken(
-                claims: claims,
-                signingCredentials: creds,
-                expires: DateTime.Now.AddDays(1)
-            );
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.WriteToken(tokenSettings);
-
-            return token;
+        /// <summary>Change password for the authenticated user</summary>
+        [HttpPut("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _authService.ChangePasswordAsync(userId, dto);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

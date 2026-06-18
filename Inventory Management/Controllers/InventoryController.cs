@@ -1,119 +1,78 @@
-﻿using Inventory_Management._DbContext;
 using Inventory_Management.Dtos.Inventory_Dtos;
-using Inventory_Management.Models;
+using Inventory_Management.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Inventory_Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/inventory")]
     [ApiController]
     [Authorize]
     public class InventoryController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public InventoryController(AppDbContext context)
+        private readonly IInventoryService _inventoryService;
+
+        public InventoryController(IInventoryService inventoryService)
         {
-            _context = context;
+            _inventoryService = inventoryService;
         }
 
-        [HttpPost("AddItem")]
+        private int GetCurrentUserId() =>
+            int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        /// <summary>Get all inventory movement logs with optional filters</summary>
+        [HttpGet("logs")]
         [Authorize(Roles = "Manager,Employee")]
-        public IActionResult AddItem([FromBody] AddInventoryDto dto)
+        public async Task<IActionResult> GetAllLogs([FromQuery] InventoryLogQueryParams query)
         {
-            try {
-
-                var product = _context.Products.FirstOrDefault(p => p.Id == dto.ProductId);
-
-                if (product == null)
-                {
-                    return NotFound("Product Not Found");
-                }
-
-                product.Quantity += dto.QuantityToAdd;
-
-                _context.InventoryLogs.Add(new InventoryLog
-                {
-                    ProductId = product.Id,
-                    Action = "Add",
-                    QuantityChanged = dto.QuantityToAdd,
-                    ActionDate = DateTime.Now
-                });
-
-                _context.SaveChanges();
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _inventoryService.GetAllLogsAsync(query);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("SellProduct")]
+        /// <summary>Get inventory movement logs for a specific product</summary>
+        [HttpGet("logs/product/{productId:int}")]
         [Authorize(Roles = "Manager,Employee")]
-        public IActionResult SellProduct([FromBody] SellProductDto dto)
+        public async Task<IActionResult> GetLogsByProduct(int productId)
         {
-            try
-            {
-                var product = _context.Products.FirstOrDefault(p => p.Id == dto.ProductId);
-
-                if (product == null)
-                {
-                    return NotFound("Product Not Found");
-                }
-
-                if (product.Quantity < dto.QuantityToSell)
-                {
-                    return BadRequest("Not enough stock to sell");
-                }
-                product.Quantity -= dto.QuantityToSell;
-
-                _context.InventoryLogs.Add(new InventoryLog
-                {
-                    ProductId = product.Id,
-                    Action = "Sell",
-                    QuantityChanged = dto.QuantityToSell,
-                    ActionDate = DateTime.Now
-                });
-
-                _context.SaveChanges();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _inventoryService.GetLogsByProductAsync(productId);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("logs/{productId}")]
+        /// <summary>Add stock to a product</summary>
+        [HttpPost("add")]
         [Authorize(Roles = "Manager,Employee")]
-        public IActionResult GetLogs(int productId)
+        public async Task<IActionResult> AddItem([FromBody] AddInventoryDto dto)
         {
-            try
-            {
-                var logs = from log in _context.InventoryLogs
-                           join product in _context.Products
-                           on log.ProductId equals product.Id
-                           where log.ProductId == productId
-                           orderby log.ActionDate descending
-                           select new InventoryLogDto
-                           {
-                               Id = log.Id,
-                               ProductId = log.ProductId,
-                               ProductName = product.Name,
-                               Action = log.Action,
-                               QuantityChanged = log.QuantityChanged,
-                               ActionDate = log.ActionDate
-                           };
+            var result = await _inventoryService.AddItemAsync(dto, GetCurrentUserId());
+            return StatusCode(result.StatusCode, result);
+        }
 
-                return Ok(logs.ToList());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+        /// <summary>Sell / reduce stock for a product</summary>
+        [HttpPost("sell")]
+        [Authorize(Roles = "Manager,Employee")]
+        public async Task<IActionResult> Sell([FromBody] SellProductDto dto)
+        {
+            var result = await _inventoryService.SellProductAsync(dto, GetCurrentUserId());
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>Manually adjust a product's stock to a specific value — Manager only</summary>
+        [HttpPost("adjust")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Adjust([FromBody] AdjustStockDto dto)
+        {
+            var result = await _inventoryService.AdjustStockAsync(dto, GetCurrentUserId());
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>Return previously sold stock back to inventory</summary>
+        [HttpPost("return")]
+        [Authorize(Roles = "Manager,Employee")]
+        public async Task<IActionResult> Return([FromBody] ReturnProductDto dto)
+        {
+            var result = await _inventoryService.ReturnProductAsync(dto, GetCurrentUserId());
+            return StatusCode(result.StatusCode, result);
         }
     }
 }

@@ -1,0 +1,213 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* Animated background orbs */
+.login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.login-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: orb-float 8s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  top: -200px;
+  left: -150px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, var(--violet) 0%, transparent 70%);
+  bottom: -150px;
+  right: -100px;
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--info) 0%, transparent 70%);
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation-delay: -6s;
+  opacity: 0.08;
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  33% { transform: translateY(-30px) scale(1.05); }
+  66% { transform: translateY(20px) scale(0.95); }
+}
+
+/* Login Card */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  position: relative;
+  z-index: 1;
+  animation: slideUp 0.4s ease;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Logo */
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
+.login-logo-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, var(--accent), var(--violet));
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 8px 24px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.login-logo-name {
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-logo-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Header */
+.login-header {
+  margin-bottom: 28px;
+}
+
+.login-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  -webkit-text-fill-color: unset;
+  background: none;
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+[dir="rtl"] .input-icon {
+  left: auto;
+  right: 12px;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+[dir="rtl"] .input-icon-right {
+  right: auto;
+  left: 12px;
+}
+
+.input-icon-right:hover { color: var(--accent); }
+
+.form-input.with-icon {
+  padding-left: 38px;
+}
+
+[dir="rtl"] .form-input.with-icon {
+  padding-left: 14px;
+  padding-right: 38px;
+}
+
+.form-input.with-icon-right {
+  padding-right: 38px;
+}
+
+[dir="rtl"] .form-input.with-icon-right {
+  padding-right: 14px;
+  padding-left: 38px;
+}
+
+/* Footer */
+.login-footer {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 28px;
+}

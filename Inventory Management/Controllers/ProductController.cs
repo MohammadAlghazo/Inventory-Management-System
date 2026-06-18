@@ -1,176 +1,83 @@
-﻿using Inventory_Management._DbContext;
-using Inventory_Management.Dtos;
-using Inventory_Management.Models;
+using Inventory_Management.Dtos.Product_Dtos;
+using Inventory_Management.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inventory_Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/products")]
     [ApiController]
     [Authorize]
     public class ProductController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IProductService _productService;
 
-        public ProductController(AppDbContext context)
+        public ProductController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
-        [HttpGet("GetAllProduct")]
+        /// <summary>Get all products with pagination, search, filter, and sort</summary>
+        [HttpGet]
         [Authorize(Roles = "Manager,Employee")]
-        public IActionResult GetAllProduct()
+        public async Task<IActionResult> GetAll([FromQuery] ProductQueryParams query)
         {
-            try
-            {
-                var product = _context.Products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    Quantity = p.Quantity,
-                    MinQuantity = p.MinQuantity,
-                    Category = p.Category,
-                    Description = p.Description
-                }).ToList();
-
-                return Ok(product);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _productService.GetAllAsync(query);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("GetById/{id}")]
+        /// <summary>Get a single product by ID</summary>
+        [HttpGet("{id:int}")]
         [Authorize(Roles = "Manager,Employee")]
-        public IActionResult GetById(long id)
+        public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                if (id == 0) return BadRequest("Invalid Product Id");
-
-                var product = _context.Products.Select(p => new ProductDto
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Price = p.Price,
-                    Quantity = p.Quantity,
-                    MinQuantity = p.MinQuantity,
-                    Category = p.Category,
-                    Description = p.Description
-                }).FirstOrDefault(p => p.Id == id);
-
-                if (product == null) return NotFound("Product not found");
-
-                return Ok(product);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _productService.GetByIdAsync(id);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPost("Add")]
+        /// <summary>Get list of all unique categories</summary>
+        [HttpGet("categories")]
+        [Authorize(Roles = "Manager,Employee")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var result = await _productService.GetCategoriesAsync();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>Get products below minimum stock level</summary>
+        [HttpGet("low-stock")]
+        [Authorize(Roles = "Manager,Employee")]
+        public async Task<IActionResult> GetLowStock()
+        {
+            var result = await _productService.GetLowStockAsync();
+            return StatusCode(result.StatusCode, result);
+        }
+
+        /// <summary>Create a new product — Manager only</summary>
+        [HttpPost]
         [Authorize(Roles = "Manager")]
-        public IActionResult Add([FromBody] CreateProductDto productDto)
+        public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
-            try
-            {
-                var product = new Product()
-                {
-                    Id = 0,
-                    Name = productDto.Name,
-                    Price = productDto.Price,
-                    Quantity = productDto.Quantity,
-                    MinQuantity = productDto.minQuantity,
-                    Category = productDto.Category,
-                    Description = productDto.Description
-                };
-                _context.Products.Add(product);
-                _context.SaveChanges();
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _productService.CreateAsync(dto);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpPut("Update")]
-        [Authorize(Roles = "Manager,Employee")]
-        public IActionResult Update([FromBody] UpdateProductDto productDto)
-        {
-            try
-            {
-                var product = _context.Products.FirstOrDefault(x => x.Id == productDto.Id);
-
-                if (product == null) return NotFound("Product not found");
-
-                product.Name = productDto.Name;
-                product.Price = productDto.Price;
-                product.MinQuantity = productDto.MinQuantity;
-                product.Quantity = productDto.Quantity;
-
-                product.Category = productDto.Category;
-                product.Description = productDto.Description;
-
-                _context.SaveChanges();
-
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpDelete("Delete/{id}")]
+        /// <summary>Update an existing product — Manager only</summary>
+        [HttpPut("{id:int}")]
         [Authorize(Roles = "Manager")]
-        public IActionResult Delete(long id)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
-            try
-            {
-                var product = _context.Products.FirstOrDefault(x => x.Id == id);
-                if (product == null) return NotFound("Product not found");
-
-                _context.Products.Remove(product);
-                _context.SaveChanges();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _productService.UpdateAsync(id, dto);
+            return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("LowStockProducts")]
-        [Authorize(Roles = "Manager,Employee")]
-        public IActionResult LowStockProducts()
+        /// <summary>Soft-delete a product — Manager only</summary>
+        [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                var lowStockProducts = _context.Products
-                    .Where(p => p.Quantity <= p.MinQuantity)
-                    .Select(p => new ProductDto
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Price = p.Price,
-                        Quantity = p.Quantity,
-                        MinQuantity = p.MinQuantity,
-                        Category = p.Category,
-                        Description = p.Description
-                    })
-                    .ToList();
-                return Ok(lowStockProducts);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _productService.DeleteAsync(id);
+            return StatusCode(result.StatusCode, result);
         }
     }
 }
