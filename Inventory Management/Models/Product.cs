@@ -9,13 +9,12 @@ namespace Inventory_Management.Models
         public string? QRCode { get; set; }
 
         public decimal PurchasePrice { get; set; }
-        public decimal Price { get; set; } // Selling Price
-        public decimal Tax { get; set; } // Percentage or flat amount
+        public decimal Price { get; set; } 
+        public decimal Tax { get; set; } 
 
         public int Quantity { get; set; }
         public int MinQuantity { get; set; }
 
-        // Advanced Details
         public decimal? Weight { get; set; }
         public string? Color { get; set; }
         public string? Size { get; set; }
@@ -23,8 +22,7 @@ namespace Inventory_Management.Models
         
         public string Description { get; set; } = string.Empty;
         public string? ImageUrl { get; set; }
-        
-        // Expiry & Batch
+
         public DateTime? ExpiryDate { get; set; }
         public string? BatchNumber { get; set; }
 
@@ -32,7 +30,6 @@ namespace Inventory_Management.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Foreign Keys & Navigation
         public int? CategoryId { get; set; }
         public Category? Category { get; set; }
 
@@ -45,7 +42,6 @@ namespace Inventory_Management.Models
         public int? SupplierId { get; set; }
         public Supplier? Supplier { get; set; }
 
-        // Computed helpers
         public bool IsLowStock => Quantity <= MinQuantity;
         public decimal TotalValue => Price * Quantity;
 

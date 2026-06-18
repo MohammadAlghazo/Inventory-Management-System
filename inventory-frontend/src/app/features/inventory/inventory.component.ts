@@ -30,12 +30,10 @@ export class InventoryComponent implements OnInit {
 
   user: any;
 
-  // Action Modal
   actionModal: 'add' | 'sell' | 'adjust' | 'return' | null = null;
   isSubmitting = false;
   actionError = '';
-  
-  // Form state
+
   selectedProductId: number | '' = '';
   quantity: number = 1;
   notes: string = '';
@@ -96,7 +94,7 @@ export class InventoryComponent implements OnInit {
   }
 
   loadProducts() {
-    // Get all products for the dropdown (assuming page 1 with high pageSize or backend supports no pagination)
+    
     this.productService.getProducts(1, 1000).subscribe(res => {
       this.products = res.data?.items || [];
     });
@@ -201,7 +199,7 @@ export class InventoryComponent implements OnInit {
         this.isSubmitting = false;
         this.closeActionModal();
         this.loadLogs();
-        this.loadProducts(); // Update stock in dropdown
+        this.loadProducts(); 
       },
       error: (err) => {
         this.isSubmitting = false;

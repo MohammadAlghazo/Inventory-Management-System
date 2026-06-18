@@ -84,7 +84,6 @@ namespace Inventory_Management.Services
             if (user == null)
                 return ApiResponse<UserProfileDto>.NotFound("User not found");
 
-            // Check email uniqueness (excluding self)
             if (!string.IsNullOrWhiteSpace(dto.Email) &&
                 await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != id))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");

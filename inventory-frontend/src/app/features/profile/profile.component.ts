@@ -14,17 +14,14 @@ import { ProfileService } from '../../core/services/profile.service';
 export class ProfileComponent implements OnInit {
   readonly icons = { User, Mail, Lock, Eye, EyeOff, Save, CheckCircle, XCircle, ShieldCheck, Calendar, UserCircle2 };
 
-  // Profile data
   profile: any = null;
   isLoadingProfile = true;
 
-  // Info form
   infoForm = { firstName: '', lastName: '', email: '' };
   isSavingInfo = false;
   infoSuccess = '';
   infoError = '';
 
-  // Password form
   passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
   isSavingPassword = false;
   passwordSuccess = '';

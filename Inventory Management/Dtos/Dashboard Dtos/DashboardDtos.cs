@@ -13,7 +13,7 @@ namespace Inventory_Management.Dtos.Dashboard_Dtos
 
     public class ActivityChartDto
     {
-        public string Date { get; set; } = string.Empty;    // "YYYY-MM-DD"
+        public string Date { get; set; } = string.Empty;    
         public int AddCount { get; set; }
         public int SellCount { get; set; }
         public int AdjustCount { get; set; }

@@ -14,7 +14,7 @@ export class LayoutService {
   public width$  = this._widthSubject.asObservable();
 
   constructor() {
-    // Load from localStorage if present
+    
     const savedWidth = localStorage.getItem('sidebar-width');
     if (savedWidth) {
       const w = parseInt(savedWidth, 10);
@@ -48,7 +48,6 @@ export class LayoutService {
     this.setSidebarWidth(this.DEFAULT_WIDTH);
   }
 
-  // --- Legacy compat so old code doesn't break ---
   get isCollapsed() { return false; }
   toggleCollapse()  { this.toggleSidebar(); }
   setCollapse(v: boolean) { 

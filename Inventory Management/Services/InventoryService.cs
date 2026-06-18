@@ -40,7 +40,6 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            // Notification
             _db.Notifications.Add(new Notification
             {
                 Title = "Stock Added",
@@ -82,7 +81,6 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            // Notification
             _db.Notifications.Add(new Notification
             {
                 Title = "Stock Sold",
@@ -134,7 +132,6 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            // Notification
             _db.Notifications.Add(new Notification
             {
                 Title = "Stock Adjusted",
@@ -173,7 +170,6 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            // Notification
             _db.Notifications.Add(new Notification
             {
                 Title = "Stock Returned",

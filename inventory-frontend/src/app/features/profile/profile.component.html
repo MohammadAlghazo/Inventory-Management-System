@@ -1,6 +1,5 @@
 <div class="profile-page">
 
-  <!-- Loading skeleton -->
   <ng-container *ngIf="isLoadingProfile">
     <div class="profile-hero skeleton" style="height: 180px; border-radius: 20px;"></div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
@@ -11,7 +10,6 @@
 
   <ng-container *ngIf="!isLoadingProfile && profile">
 
-    <!-- Hero Card -->
     <div class="profile-hero card">
       <div class="profile-hero-bg"></div>
       <div class="profile-hero-content">
@@ -43,10 +41,8 @@
       </div>
     </div>
 
-    <!-- Two-column layout -->
     <div class="profile-grid">
 
-      <!-- Personal Info Card -->
       <div class="card profile-card">
         <div class="profile-card-header">
           <div class="profile-card-icon">
@@ -58,7 +54,6 @@
           </div>
         </div>
 
-        <!-- Success / Error alerts -->
         <div class="profile-alert success" *ngIf="infoSuccess">
           <lucide-icon [img]="icons.CheckCircle" [size]="16"></lucide-icon>
           {{ infoSuccess }}
@@ -104,7 +99,6 @@
         </form>
       </div>
 
-      <!-- Change Password Card -->
       <div class="card profile-card">
         <div class="profile-card-header">
           <div class="profile-card-icon danger">
@@ -116,7 +110,6 @@
           </div>
         </div>
 
-        <!-- Success / Error alerts -->
         <div class="profile-alert success" *ngIf="passwordSuccess">
           <lucide-icon [img]="icons.CheckCircle" [size]="16"></lucide-icon>
           {{ passwordSuccess }}
@@ -172,7 +165,6 @@
             </div>
           </div>
 
-          <!-- Password strength indicators -->
           <div class="password-rules" *ngIf="passwordForm.newPassword">
             <div class="rule" [class.ok]="passwordForm.newPassword.length >= 6">
               <lucide-icon [img]="passwordForm.newPassword.length >= 6 ? icons.CheckCircle : icons.XCircle" [size]="13"></lucide-icon>

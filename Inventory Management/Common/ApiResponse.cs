@@ -1,8 +1,6 @@
 namespace Inventory_Management.Common
 {
-    /// <summary>
-    /// Unified API response wrapper for all endpoints
-    /// </summary>
+
     public class ApiResponse<T>
     {
         public bool Success { get; set; }
@@ -33,9 +31,6 @@ namespace Inventory_Management.Common
             => new() { Success = false, Message = message, StatusCode = 500 };
     }
 
-    /// <summary>
-    /// Paginated result wrapper
-    /// </summary>
     public class PagedResult<T>
     {
         public List<T> Items { get; set; } = new();

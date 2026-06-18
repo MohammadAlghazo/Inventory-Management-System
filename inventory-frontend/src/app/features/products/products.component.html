@@ -1,12 +1,12 @@
 <div style="display: flex; flex-direction: column; gap: 20px;">
-  <!-- Header -->
+  
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
      <div>
       <h1 class="page-title">{{ 'PRODUCTS.TITLE' | translate }}</h1>
       <p class="page-subtitle">{{ 'PRODUCTS.ITEMS_COUNT' | translate:{count: totalCount} }}</p>
     </div>
     <div style="display: flex; gap: 12px; align-items: center;">
-      <!-- View mode toggle -->
+      
       <div class="view-toggle">
         <button class="view-btn" [ngClass]="{ active: viewMode === 'table' }" (click)="viewMode = 'table'" [title]="'PRODUCTS.LIST_VIEW' | translate">
           <lucide-icon [img]="icons.List" [size]="16"></lucide-icon>
@@ -21,10 +21,9 @@
     </div>
   </div>
 
-  <!-- Search & Filters & Exports -->
   <div class="card" style="padding: 12px 16px;">
     <div class="search-filter-row">
-      <!-- Search Box -->
+      
       <div class="search-wrapper" style="min-width: 220px; flex: 1; max-width: 320px;">
         <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
         <input
@@ -35,15 +34,13 @@
         />
       </div>
 
-      <!-- Filters + Export Buttons (all on same row) -->
       <div class="search-filter-controls">
-        <!-- Category Filter -->
+        
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedCategory" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'PRODUCTS.CATEGORY' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
           <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
         </select>
 
-        <!-- Stock Status Filter -->
         <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="selectedStockStatus" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
           <option value="in-stock">{{ 'PRODUCTS.IN_STOCK' | translate }}</option>
@@ -51,7 +48,6 @@
           <option value="out-of-stock">{{ 'PRODUCTS.OUT_OF_STOCK' | translate }}</option>
         </select>
 
-        <!-- Export Buttons -->
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredProducts().length === 0">
           Excel
         </button>
@@ -62,7 +58,6 @@
     </div>
   </div>
 
-  <!-- Table View -->
   <div class="card" style="padding: 0;" *ngIf="viewMode === 'table'">
     <div class="table-wrapper">
       <table id="products-table">
@@ -79,7 +74,7 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Loading state -->
+          
           <ng-container *ngIf="isLoading">
             <tr *ngFor="let dummy of [1,2,3,4,5]">
               <td *ngFor="let col of [1,2,3,4,5,6,7,8]">
@@ -88,7 +83,6 @@
             </tr>
           </ng-container>
 
-          <!-- Empty state -->
           <tr *ngIf="!isLoading && getFilteredProducts().length === 0">
             <td colspan="8">
               <div class="empty-state">
@@ -98,7 +92,6 @@
             </td>
           </tr>
 
-          <!-- Data rows -->
           <ng-container *ngIf="!isLoading && getFilteredProducts().length > 0">
             <tr *ngFor="let p of getFilteredProducts()">
               <td style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
@@ -151,7 +144,6 @@
       </table>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
@@ -178,14 +170,12 @@
     </div>
   </div>
 
-  <!-- Grid View -->
   <div class="products-grid" *ngIf="viewMode === 'grid'">
-    <!-- Loading state -->
+    
     <ng-container *ngIf="isLoading">
       <div *ngFor="let dummy of [1,2,3,4,5,6,7,8]" class="skeleton" style="height: 180px; border-radius: 12px;"></div>
     </ng-container>
 
-    <!-- Data cards -->
     <ng-container *ngIf="!isLoading">
       <div *ngFor="let p of getFilteredProducts()" class="product-card">
         <div class="product-card-header">
@@ -221,7 +211,6 @@
     </ng-container>
   </div>
 
-  <!-- Delete Confirm Modal -->
   <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
     <div class="custom-modal" style="max-width: 400px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
@@ -249,7 +238,6 @@
     </div>
   </div>
 
-  <!-- Product Modal -->
   <div class="custom-modal-overlay" *ngIf="showProductModal" (click)="showProductModal = false">
     <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">

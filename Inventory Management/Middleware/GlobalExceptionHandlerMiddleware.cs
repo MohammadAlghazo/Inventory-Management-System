@@ -4,10 +4,7 @@ using System.Text.Json;
 
 namespace Inventory_Management.Middleware
 {
-    /// <summary>
-    /// Global exception handler middleware — catches all unhandled exceptions 
-    /// and returns a consistent JSON error response
-    /// </summary>
+
     public class GlobalExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;

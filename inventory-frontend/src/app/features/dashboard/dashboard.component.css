@@ -4,14 +4,12 @@
   gap: 24px;
 }
 
-/* KPI Grid */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
-/* Charts Row */
 .dashboard-charts {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -33,14 +31,12 @@
   margin-bottom: 16px;
 }
 
-/* Bottom Row */
 .dashboard-bottom {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 20px;
 }
 
-/* Top Products */
 .top-products-list {
   display: flex;
   flex-direction: column;
@@ -110,7 +106,6 @@
   color: var(--text-muted);
 }
 
-/* Low Stock Card */
 .low-stock-card {
   background: linear-gradient(135deg, var(--bg-card), rgba(245, 158, 11, 0.04));
   border-color: rgba(245, 158, 11, 0.2);

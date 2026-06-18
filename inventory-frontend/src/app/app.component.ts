@@ -20,7 +20,7 @@ export class AppComponent {
     const savedLang = localStorage.getItem('lang') || 'en';
     const langToUse = savedLang.match(/en|ar/) ? savedLang : 'en';
     this.translate.use(langToUse);
-    // Explicitly set the dir on first load to prevent flash/blank RTL
+    
     document.documentElement.dir = langToUse === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = langToUse;
   }

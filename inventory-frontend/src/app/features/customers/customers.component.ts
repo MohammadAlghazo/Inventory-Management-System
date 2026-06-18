@@ -25,7 +25,6 @@ export class CustomersComponent implements OnInit {
   isLoading = true;
   error = '';
 
-  // Icons
   iconPlus = Plus;
   iconEdit = Edit2;
   iconTrash = Trash2;
@@ -33,7 +32,6 @@ export class CustomersComponent implements OnInit {
   iconChevronLeft = ChevronLeft;
   iconChevronRight = ChevronRight;
 
-  // Modal State
   showModal = false;
   editingCustomer: Customer | null = null;
   customerForm: Partial<Customer> = {

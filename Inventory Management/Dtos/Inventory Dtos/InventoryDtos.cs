@@ -12,7 +12,7 @@ namespace Inventory_Management.Dtos.Inventory_Dtos
         public int PreviousQuantity { get; set; }
         public int NewQuantity { get; set; }
         public string? Notes { get; set; }
-        public string? PerformedBy { get; set; }  // Username of who did it
+        public string? PerformedBy { get; set; }  
         public DateTime ActionDate { get; set; }
     }
 
@@ -33,7 +33,7 @@ namespace Inventory_Management.Dtos.Inventory_Dtos
     public class AdjustStockDto
     {
         public int ProductId { get; set; }
-        public int NewQuantity { get; set; }  // Absolute value, not delta
+        public int NewQuantity { get; set; }  
         public string? Notes { get; set; }
     }
 

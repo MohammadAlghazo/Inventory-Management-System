@@ -65,7 +65,6 @@
 
 .spinning { animation: spin 0.7s linear infinite; }
 
-/* Grid View */
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -169,4 +168,42 @@
 .product-card-actions .btn {
   flex: 1;
   justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .page-header {
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .page-header > div {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .page-header > div:last-child {
+    display: grid !important;
+    grid-template-columns: auto 1fr;
+    gap: 8px !important;
+  }
+
+  .page-header > div:last-child .btn {
+    width: 100%;
+    min-width: 0;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .view-toggle {
+    width: 100%;
+  }
+
+  .view-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
 }

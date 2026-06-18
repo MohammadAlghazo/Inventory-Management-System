@@ -50,7 +50,6 @@ namespace Inventory_Management.Services
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
-            // Fill missing days with zeros
             var result = new List<ActivityChartDto>();
             for (int i = 0; i < days; i++)
             {

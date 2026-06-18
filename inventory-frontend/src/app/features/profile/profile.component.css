@@ -4,7 +4,6 @@
   gap: 20px;
 }
 
-/* ── Hero ───────────────────────────────────────── */
 .profile-hero {
   position: relative;
   padding: 32px 36px;
@@ -107,7 +106,6 @@
   color: var(--success);
 }
 
-/* Role badges */
 .badge-manager {
   background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(124,58,237,0.08));
   color: #7c3aed;
@@ -125,7 +123,6 @@
   gap: 4px;
 }
 
-/* ── Grid ───────────────────────────────────────── */
 .profile-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -138,7 +135,6 @@
   .profile-meta { justify-content: center; }
 }
 
-/* ── Card ───────────────────────────────────────── */
 .profile-card {
   padding: 28px;
   display: flex;
@@ -184,7 +180,6 @@
   margin: 0;
 }
 
-/* ── Form ───────────────────────────────────────── */
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -239,7 +234,6 @@
 }
 .input-eye-btn:hover { color: var(--accent); }
 
-/* ── Password rules ─────────────────────────────── */
 .password-rules {
   display: flex;
   flex-direction: column;
@@ -261,7 +255,6 @@
 .rule.ok { color: var(--success); }
 .rule:not(.ok) lucide-icon { opacity: 0.4; }
 
-/* ── Footer ─────────────────────────────────────── */
 .profile-card-footer {
   margin-top: auto;
   padding-top: 16px;
@@ -270,7 +263,6 @@
   justify-content: flex-end;
 }
 
-/* ── Alerts ─────────────────────────────────────── */
 .profile-alert {
   display: flex;
   align-items: center;
@@ -299,7 +291,6 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Danger-soft button ─────────────────────────── */
 .btn-danger-soft {
   display: inline-flex;
   align-items: center;
@@ -320,7 +311,6 @@
 }
 .btn-danger-soft:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* RTL support */
 [dir="rtl"] .input-icon { left: unset; right: 12px; }
 [dir="rtl"] .form-input.with-icon { padding-left: 38px; padding-right: 36px; }
 [dir="rtl"] .input-eye-btn { right: unset; left: 10px; }

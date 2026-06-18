@@ -125,8 +125,7 @@ namespace Inventory_Management.Services
             };
 
             _db.Products.Add(product);
-            
-            // Add notification
+
             _db.Notifications.Add(new Notification
             {
                 Title = "Product Added",
@@ -138,7 +137,6 @@ namespace Inventory_Management.Services
 
             await _db.SaveChangesAsync();
 
-            // Load nav properties to return full DTO
             await _db.Entry(product).Reference(p => p.Category).LoadAsync();
             await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
             await _db.Entry(product).Reference(p => p.Brand).LoadAsync();
@@ -264,7 +262,6 @@ namespace Inventory_Management.Services
             return ApiResponse<DashboardStatsDto>.Ok(stats);
         }
 
-        // ── Mapping ─────────────────────────────────────────────────────
         private static ProductDto MapToDto(Product p) => new()
         {
             Id = p.Id,

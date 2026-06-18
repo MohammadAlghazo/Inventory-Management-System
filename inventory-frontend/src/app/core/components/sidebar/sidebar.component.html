@@ -1,20 +1,18 @@
 <aside class="sidebar" [class.hidden]="layoutService.isHidden"
        [style.width.px]="layoutService.sidebarWidth">
 
-  <!-- Logo -->
   <div class="sidebar-logo">
     <img src="assets/logo.jpg" class="sidebar-logo-img" alt="StockMaster Logo">
     <div class="sidebar-logo-text" style="flex: 1;">
       <span class="logo-name">StockMaster</span>
       <span class="logo-version">ERP</span>
     </div>
-    <!-- Close Button on Mobile -->
+    
     <button class="sidebar-close-btn" (click)="layoutService.toggleSidebar()" [title]="'COMMON.CANCEL' | translate" aria-label="Close sidebar">
       <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
     </button>
   </div>
 
-  <!-- Nav -->
   <nav class="sidebar-nav">
     <span class="sidebar-section-label">{{ 'SIDEBAR.NAVIGATION' | translate }}</span>
 
@@ -30,7 +28,6 @@
     </a>
   </nav>
 
-  <!-- User profile footer -->
   <div class="sidebar-footer">
     <div class="sidebar-user" routerLink="/profile" style="cursor: pointer;" title="My Profile">
       <div class="avatar" style="width: 34px; height: 34px; font-size: 13px;">
@@ -47,6 +44,5 @@
     </button>
   </div>
 
-  <!-- Resize handle on right edge -->
   <div class="sidebar-resize-handle" (mousedown)="onResizeStart($event)"></div>
 </aside>

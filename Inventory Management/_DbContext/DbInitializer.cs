@@ -9,10 +9,9 @@ namespace Inventory_Management._DbContext
     {
         public static void Seed(AppDbContext context)
         {
-            // Ensure database exists
+            
             context.Database.EnsureCreated();
 
-            // 1. Seed Employee if not exists
             if (!context.Users.Any(u => u.Username == "Employee"))
             {
                 context.Users.Add(new User
@@ -30,7 +29,6 @@ namespace Inventory_Management._DbContext
                 context.SaveChanges();
             }
 
-            // 2. Categories
             var categories = new List<Category>();
             if (!context.Categories.Any())
             {
@@ -50,7 +48,6 @@ namespace Inventory_Management._DbContext
                 categories = context.Categories.ToList();
             }
 
-            // 3. Brands
             var brands = new List<Brand>();
             if (!context.Brands.Any())
             {
@@ -70,7 +67,6 @@ namespace Inventory_Management._DbContext
                 brands = context.Brands.ToList();
             }
 
-            // 4. Units
             var units = new List<Unit>();
             if (!context.Units.Any())
             {
@@ -89,7 +85,6 @@ namespace Inventory_Management._DbContext
                 units = context.Units.ToList();
             }
 
-            // 5. Suppliers
             var suppliers = new List<Supplier>();
             if (!context.Suppliers.Any())
             {
@@ -109,7 +104,6 @@ namespace Inventory_Management._DbContext
                 suppliers = context.Suppliers.ToList();
             }
 
-            // 6. Customers
             var customers = new List<Customer>();
             if (!context.Customers.Any())
             {
@@ -129,25 +123,23 @@ namespace Inventory_Management._DbContext
                 customers = context.Customers.ToList();
             }
 
-            // 7. Products
             if (!context.Products.Any() && categories.Any() && brands.Any() && units.Any() && suppliers.Any())
             {
                 var p1 = new Product { Name = "iPhone 15 Pro", SKU = "APP-IP15P", Description = "Apple iPhone 15 Pro 256GB", PurchasePrice = 899.00m, Price = 1099.00m, Quantity = 45, MinQuantity = 10, CategoryId = categories[0].Id, BrandId = brands[0].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
-                var p2 = new Product { Name = "Samsung Galaxy S24", SKU = "SAM-S24", Description = "Samsung Galaxy S24 Ultra", PurchasePrice = 950.00m, Price = 1199.00m, Quantity = 3, MinQuantity = 5, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; // LOW STOCK
+                var p2 = new Product { Name = "Samsung Galaxy S24", SKU = "SAM-S24", Description = "Samsung Galaxy S24 Ultra", PurchasePrice = 950.00m, Price = 1199.00m, Quantity = 3, MinQuantity = 5, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; 
                 var p3 = new Product { Name = "Dell Latitude 5440", SKU = "DEL-LAT5440", Description = "Dell Latitude Laptop 16GB RAM", PurchasePrice = 700.00m, Price = 899.00m, Quantity = 12, MinQuantity = 3, CategoryId = categories[0].Id, BrandId = brands[2].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
                 var p4 = new Product { Name = "Office Standing Desk", SKU = "IKE-STDESK", Description = "Adjustable height standing desk", PurchasePrice = 180.00m, Price = 299.00m, Quantity = 15, MinQuantity = 5, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true };
-                var p5 = new Product { Name = "Ergonomic Office Chair", SKU = "IKE-ERGCHAIR", Description = "Mesh back ergonomic chair", PurchasePrice = 90.00m, Price = 150.00m, Quantity = 2, MinQuantity = 5, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true }; // LOW STOCK
+                var p5 = new Product { Name = "Ergonomic Office Chair", SKU = "IKE-ERGCHAIR", Description = "Mesh back ergonomic chair", PurchasePrice = 90.00m, Price = 150.00m, Quantity = 2, MinQuantity = 5, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true }; 
                 var p6 = new Product { Name = "Premium Arabica Coffee", SKU = "FOOD-COFFEE", Description = "1kg bag of roasted coffee beans", PurchasePrice = 12.00m, Price = 24.99m, Quantity = 120, MinQuantity = 20, CategoryId = categories[2 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[1 % units.Count].Id, SupplierId = suppliers[2 % suppliers.Count].Id, IsActive = true };
-                var p7 = new Product { Name = "Leather Jacket", SKU = "CLO-LTHJCKT", Description = "Genuine brown leather jacket", PurchasePrice = 60.00m, Price = 120.00m, Quantity = 0, MinQuantity = 5, CategoryId = categories[3 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[4 % suppliers.Count].Id, IsActive = true }; // OUT OF STOCK
+                var p7 = new Product { Name = "Leather Jacket", SKU = "CLO-LTHJCKT", Description = "Genuine brown leather jacket", PurchasePrice = 60.00m, Price = 120.00m, Quantity = 0, MinQuantity = 5, CategoryId = categories[3 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[4 % suppliers.Count].Id, IsActive = true }; 
                 var p8 = new Product { Name = "A4 Printer Paper", SKU = "OFF-PAPER", Description = "Ream of A4 printing paper 500 sheets", PurchasePrice = 3.00m, Price = 6.99m, Quantity = 250, MinQuantity = 50, CategoryId = categories[4 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[2 % units.Count].Id, SupplierId = suppliers[3 % suppliers.Count].Id, IsActive = true };
-                var p9 = new Product { Name = "Wireless Earbuds", SKU = "SAM-WIREAR", Description = "Samsung Galaxy Buds Pro", PurchasePrice = 80.00m, Price = 149.00m, Quantity = 4, MinQuantity = 10, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; // LOW STOCK
+                var p9 = new Product { Name = "Wireless Earbuds", SKU = "SAM-WIREAR", Description = "Samsung Galaxy Buds Pro", PurchasePrice = 80.00m, Price = 149.00m, Quantity = 4, MinQuantity = 10, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; 
                 var p10 = new Product { Name = "Wireless Mouse", SKU = "GEN-MOUSE", Description = "Ergonomic 2.4G wireless mouse", PurchasePrice = 8.00m, Price = 19.99m, Quantity = 80, MinQuantity = 15, CategoryId = categories[0].Id, BrandId = brands[4].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
 
                 var products = new List<Product> { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 };
                 context.Products.AddRange(products);
                 context.SaveChanges();
 
-                // 8. Inventory Logs (spanning past 7 days for charts)
                 var adminUser = context.Users.FirstOrDefault(u => u.Role == "Manager") ?? context.Users.First();
                 var staffUser = context.Users.FirstOrDefault(u => u.Role == "Employee") ?? context.Users.First();
                 var logs = new List<InventoryLog>

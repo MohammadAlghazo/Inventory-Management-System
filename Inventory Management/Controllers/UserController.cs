@@ -17,7 +17,6 @@ namespace Inventory_Management.Controllers
             _userService = userService;
         }
 
-        /// <summary>Get all users with optional search and pagination</summary>
         [HttpGet]
         public async Task<IActionResult> GetAll(
             [FromQuery] int page = 1,
@@ -28,7 +27,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get a specific user by ID</summary>
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -36,7 +34,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Update user profile (email, name, role)</summary>
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
         {
@@ -44,7 +41,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Toggle user active/inactive status</summary>
         [HttpPatch("{id:int}/toggle-status")]
         public async Task<IActionResult> ToggleStatus(int id)
         {
@@ -52,7 +48,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Delete a user permanently</summary>
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {

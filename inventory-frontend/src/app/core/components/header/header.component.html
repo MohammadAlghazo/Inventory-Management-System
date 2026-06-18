@@ -1,5 +1,5 @@
 <header class="header">
-  <!-- Left: hamburger + title -->
+  
   <div class="header-left">
     <button class="header-menu-btn" aria-label="Toggle sidebar" (click)="layoutService.toggleSidebar()">
       <lucide-icon [img]="icons.Menu" [size]="20"></lucide-icon>
@@ -7,27 +7,23 @@
     <h1 class="header-title">{{ pageTitle | translate }}</h1>
   </div>
 
-  <!-- Right: controls -->
   <div class="header-right">
-    <!-- Language switcher -->
+    
     <button class="header-icon-btn" [title]="'LANGUAGES.' + currentLang.toUpperCase() | translate" (click)="switchLang()">
       <lucide-icon [img]="icons.Globe" [size]="18"></lucide-icon>
       <span class="header-lang-label">{{ currentLang === 'en' ? 'AR' : 'EN' }}</span>
     </button>
 
-    <!-- Theme toggle -->
     <button class="header-icon-btn" [title]="isDarkMode ? ('COMMON.LIGHT_MODE' | translate) : ('COMMON.DARK_MODE' | translate)" (click)="toggleTheme()">
       <lucide-icon [img]="isDarkMode ? icons.Sun : icons.Moon" [size]="18"></lucide-icon>
     </button>
 
-    <!-- Notifications -->
     <div class="position-relative">
       <button class="header-icon-btn header-notif-btn" [title]="'COMMON.NOTIFICATIONS' | translate" (click)="toggleNotifications()">
         <lucide-icon [img]="icons.Bell" [size]="18"></lucide-icon>
         <span *ngIf="unreadNotificationsCount > 0" class="header-badge">{{ unreadNotificationsCount }}</span>
       </button>
 
-      <!-- Notifications Dropdown -->
       <div *ngIf="showNotifications" class="notif-dropdown shadow-lg">
         <div class="notif-header">
           <h6>{{ 'COMMON.NOTIFICATIONS' | translate }}</h6>
@@ -64,7 +60,6 @@
       </div>
     </div>
 
-    <!-- User avatar (clickable to profile) -->
     <div class="header-user" routerLink="/profile" style="cursor:pointer;" title="My Profile">
       <div class="avatar">
         {{ userName.charAt(0).toUpperCase() }}

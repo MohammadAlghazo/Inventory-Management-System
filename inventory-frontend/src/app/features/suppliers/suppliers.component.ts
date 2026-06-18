@@ -25,7 +25,6 @@ export class SuppliersComponent implements OnInit {
   isLoading = true;
   error = '';
 
-  // Icons
   iconPlus = Plus;
   iconEdit = Edit2;
   iconTrash = Trash2;
@@ -33,7 +32,6 @@ export class SuppliersComponent implements OnInit {
   iconChevronLeft = ChevronLeft;
   iconChevronRight = ChevronRight;
 
-  // Modal State
   showModal = false;
   editingSupplier: Supplier | null = null;
   supplierForm: Partial<Supplier> = {

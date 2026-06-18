@@ -1,5 +1,5 @@
 <div style="display: flex; flex-direction: column; gap: 20px;">
-  <!-- Header -->
+  
   <div class="page-header">
     <div>
       <h1 class="page-title">{{ 'SIDEBAR.USERS' | translate }}</h1>
@@ -11,10 +11,9 @@
     </button>
   </div>
 
-  <!-- Search & Filters & Exports -->
   <div class="card" style="padding: 12px 16px;">
     <div class="search-filter-row">
-      <!-- Search Box -->
+      
       <div class="search-wrapper" style="min-width: 220px; flex: 1; max-width: 320px;">
         <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
         <input 
@@ -25,23 +24,20 @@
         />
       </div>
 
-      <!-- Filters + Export Buttons (all on same row) -->
       <div class="search-filter-controls">
-        <!-- Role Filter -->
+        
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedRole" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'USERS.ROLE' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
           <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
           <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
         </select>
 
-        <!-- Status Filter -->
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
           <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
           <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
         </select>
 
-        <!-- Export Buttons -->
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredUsers().length === 0">
           Excel
         </button>
@@ -52,7 +48,6 @@
     </div>
   </div>
 
-  <!-- Data Table -->
   <div class="card" style="padding: 0;">
     <div class="table-wrapper">
       <table id="users-table">
@@ -68,13 +63,13 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Loading -->
+          
           <tr *ngIf="isLoading">
             <td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px;">
               {{ 'COMMON.LOADING' | translate }}
             </td>
           </tr>
-          <!-- Empty -->
+          
           <tr *ngIf="!isLoading && getFilteredUsers().length === 0">
             <td colspan="7">
               <div class="empty-state">
@@ -83,7 +78,7 @@
               </div>
             </td>
           </tr>
-          <!-- Rows -->
+          
           <ng-container *ngIf="!isLoading && getFilteredUsers().length > 0">
             <tr *ngFor="let u of getFilteredUsers()">
               <td style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
@@ -110,20 +105,20 @@
               <td style="font-size:12px;color:var(--text-secondary);">{{ u.createdAt | date:'mediumDate' }}</td>
               <td>
                 <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
-                  <!-- View Details -->
+                  
                   <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" title="View Details">
                     <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
                   </button>
-                  <!-- Edit Details -->
+                  
                   <button class="btn btn-sm btn-secondary user-action-btn" (click)="openEdit(u)" title="Edit Details">
                     <lucide-icon [img]="icons.Pencil" [size]="13"></lucide-icon>
                   </button>
-                  <!-- Toggle Status -->
+                  
                   <button class="btn btn-sm user-action-btn" [ngClass]="u.isActive ? 'btn-ghost' : 'btn-secondary'"
                     (click)="toggleStatus(u)" [title]="'USERS.TOGGLE_STATUS' | translate">
                     <lucide-icon [img]="u.isActive ? icons.UserX : icons.UserCheck" [size]="13"></lucide-icon>
                   </button>
-                  <!-- Delete -->
+                  
                   <button *ngIf="u.id.toString() !== currentUserId"
                     class="btn btn-danger btn-icon btn-sm user-action-btn"
                     (click)="confirmDelete(u)" [title]="'USERS.DELETE_USER' | translate">
@@ -137,7 +132,6 @@
       </table>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
@@ -164,7 +158,6 @@
     </div>
   </div>
 
-  <!-- ── View Details Modal ───────────────────────────────────── -->
   <div class="custom-modal-overlay" *ngIf="viewUser" (click)="closeView()">
     <div class="custom-modal view-modal" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
@@ -174,7 +167,7 @@
         </button>
       </div>
       <div class="custom-modal-body" style="padding-top:16px;">
-        <!-- Avatar + Name Hero -->
+        
         <div class="view-hero">
           <div class="avatar view-avatar">{{ viewUser.firstName?.charAt(0) || viewUser.username?.charAt(0) || 'U' }}</div>
           <div>
@@ -185,7 +178,7 @@
             </span>
           </div>
         </div>
-        <!-- Info grid -->
+        
         <div class="view-grid">
           <div class="view-field">
             <span class="view-field-label">{{ 'COMMON.EMAIL' | translate }}</span>
@@ -217,7 +210,6 @@
     </div>
   </div>
 
-  <!-- ── Edit User Modal ─────────────────────────────────────── -->
   <div class="custom-modal-overlay" *ngIf="editUser" (click)="closeEdit()">
     <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
@@ -273,7 +265,6 @@
     </div>
   </div>
 
-  <!-- ── Delete Confirm Modal ────────────────────────────────── -->
   <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
     <div class="custom-modal" style="max-width:400px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
@@ -295,7 +286,6 @@
     </div>
   </div>
 
-  <!-- ── Register Modal ──────────────────────────────────────── -->
   <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false">
     <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">

@@ -14,15 +14,9 @@ using Inventory_Management.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─────────────────────────────────────────────
-// 1. Controllers & API Explorer
-// ─────────────────────────────────────────────
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// ─────────────────────────────────────────────
-// 2. Swagger with JWT support
-// ─────────────────────────────────────────────
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -53,15 +47,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// ─────────────────────────────────────────────
-// 3. Database
-// ─────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext")));
 
-// ─────────────────────────────────────────────
-// 4. JWT Authentication (key from config — NOT hardcoded)
-// ─────────────────────────────────────────────
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"]
     ?? throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
 
@@ -82,9 +70,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// ─────────────────────────────────────────────
-// 5. CORS — only once, with allowed origins
-// ─────────────────────────────────────────────
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:5173" };
 
@@ -98,16 +83,12 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 
-    // Dev-only policy (Swagger/Postman)
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
     });
 });
 
-// ─────────────────────────────────────────────
-// 6. Rate Limiting — protect Login endpoint
-// ─────────────────────────────────────────────
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("LoginPolicy", opt =>
@@ -122,15 +103,9 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = 429;
 });
 
-// ─────────────────────────────────────────────
-// 7. Caching
-// ─────────────────────────────────────────────
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 
-// ─────────────────────────────────────────────
-// 8. Application Services (Dependency Injection)
-// ─────────────────────────────────────────────
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
@@ -140,16 +115,11 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 
-// FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
-// ─────────────────────────────────────────────
-// Build Pipeline
-// ─────────────────────────────────────────────
 var app = builder.Build();
 
-// Global Exception Handler — MUST be first in pipeline
 app.UseGlobalExceptionHandler();
 
 app.UseResponseCompression();
@@ -176,7 +146,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Seed Database
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

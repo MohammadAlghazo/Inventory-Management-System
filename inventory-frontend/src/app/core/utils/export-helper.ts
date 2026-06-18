@@ -3,9 +3,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
 export class ExportHelper {
-  /**
-   * Export an array of data objects to an Excel file.
-   */
+
   static toExcel(data: any[], filename: string) {
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -13,9 +11,6 @@ export class ExportHelper {
     XLSX.writeFile(wb, `${filename}.xlsx`);
   }
 
-  /**
-   * Export an HTML element (like a table) to a PDF file.
-   */
   static toPdf(elementId: string, filename: string): Promise<void> {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -23,7 +18,6 @@ export class ExportHelper {
       return Promise.reject(`Element with ID '${elementId}' not found.`);
     }
 
-    // Temporarily hide columns that shouldn't be in the PDF (e.g. Actions)
     const hiddenElements: HTMLElement[] = [];
     const actionHeaders = element.querySelectorAll('th');
     actionHeaders.forEach(th => {
@@ -42,21 +36,19 @@ export class ExportHelper {
       }
     });
 
-    // Temporarily apply inline styles if needed, or render the canvas as is
     return html2canvas(element, {
-      scale: 3, // Increased scale for crisper text
+      scale: 3, 
       useCORS: true,
       backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#ffffff'
     }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png', 1.0);
-      
-      // Calculate dimensions for A4 paper (210mm x 297mm)
+
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 190; // margin 10mm left/right
-      const pageHeight = 277; // margin 10mm top/bottom (297 - 20)
+      const imgWidth = 190; 
+      const pageHeight = 277; 
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-      let position = 10; // top margin
+      let position = 10; 
 
       pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
@@ -70,7 +62,7 @@ export class ExportHelper {
       
       pdf.save(`${filename}.pdf`);
     }).finally(() => {
-      // Restore hidden elements
+      
       hiddenElements.forEach(el => el.style.display = '');
     });
   }

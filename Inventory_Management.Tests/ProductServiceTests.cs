@@ -22,7 +22,7 @@ namespace Inventory_Management.Tests
         [Fact]
         public async Task CreateProductAsync_ShouldAddProductAndReturnSuccess()
         {
-            // Arrange
+            
             var context = await GetDbContext();
             var service = new ProductService(context);
             var dto = new CreateProductDto
@@ -34,10 +34,8 @@ namespace Inventory_Management.Tests
                 Category = "Test Category"
             };
 
-            // Act
             var response = await service.CreateAsync(dto);
 
-            // Assert
             response.Success.Should().BeTrue();
             response.Message.Should().Be("Product created successfully");
 
@@ -49,7 +47,7 @@ namespace Inventory_Management.Tests
         [Fact]
         public async Task GetProductByIdAsync_ShouldReturnProduct_WhenItExists()
         {
-            // Arrange
+            
             var context = await GetDbContext();
             var product = new Product { Name = "Existing", Category = "Cat", Price = 50, Quantity = 10 };
             context.Products.Add(product);
@@ -57,10 +55,8 @@ namespace Inventory_Management.Tests
 
             var service = new ProductService(context);
 
-            // Act
             var response = await service.GetByIdAsync(product.Id);
 
-            // Assert
             response.Success.Should().BeTrue();
             response.Data.Should().NotBeNull();
             response.Data!.Name.Should().Be("Existing");
@@ -69,7 +65,7 @@ namespace Inventory_Management.Tests
         [Fact]
         public async Task DeleteProductAsync_ShouldSoftDeleteProduct()
         {
-            // Arrange
+            
             var context = await GetDbContext();
             var product = new Product { Name = "ToDelete", Category = "Cat", Price = 50, Quantity = 10, IsActive = true };
             context.Products.Add(product);
@@ -77,10 +73,8 @@ namespace Inventory_Management.Tests
 
             var service = new ProductService(context);
 
-            // Act
             var response = await service.DeleteAsync(product.Id);
 
-            // Assert
             response.Success.Should().BeTrue();
             var productInDb = await context.Products.IgnoreQueryFilters().FirstAsync(p => p.Id == product.Id);
             productInDb.IsActive.Should().BeFalse();

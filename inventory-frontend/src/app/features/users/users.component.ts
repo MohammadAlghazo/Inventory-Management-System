@@ -34,16 +34,13 @@ export class UsersComponent implements OnInit {
   deleteConfirm: any = null;
   isDeleting = false;
 
-  // Registration Modal
   showRegisterModal = false;
   isRegistering = false;
   registerError = '';
   newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'Employee' };
 
-  // View Modal
   viewUser: any = null;
 
-  // Edit Modal
   editUser: any = null;
   editForm = { firstName: '', lastName: '', email: '', role: 'Employee' };
   isSavingEdit = false;

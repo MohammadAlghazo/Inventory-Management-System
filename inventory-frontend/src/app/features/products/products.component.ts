@@ -192,7 +192,6 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  // Product Modal
   showProductModal = false;
   isSavingProduct = false;
   editProduct: any = null;

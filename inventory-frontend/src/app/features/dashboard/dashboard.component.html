@@ -1,5 +1,5 @@
 <div class="dashboard">
-  <!-- KPI Grid -->
+  
   <div class="kpi-grid">
     <div class="kpi-card" *ngFor="let kpi of kpis"
          [routerLink]="kpi.route"
@@ -16,7 +16,6 @@
     </div>
   </div>
 
-  <!-- Charts Row -->
   <div class="dashboard-charts">
     <div class="card chart-card">
       <h3 class="chart-title">{{ 'DASHBOARD.ACTIVITY_OVERVIEW' | translate }}</h3>
@@ -46,7 +45,6 @@
     </div>
   </div>
 
-  <!-- Bottom Row -->
   <div class="dashboard-bottom">
     <div class="card">
       <h3 class="chart-title mb-4">{{ 'DASHBOARD.TOP_PRODUCTS' | translate }}</h3>

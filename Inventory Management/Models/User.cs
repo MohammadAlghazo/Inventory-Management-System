@@ -8,7 +8,7 @@ namespace Inventory_Management.Models
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string HashedPassword { get; set; } = string.Empty;
-        public string Role { get; set; } = "Employee"; // "Manager" | "Employee"
+        public string Role { get; set; } = "Employee"; 
         public bool IsAdmin => Role.Equals("Manager", StringComparison.OrdinalIgnoreCase);
         public bool IsActive { get; set; } = true;
         public string? ProfilePicture { get; set; }
@@ -17,7 +17,6 @@ namespace Inventory_Management.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation
         public ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
     }
 }

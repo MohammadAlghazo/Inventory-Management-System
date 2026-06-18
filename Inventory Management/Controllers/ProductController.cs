@@ -17,7 +17,6 @@ namespace Inventory_Management.Controllers
             _productService = productService;
         }
 
-        /// <summary>Get all products with pagination, search, filter, and sort</summary>
         [HttpGet]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetAll([FromQuery] ProductQueryParams query)
@@ -26,7 +25,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get a single product by ID</summary>
         [HttpGet("{id:int}")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetById(int id)
@@ -35,7 +33,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get list of all unique categories</summary>
         [HttpGet("categories")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetCategories()
@@ -44,7 +41,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get products below minimum stock level</summary>
         [HttpGet("low-stock")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetLowStock()
@@ -53,7 +49,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Create a new product — Manager only</summary>
         [HttpPost]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
@@ -62,7 +57,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Update an existing product — Manager only</summary>
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
@@ -71,7 +65,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Soft-delete a product — Manager only</summary>
         [HttpDelete("{id:int}")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete(int id)

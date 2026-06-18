@@ -7,7 +7,7 @@ namespace Inventory_Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // All supplier endpoints require authentication
+    [Authorize] 
     public class SuppliersController : ControllerBase
     {
         private readonly ISupplierService _supplierService;
@@ -46,7 +46,7 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Manager")] // Only managers can delete
+        [Authorize(Roles = "Manager")] 
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _supplierService.DeleteSupplierAsync(id);

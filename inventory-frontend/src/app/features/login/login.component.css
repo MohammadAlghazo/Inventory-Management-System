@@ -1,4 +1,4 @@
-/* Custom Fonts & Global Constants */
+
 .login-wrapper {
   font-family: 'Plus Jakarta Sans', sans-serif;
   overflow-x: hidden;
@@ -14,7 +14,6 @@
   font-family: 'Sora', sans-serif;
 }
 
-/* Header & Navigation */
 .logo-circle {
   width: 38px;
   height: 38px;
@@ -56,12 +55,11 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Hero Section */
 .hero-section {
   min-height: 100vh;
   padding-top: 140px;
   padding-bottom: 120px;
-  background: #0f0a15; /* Fallback */
+  background: #0f0a15; 
 }
 
 .sunset-overlay {
@@ -87,7 +85,6 @@
   opacity: 0.95;
 }
 
-/* Typography & Hero UI Elements */
 .hero-title {
   font-family: 'Sora', sans-serif;
   font-weight: 800;
@@ -113,7 +110,6 @@
   text-transform: uppercase;
 }
 
-/* Integrated Login Console (Glassmorphism) */
 .login-console {
   max-width: 650px;
   background: rgba(17, 14, 26, 0.4);
@@ -133,7 +129,6 @@
   letter-spacing: -0.01em;
 }
 
-/* Form Inputs (Custom Floating Labels for Dark Backdrop) */
 .custom-floating .form-control {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px dashed rgba(255, 255, 255, 0.2) !important;
@@ -170,7 +165,6 @@
   color: white;
 }
 
-/* White Solid Pill Button */
 .btn-solid-white {
   background: white;
   color: var(--dark-green) !important;
@@ -186,7 +180,6 @@
   box-shadow: 0 10px 20px rgba(247, 208, 112, 0.2);
 }
 
-/* Mouse Scroll down animation */
 .scroll-mouse {
   width: 24px;
   height: 36px;
@@ -212,7 +205,6 @@
   100% { transform: translate(-50%, 12px); opacity: 0; }
 }
 
-/* Cream Overview Section */
 .bg-cream {
   background-color: var(--cream);
 }
@@ -240,7 +232,6 @@
   text-transform: uppercase;
 }
 
-/* Module Cards (Wanderpine Style) */
 .module-card {
   border-radius: 24px !important;
   overflow: hidden;
@@ -267,7 +258,7 @@
   right: 0;
   height: 30px;
   background: #ffffff;
-  /* Curved wave SVG representation */
+  
   clip-path: ellipse(60% 80% at 50% 100%);
 }
 
@@ -276,7 +267,6 @@
 .bg-grad-yellow { background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%); }
 .bg-grad-teal { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); }
 
-/* Interactive Stats Banner */
 .banner-section {
   background-color: var(--dark-green);
 }
@@ -305,7 +295,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Steps Timeline */
 .steps-timeline {
   position: relative;
 }
@@ -352,12 +341,10 @@
   transform: scale(1.1);
 }
 
-/* Call to action */
 .cta-section {
   background: linear-gradient(to bottom, #d2593b 0%, #c14e30 100%);
 }
 
-/* Footer Section */
 .footer-section {
   background-color: #0f1c18;
 }

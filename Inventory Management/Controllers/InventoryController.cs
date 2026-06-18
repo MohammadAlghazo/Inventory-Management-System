@@ -21,7 +21,6 @@ namespace Inventory_Management.Controllers
         private int GetCurrentUserId() =>
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        /// <summary>Get all inventory movement logs with optional filters</summary>
         [HttpGet("logs")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetAllLogs([FromQuery] InventoryLogQueryParams query)
@@ -30,7 +29,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get inventory movement logs for a specific product</summary>
         [HttpGet("logs/product/{productId:int}")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> GetLogsByProduct(int productId)
@@ -39,7 +37,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Add stock to a product</summary>
         [HttpPost("add")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> AddItem([FromBody] AddInventoryDto dto)
@@ -48,7 +45,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Sell / reduce stock for a product</summary>
         [HttpPost("sell")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> Sell([FromBody] SellProductDto dto)
@@ -57,7 +53,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Manually adjust a product's stock to a specific value — Manager only</summary>
         [HttpPost("adjust")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Adjust([FromBody] AdjustStockDto dto)
@@ -66,7 +61,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Return previously sold stock back to inventory</summary>
         [HttpPost("return")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<IActionResult> Return([FromBody] ReturnProductDto dto)

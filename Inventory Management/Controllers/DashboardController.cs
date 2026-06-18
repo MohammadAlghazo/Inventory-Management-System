@@ -16,7 +16,6 @@ namespace Inventory_Management.Controllers
             _dashboardService = dashboardService;
         }
 
-        /// <summary>Get KPI stats: total products, low stock, inventory value, today's movements</summary>
         [HttpGet("stats")]
         public async Task<IActionResult> GetStats()
         {
@@ -24,7 +23,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get daily movement activity for the last N days (default 30)</summary>
         [HttpGet("activity-chart")]
         public async Task<IActionResult> GetActivityChart([FromQuery] int days = 30)
         {
@@ -35,7 +33,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get inventory value and product count broken down by category</summary>
         [HttpGet("category-breakdown")]
         public async Task<IActionResult> GetCategoryBreakdown()
         {
@@ -43,7 +40,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get the top N most active products (default 5)</summary>
         [HttpGet("top-products")]
         public async Task<IActionResult> GetTopProducts([FromQuery] int limit = 5)
         {

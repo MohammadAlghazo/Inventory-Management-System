@@ -1,7 +1,6 @@
 <div class="app-layout">
   <app-sidebar></app-sidebar>
-  
-  <!-- Mobile backdrop overlay -->
+
   <div class="sidebar-backdrop"
        *ngIf="!layoutService.isHidden"
        (click)="layoutService.toggleSidebar()">

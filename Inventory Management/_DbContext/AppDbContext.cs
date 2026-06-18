@@ -11,7 +11,6 @@ namespace Inventory_Management._DbContext
         {
             base.OnModelCreating(modelBuilder);
 
-            // ── User ──────────────────────────────────────────
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasIndex(u => u.Username).IsUnique();
@@ -22,7 +21,6 @@ namespace Inventory_Management._DbContext
                 entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(u => u.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                // Seed default admin — password: Admin@123
                 entity.HasData(new User
                 {
                     Id = 1,
@@ -38,7 +36,6 @@ namespace Inventory_Management._DbContext
                 });
             });
 
-            // ── Product ───────────────────────────────────────
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
@@ -49,21 +46,18 @@ namespace Inventory_Management._DbContext
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                // Ignore computed properties (not stored in DB)
                 entity.Ignore(p => p.IsLowStock);
                 entity.Ignore(p => p.TotalValue);
 
-                // Relationships
                 entity.HasOne(p => p.Category).WithMany(c => c.Products).HasForeignKey(p => p.CategoryId).OnDelete(DeleteBehavior.SetNull);
                 entity.HasOne(p => p.Brand).WithMany(b => b.Products).HasForeignKey(p => p.BrandId).OnDelete(DeleteBehavior.SetNull);
                 entity.HasOne(p => p.Unit).WithMany(u => u.Products).HasForeignKey(p => p.UnitId).OnDelete(DeleteBehavior.SetNull);
                 entity.HasOne(p => p.Supplier).WithMany(s => s.Products).HasForeignKey(p => p.SupplierId).OnDelete(DeleteBehavior.SetNull);
             });
 
-            // ── InventoryLog ──────────────────────────────────
             modelBuilder.Entity<InventoryLog>(entity =>
             {
-                entity.Property(l => l.Action).HasConversion<string>(); // Store enum as string
+                entity.Property(l => l.Action).HasConversion<string>(); 
 
                 entity.HasOne(l => l.Product)
                       .WithMany(p => p.InventoryLogs)
@@ -80,7 +74,6 @@ namespace Inventory_Management._DbContext
                 entity.HasOne(l => l.Branch).WithMany().HasForeignKey(l => l.BranchId).OnDelete(DeleteBehavior.SetNull);
             });
 
-            // ── Category ──────────────────────────────────────
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasOne(c => c.ParentCategory)
@@ -90,7 +83,6 @@ namespace Inventory_Management._DbContext
             });
         }
 
-        // ── Tables ────────────────────────────────────────────
         public DbSet<Product> Products { get; set; }
         public DbSet<InventoryLog> InventoryLogs { get; set; }
         public DbSet<User> Users { get; set; }

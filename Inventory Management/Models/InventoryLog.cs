@@ -19,7 +19,6 @@ namespace Inventory_Management.Models
         public string? Notes { get; set; }
         public DateTime ActionDate { get; set; } = DateTime.UtcNow;
 
-        // Foreign Keys
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
 
@@ -32,7 +31,7 @@ namespace Inventory_Management.Models
         public int? BranchId { get; set; }
         public Branch? Branch { get; set; }
 
-        public int? TargetWarehouseId { get; set; } // For transfers
+        public int? TargetWarehouseId { get; set; } 
         public Warehouse? TargetWarehouse { get; set; }
     }
 }

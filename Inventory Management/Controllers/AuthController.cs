@@ -18,7 +18,6 @@ namespace Inventory_Management.Controllers
             _authService = authService;
         }
 
-        /// <summary>Login and receive JWT + Refresh Token</summary>
         [HttpPost("login")]
         [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -27,7 +26,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Register a new user — Manager only</summary>
         [HttpPost("register")]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -37,7 +35,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Refresh JWT using a valid refresh token</summary>
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto dto)
         {
@@ -45,7 +42,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Get currently authenticated user's profile</summary>
         [HttpGet("me")]
         [Authorize]
         public async Task<IActionResult> GetCurrentUser()
@@ -55,7 +51,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Change password for the authenticated user</summary>
         [HttpPut("change-password")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
@@ -65,7 +60,6 @@ namespace Inventory_Management.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        /// <summary>Update profile for the authenticated user (email, name)</summary>
         [HttpPut("update-profile")]
         [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)

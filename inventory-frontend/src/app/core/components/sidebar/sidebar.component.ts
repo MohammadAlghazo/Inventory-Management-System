@@ -19,7 +19,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
   readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X };
   user: any = null;
 
-  // Resize state
   private isResizing = false;
   private startX = 0;
   private startWidth = 0;
@@ -61,7 +60,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  /* ── Resize handle ───────────────────────────────── */
   onResizeStart(event: MouseEvent) {
     this.isResizing = true;
     this.startX = event.clientX;

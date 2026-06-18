@@ -14,7 +14,7 @@
   </div>
 
   <div class="tab-content" style="padding: 24px;">
-    <!-- CATEGORIES -->
+    
     <div *ngIf="activeTab === 'categories'">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2>{{ 'SETTINGS.CATEGORIES' | translate }}</h2>
@@ -43,7 +43,6 @@
       </div>
     </div>
 
-    <!-- BRANDS -->
     <div *ngIf="activeTab === 'brands'">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2>{{ 'SETTINGS.BRANDS' | translate }}</h2>
@@ -72,7 +71,6 @@
       </div>
     </div>
 
-    <!-- UNITS -->
     <div *ngIf="activeTab === 'units'">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2>{{ 'SETTINGS.UNITS' | translate }}</h2>
@@ -101,7 +99,6 @@
       </div>
     </div>
 
-    <!-- WAREHOUSES -->
     <div *ngIf="activeTab === 'warehouses'">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h2>{{ 'SETTINGS.WAREHOUSES' | translate }}</h2>
@@ -142,7 +139,6 @@
   </div>
 </div>
 
-<!-- Modal -->
 <div class="custom-modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="custom-modal" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
@@ -151,8 +147,7 @@
       </h3>
     </div>
     <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
-      
-      <!-- Category/Brand fields -->
+
       <ng-container *ngIf="modalType === 'category' || modalType === 'brand'">
         <div class="form-group">
           <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
@@ -164,7 +159,6 @@
         </div>
       </ng-container>
 
-      <!-- Unit fields -->
       <ng-container *ngIf="modalType === 'unit'">
         <div class="form-group">
           <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
@@ -176,7 +170,6 @@
         </div>
       </ng-container>
 
-      <!-- Warehouse fields -->
       <ng-container *ngIf="modalType === 'warehouse'">
         <div class="form-group">
           <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>

@@ -54,7 +54,7 @@ namespace Inventory_Management.Services
 
         public async Task<ApiResponse<object>> RegisterAsync(RegisterDto dto, int requestingUserId)
         {
-            // Only managers can create new users
+            
             var requestingUser = await _db.Users.FindAsync(requestingUserId);
             if (requestingUser == null || !requestingUser.IsAdmin)
                 return ApiResponse<object>.Forbidden("Only managers can register new users");
@@ -84,7 +84,6 @@ namespace Inventory_Management.Services
 
             _db.Users.Add(newUser);
 
-            // Notification
             _db.Notifications.Add(new Notification
             {
                 Title = "User Registered",
@@ -153,7 +152,6 @@ namespace Inventory_Management.Services
             var user = await _db.Users.FindAsync(userId);
             if (user == null) return ApiResponse<UserProfileDto>.NotFound("User not found");
 
-            // Check email uniqueness (excluding self)
             if (!string.IsNullOrWhiteSpace(dto.Email) &&
                 await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != userId))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
@@ -168,7 +166,6 @@ namespace Inventory_Management.Services
             return ApiResponse<UserProfileDto>.Ok(MapToProfile(user), "Profile updated successfully");
         }
 
-        // ── Private helpers ─────────────────────────────────────────────
         private string GenerateJwtToken(User user)
         {
             var key = _config["JwtSettings:SecretKey"]

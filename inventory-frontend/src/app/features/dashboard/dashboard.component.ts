@@ -26,7 +26,6 @@ export class DashboardComponent implements OnInit {
   isLoadingStats = true;
   isLoadingActivity = true;
 
-  // Activity Chart
   activityChartData: ChartConfiguration['data'] = {
     datasets: [
       { data: [], label: 'Add', borderColor: '#d2593b', backgroundColor: 'rgba(210, 89, 59, 0.3)', fill: true, tension: 0.4 },
@@ -46,7 +45,6 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  // Category Pie Chart
   pieChartData: ChartConfiguration['data'] = {
     labels: [],
     datasets: [{

@@ -10,7 +10,6 @@ namespace Inventory_Management.Models
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Relationships
         public int? BranchId { get; set; }
         public Branch? Branch { get; set; }
 

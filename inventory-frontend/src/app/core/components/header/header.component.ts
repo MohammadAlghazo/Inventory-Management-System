@@ -51,7 +51,7 @@ export class HeaderComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updateTitle();
-      this.showNotifications = false; // close dropdown on navigation
+      this.showNotifications = false; 
     });
     this.updateTitle();
   }
@@ -99,10 +99,9 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  /** Navigate to the page most relevant to a notification */
   navigateFromNotification(item: Notification) {
     this.showNotifications = false;
-    // Mark as read when clicking
+    
     if (!item.isRead) {
       this.notificationService.markAsRead(item.id).subscribe({ next: () => this.loadNotifications() });
     }

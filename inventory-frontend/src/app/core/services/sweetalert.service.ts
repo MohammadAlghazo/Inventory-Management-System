@@ -13,7 +13,7 @@ export class SweetAlertService {
       title,
       text,
       icon: 'success',
-      confirmButtonColor: '#4338ca', // Primary color
+      confirmButtonColor: '#4338ca', 
       customClass: {
         confirmButton: 'btn btn-primary px-4 py-2 rounded-3'
       },

@@ -8,9 +8,6 @@ export class ExportExcelService {
 
   constructor() { }
 
-  /**
-   * Export an array of data objects to an Excel file.
-   */
   export(data: any[], filename: string) {
     const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
     const wb: XLSX.WorkBook = XLSX.utils.book_new();
