@@ -11,25 +11,54 @@
     </button>
   </div>
 
-  <!-- Search Bar -->
-  <div class="card" style="padding: 14px 20px;">
-    <div class="search-wrapper">
-      <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
-      <input
-        class="search-input"
-        [placeholder]="'COMMON.SEARCH' | translate"
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearch()"
-      />
+  <!-- Search & Filters & Exports -->
+  <div class="card search-filter-row">
+    <!-- Left: Export buttons -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredUsers().length === 0" style="display: flex; align-items: center; gap: 6px;">
+        Excel
+      </button>
+      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredUsers().length === 0" style="display: flex; align-items: center; gap: 6px;">
+        PDF
+      </button>
+    </div>
+
+    <!-- Right: Search & Select Filters -->
+    <div class="search-filter-controls">
+      <!-- Universal Search Box -->
+      <div class="search-wrapper" style="min-width: 240px;">
+        <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
+        <input 
+          class="search-input" 
+          [placeholder]="'COMMON.SEARCH' | translate"
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onFilterChange()" 
+        />
+      </div>
+
+      <!-- Role Filter -->
+      <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedRole" (ngModelChange)="onFilterChange()">
+        <option value="">{{ 'USERS.ROLE' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+        <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
+        <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
+      </select>
+
+      <!-- Status Filter -->
+      <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
+        <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+        <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
+        <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
+      </select>
     </div>
   </div>
 
   <!-- Data Table -->
   <div class="card" style="padding: 0;">
     <div class="table-wrapper">
-      <table>
+      <table id="users-table">
         <thead>
           <tr>
+            <th>{{ 'COMMON.ID' | translate }}</th>
             <th>{{ 'USERS.USERNAME' | translate }}</th>
             <th>{{ 'COMMON.EMAIL' | translate }}</th>
             <th>{{ 'USERS.ROLE' | translate }}</th>
@@ -39,66 +68,65 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Loading state -->
+          <!-- Loading -->
           <tr *ngIf="isLoading">
-            <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
+            <td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px;">
+              {{ 'COMMON.LOADING' | translate }}
+            </td>
           </tr>
-
-          <!-- Empty state -->
-          <tr *ngIf="!isLoading && users.length === 0">
-            <td colspan="6">
+          <!-- Empty -->
+          <tr *ngIf="!isLoading && getFilteredUsers().length === 0">
+            <td colspan="7">
               <div class="empty-state">
                 <lucide-icon [img]="icons.Users" [size]="40"></lucide-icon>
                 <p>{{ 'USERS.NO_USERS' | translate }}</p>
               </div>
             </td>
           </tr>
-
-          <!-- Data rows -->
-          <ng-container *ngIf="!isLoading && users.length > 0">
-            <tr *ngFor="let u of users">
+          <!-- Rows -->
+          <ng-container *ngIf="!isLoading && getFilteredUsers().length > 0">
+            <tr *ngFor="let u of getFilteredUsers()">
+              <td style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
               <td>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div class="avatar">
-                    {{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}
-                  </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar">{{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}</div>
                   <div>
                     <div class="font-bold">{{ u.username }}</div>
-                    <div class="text-xs text-muted">
-                      {{ u.firstName }} {{ u.lastName }}
-                    </div>
+                    <div class="text-xs text-muted">{{ u.firstName }} {{ u.lastName }}</div>
                   </div>
                 </div>
               </td>
               <td>{{ u.email || '—' }}</td>
               <td>
                 <span class="badge" [ngClass]="u.role === 'Manager' ? 'badge-accent' : 'badge-info'">
-                  {{ u.role }}
+                  {{ (u.role === 'Manager' ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
                 </span>
               </td>
               <td>
                 <span class="badge" [ngClass]="u.isActive ? 'badge-success' : 'badge-danger'">
-                  {{ u.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                  {{ (u.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
                 </span>
               </td>
-              <td style="font-size: 12px; color: var(--text-secondary);">
-                {{ u.createdAt | date:'mediumDate' }}
-              </td>
+              <td style="font-size:12px;color:var(--text-secondary);">{{ u.createdAt | date:'mediumDate' }}</td>
               <td>
-                <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                  <button
-                    class="btn btn-sm" [ngClass]="u.isActive ? 'btn-ghost' : 'btn-secondary'"
-                    (click)="toggleStatus(u)"
-                    [title]="'USERS.TOGGLE_STATUS' | translate"
-                  >
+                <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
+                  <!-- View Details -->
+                  <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" title="View Details">
+                    <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
+                  </button>
+                  <!-- Edit Details -->
+                  <button class="btn btn-sm btn-secondary user-action-btn" (click)="openEdit(u)" title="Edit Details">
+                    <lucide-icon [img]="icons.Pencil" [size]="13"></lucide-icon>
+                  </button>
+                  <!-- Toggle Status -->
+                  <button class="btn btn-sm user-action-btn" [ngClass]="u.isActive ? 'btn-ghost' : 'btn-secondary'"
+                    (click)="toggleStatus(u)" [title]="'USERS.TOGGLE_STATUS' | translate">
                     <lucide-icon [img]="u.isActive ? icons.UserX : icons.UserCheck" [size]="13"></lucide-icon>
                   </button>
-                  <button
-                    *ngIf="u.id.toString() !== currentUserId"
-                    class="btn btn-danger btn-icon btn-sm"
-                    (click)="confirmDelete(u)"
-                    [title]="'USERS.DELETE_USER' | translate"
-                  >
+                  <!-- Delete -->
+                  <button *ngIf="u.id.toString() !== currentUserId"
+                    class="btn btn-danger btn-icon btn-sm user-action-btn"
+                    (click)="confirmDelete(u)" [title]="'USERS.DELETE_USER' | translate">
                     <lucide-icon [img]="icons.Trash2" [size]="13"></lucide-icon>
                   </button>
                 </div>
@@ -108,34 +136,157 @@
         </tbody>
       </table>
     </div>
-    
-    <div class="pagination" *ngIf="totalPages > 0">
-      <span class="pagination-info">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+        <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">‹</button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">›</button>
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+          <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
+        </button>
+        <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
+          {{ pg }}
+        </button>
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+          <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Delete Modal -->
-  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
-    <div class="custom-modal" style="max-width: 400px;" (click)="$event.stopPropagation()">
+  <!-- ── View Details Modal ───────────────────────────────────── -->
+  <div class="custom-modal-overlay" *ngIf="viewUser" (click)="closeView()">
+    <div class="custom-modal view-modal" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
-        <h3 class="custom-modal-title" style="color: var(--danger);">{{ 'USERS.DELETE_USER' | translate }}</h3>
+        <h3 class="custom-modal-title">User Details</h3>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="closeView()">
+          <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
+        </button>
       </div>
-      <div class="custom-modal-body" style="padding-top: 16px;">
-        <p style="color: var(--text-secondary); font-size: 14px;">
+      <div class="custom-modal-body" style="padding-top:16px;">
+        <!-- Avatar + Name Hero -->
+        <div class="view-hero">
+          <div class="avatar view-avatar">{{ viewUser.firstName?.charAt(0) || viewUser.username?.charAt(0) || 'U' }}</div>
+          <div>
+            <div style="font-size:18px;font-weight:700;">{{ viewUser.firstName }} {{ viewUser.lastName }}</div>
+            <div style="font-size:13px;color:var(--text-muted);">&#64;{{ viewUser.username }}</div>
+            <span class="badge" style="margin-top:6px;" [ngClass]="viewUser.role === 'Manager' ? 'badge-accent' : 'badge-info'">
+              {{ (viewUser.role === 'Manager' ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
+            </span>
+          </div>
+        </div>
+        <!-- Info grid -->
+        <div class="view-grid">
+          <div class="view-field">
+            <span class="view-field-label">{{ 'COMMON.EMAIL' | translate }}</span>
+            <span class="view-field-value">{{ viewUser.email || '—' }}</span>
+          </div>
+          <div class="view-field">
+            <span class="view-field-label">{{ 'COMMON.STATUS' | translate }}</span>
+            <span class="badge" [ngClass]="viewUser.isActive ? 'badge-success' : 'badge-danger'">
+              {{ (viewUser.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+            </span>
+          </div>
+          <div class="view-field">
+            <span class="view-field-label">{{ 'USERS.JOINED' | translate }}</span>
+            <span class="view-field-value">{{ viewUser.createdAt | date:'longDate' }}</span>
+          </div>
+          <div class="view-field">
+            <span class="view-field-label">{{ 'USERS.ROLE' | translate }}</span>
+            <span class="view-field-value">{{ viewUser.role }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn btn-ghost" (click)="closeView()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-secondary" (click)="closeView(); openEdit(viewUser)">
+          <lucide-icon [img]="icons.Pencil" [size]="14"></lucide-icon>
+          {{ 'COMMON.EDIT' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit User Modal ─────────────────────────────────────── -->
+  <div class="custom-modal-overlay" *ngIf="editUser" (click)="closeEdit()">
+    <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">
+          <lucide-icon [img]="icons.Pencil" [size]="18" style="color:var(--accent);margin-right:8px;"></lucide-icon>
+          {{ 'COMMON.EDIT' | translate }}: {{ editUser.username }}
+        </h3>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="closeEdit()">
+          <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
+        </button>
+      </div>
+      <div class="custom-modal-body" style="display:flex;flex-direction:column;gap:14px;padding-top:16px;">
+
+        <div class="badge badge-success" *ngIf="editSuccess" style="padding:10px;border-radius:8px;font-size:13px;">
+          {{ editSuccess }}
+        </div>
+        <div class="badge badge-danger" *ngIf="editError" style="padding:10px;border-radius:8px;font-size:13px;">
+          {{ editError }}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label">{{ 'USERS.FIRST_NAME' | translate }}</label>
+            <input class="form-input" [(ngModel)]="editForm.firstName" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'USERS.LAST_NAME' | translate }}</label>
+            <input class="form-input" [(ngModel)]="editForm.lastName" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.EMAIL' | translate }} *</label>
+          <input type="email" class="form-input" [(ngModel)]="editForm.email" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'USERS.ROLE' | translate }}</label>
+          <select class="form-select" [(ngModel)]="editForm.role">
+            <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
+            <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn btn-ghost" (click)="closeEdit()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-primary" (click)="saveEdit()" [disabled]="isSavingEdit">
+          <span class="spinner" *ngIf="isSavingEdit"></span>
+          <lucide-icon [img]="icons.Save" [size]="14" *ngIf="!isSavingEdit"></lucide-icon>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Confirm Modal ────────────────────────────────── -->
+  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
+    <div class="custom-modal" style="max-width:400px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title" style="color:var(--danger);">{{ 'USERS.DELETE_USER' | translate }}</h3>
+      </div>
+      <div class="custom-modal-body" style="padding-top:16px;">
+        <p style="color:var(--text-secondary);font-size:14px;">
           {{ 'USERS.DELETE_USER_MSG' | translate:{username: deleteConfirm.username} }}
         </p>
       </div>
       <div class="custom-modal-footer">
         <button class="btn btn-ghost" (click)="deleteConfirm = null">{{ 'COMMON.CANCEL' | translate }}</button>
-        <button
-          class="btn btn-danger"
-          (click)="deleteUser()"
-          [disabled]="isDeleting"
-        >
+        <button class="btn btn-danger" (click)="deleteUser()" [disabled]="isDeleting">
           <span class="spinner" *ngIf="isDeleting"></span>
           <lucide-icon [img]="icons.Trash2" [size]="14" *ngIf="!isDeleting"></lucide-icon>
           {{ 'COMMON.DELETE' | translate }}
@@ -144,19 +295,20 @@
     </div>
   </div>
 
-  <!-- Register Modal -->
+  <!-- ── Register Modal ──────────────────────────────────────── -->
   <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false">
-    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+    <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ 'USERS.REGISTER_NEW_USER' | translate }}</h3>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="showRegisterModal = false">
+          <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
+        </button>
       </div>
-      <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
-        
-        <div class="badge badge-danger" *ngIf="registerError" style="padding: 10px; border-radius: 8px; font-size: 13px;">
+      <div class="custom-modal-body" style="display:flex;flex-direction:column;gap:14px;padding-top:16px;">
+        <div class="badge badge-danger" *ngIf="registerError" style="padding:10px;border-radius:8px;font-size:13px;">
           {{ registerError }}
         </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
           <div class="form-group">
             <label class="form-label">{{ 'USERS.FIRST_NAME' | translate }}</label>
             <input class="form-input" [(ngModel)]="newUser.firstName" />
@@ -166,22 +318,18 @@
             <input class="form-input" [(ngModel)]="newUser.lastName" />
           </div>
         </div>
-        
         <div class="form-group">
           <label class="form-label">{{ 'USERS.USERNAME' | translate }} *</label>
           <input class="form-input" [(ngModel)]="newUser.username" />
         </div>
-        
         <div class="form-group">
           <label class="form-label">{{ 'COMMON.EMAIL' | translate }} *</label>
           <input type="email" class="form-input" [(ngModel)]="newUser.email" />
         </div>
-        
         <div class="form-group">
           <label class="form-label">{{ 'USERS.PASSWORD' | translate }} *</label>
           <input type="password" class="form-input" [(ngModel)]="newUser.password" />
         </div>
-        
         <div class="form-group">
           <label class="form-label">{{ 'USERS.ROLE' | translate }} *</label>
           <select class="form-select" [(ngModel)]="newUser.role">
@@ -191,10 +339,9 @@
         </div>
       </div>
       <div class="custom-modal-footer">
-        <button class="btn btn-ghost" (click)="showRegisterModal = false">
-          {{ 'COMMON.CANCEL' | translate }}
-        </button>
-        <button class="btn btn-primary" (click)="registerUser()" [disabled]="!newUser.username || !newUser.email || !newUser.password || isRegistering">
+        <button class="btn btn-ghost" (click)="showRegisterModal = false">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="btn btn-primary" (click)="registerUser()"
+          [disabled]="!newUser.username || !newUser.email || !newUser.password || isRegistering">
           <span class="spinner" *ngIf="isRegistering"></span>
           {{ 'USERS.REGISTER_USER' | translate }}
         </button>

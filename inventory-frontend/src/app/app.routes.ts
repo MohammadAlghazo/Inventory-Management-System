@@ -22,6 +22,10 @@ export const routes: Routes = [
       { path: 'users', component: UsersComponent },
       { path: 'settings', component: SettingsComponent },
       {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      {
         path: 'suppliers',
         loadComponent: () => import('./features/suppliers/suppliers.component').then(m => m.SuppliersComponent)
       },

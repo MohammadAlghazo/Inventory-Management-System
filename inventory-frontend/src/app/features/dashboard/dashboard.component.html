@@ -1,7 +1,10 @@
 <div class="dashboard">
   <!-- KPI Grid -->
   <div class="kpi-grid">
-    <div class="kpi-card" *ngFor="let kpi of kpis">
+    <div class="kpi-card" *ngFor="let kpi of kpis"
+         [routerLink]="kpi.route"
+         [style.cursor]="kpi.route ? 'pointer' : 'default'"
+         [title]="kpi.route ? 'View ' + (kpi.label | translate) : ''">
       <div class="kpi-icon" [style.background]="kpi.bg">
         <lucide-icon [img]="kpi.icon" [size]="22" [style.color]="kpi.color"></lucide-icon>
       </div>
@@ -80,8 +83,20 @@
         </span>
       </div>
       
-      <p style="font-size: 14px; color: var(--text-secondary);" *ngIf="statsObj.lowStockCount > 0">
-        {{ statsObj.lowStockCount }} {{ 'DASHBOARD.BELOW_MINIMUM' | translate }}
+      <div class="low-stock-list" *ngIf="statsObj.lowStockCount > 0 && lowStockProducts.length > 0">
+        <div class="low-stock-item" *ngFor="let p of lowStockProducts" [routerLink]="['/products']">
+          <div class="low-stock-info">
+            <span class="low-stock-name">{{ p.name }}</span>
+            <span class="low-stock-sku">{{ p.sku }}</span>
+          </div>
+          <div class="low-stock-stats">
+            <span class="low-stock-qty">{{ p.quantity }} / {{ p.minQuantity }}</span>
+            <span class="low-stock-unit">{{ p.unit }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <p class="low-stock-hint" *ngIf="statsObj.lowStockCount > 0">
         {{ 'DASHBOARD.CHECK_PRODUCTS' | translate }}
       </p>
     </div>

@@ -16,7 +16,7 @@
   transition: left 0.3s ease, right 0.3s ease;
 }
 
-[dir="rtl"] .header {
+:host-context([dir="rtl"]) .header {
   left: 0;
   right: var(--sidebar-width);
 }
@@ -28,7 +28,7 @@
 }
 
 .header-menu-btn {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
@@ -361,5 +361,10 @@
 [dir="rtl"] :host-context(.sidebar-collapsed) .header {
   left: 0;
   right: 72px;
+}
+
+:host-context(.sidebar-hidden) .header {
+  left: 0 !important;
+  right: 0 !important;
 }
 

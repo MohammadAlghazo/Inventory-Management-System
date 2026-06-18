@@ -1,4 +1,4 @@
-/* Sidebar Styles */
+/* ══ Sidebar ══════════════════════════════════════════════ */
 .sidebar {
   position: fixed;
   top: 0;
@@ -10,27 +10,26 @@
   display: flex;
   flex-direction: column;
   z-index: 200;
-  transition: width 0.3s ease, transform 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  will-change: transform;
 }
 
-[dir="rtl"] .sidebar {
+:host-context([dir="rtl"]) .sidebar {
   left: auto;
   right: 0;
   border-right: none;
   border-left: 1px solid var(--border);
 }
 
-.sidebar.collapsed {
-  width: 72px;
+/* Hidden = slide completely off-screen */
+.sidebar.hidden {
+  transform: translateX(-105%);
+  pointer-events: none;
 }
 
-.sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 199;
+:host-context([dir="rtl"]) .sidebar.hidden {
+  transform: translateX(105%);
 }
 
 /* Logo */
@@ -62,7 +61,6 @@
 .logo-name {
   font-size: 15px;
   font-weight: 800;
-  color: var(--text-primary);
   white-space: nowrap;
   background: linear-gradient(135deg, var(--text-primary), var(--accent));
   -webkit-background-clip: text;
@@ -76,36 +74,6 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-}
-
-/* Collapse Button */
-.sidebar-collapse-btn {
-  position: absolute;
-  top: 20px;
-  right: -12px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-  z-index: 10;
-}
-
-[dir="rtl"] .sidebar-collapse-btn {
-  right: auto;
-  left: -12px;
-}
-
-.sidebar-collapse-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-light);
 }
 
 /* Nav */
@@ -138,7 +106,7 @@
   color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
-  transition: var(--transition);
+  transition: background 0.18s ease, color 0.18s ease;
   white-space: nowrap;
   overflow: hidden;
   text-decoration: none;
@@ -187,6 +155,11 @@
   border-radius: var(--radius-md);
   background: var(--accent-light);
   overflow: hidden;
+  transition: background 0.18s ease;
+}
+
+.sidebar-user:hover {
+  background: var(--border-hover);
 }
 
 .sidebar-user-info {
@@ -224,7 +197,7 @@
   font-size: 14px;
   font-weight: 500;
   width: 100%;
-  transition: var(--transition);
+  transition: background 0.18s ease, color 0.18s ease;
   font-family: inherit;
   white-space: nowrap;
 }
@@ -234,22 +207,89 @@
   color: var(--danger);
 }
 
+/* ── Resize handle ───────────────────────────────────── */
+.sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 300;
+  background: transparent;
+  transition: background 0.18s ease;
+}
+
+.sidebar-resize-handle:hover {
+  background: rgba(210, 89, 59, 0.25);
+}
+
+:host-context([dir="rtl"]) .sidebar-resize-handle {
+  right: auto;
+  left: 0;
+  cursor: col-resize;
+}
+
+/* ── Mobile ──────────────────────────────────────────── */
+.sidebar-close-btn {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .sidebar {
-    transform: translateX(-100%);
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    height: 100dvh !important;
     width: var(--sidebar-width) !important;
     box-shadow: var(--shadow-lg);
+    transform: translateX(-100%);
+    z-index: 9999 !important; /* Ensure it is on top of everything on mobile */
   }
 
-  [dir="rtl"] .sidebar {
+  :host-context([dir="rtl"]) .sidebar {
     transform: translateX(100%);
   }
 
-  .sidebar.open {
-    transform: translateX(0);
+  .sidebar:not(.hidden) {
+    transform: translateX(0) !important;
   }
 
-  .sidebar-collapse-btn {
+  .sidebar.hidden {
+    transform: translateX(-100%) !important;
+  }
+
+  :host-context([dir="rtl"]) .sidebar.hidden {
+    transform: translateX(100%) !important;
+  }
+
+  .sidebar-resize-handle {
     display: none;
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-left: 8px;
+    transition: var(--transition);
+  }
+
+  :host-context([dir="rtl"]) .sidebar-close-btn {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
+  .sidebar-close-btn:hover {
+    background: var(--accent-light);
+    color: var(--accent);
   }
 }

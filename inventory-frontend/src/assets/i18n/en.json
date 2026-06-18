@@ -1,5 +1,6 @@
 {
   "COMMON": {
+    "ALL": "All",
     "WELCOME": "Welcome",
     "LOGOUT": "Logout",
     "SEARCH": "Search...",
@@ -35,6 +36,7 @@
     "CUSTOMERS": "Customers",
     "USERS": "Users",
     "SETTINGS": "Settings",
+    "PROFILE": "My Profile",
     "NAVIGATION": "NAVIGATION"
   },
   "LANGUAGES": {
@@ -52,6 +54,9 @@
     "BELOW_MINIMUM": "products are below minimum stock level.",
     "CHECK_PRODUCTS": "Please review their reorder levels.",
     "TOTAL_PRODUCTS": "Total Products",
+    "TOTAL_VALUE": "Total Value",
+    "LOW_STOCK": "Low Stock",
+    "ITEMS_OUT": "Today's Movements",
     "TOTAL_SUPPLIERS": "Total Suppliers",
     "TOTAL_CUSTOMERS": "Total Customers",
     "LOW_STOCK_ITEMS": "Low Stock Items",
@@ -222,5 +227,26 @@
     "COPYRIGHT": "© 2026 StockMaster. Engineered with excellence. All rights reserved.",
     "ERR_FILL_FIELDS": "Please enter both username and password",
     "ERR_INVALID_CREDS": "Invalid credentials or server error"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "Personal Information",
+    "PERSONAL_INFO_DESC": "Update your name and email address",
+    "USERNAME_CANNOT_CHANGE": "Username cannot be changed",
+    "SAVE_INFO": "Save Information",
+    "CHANGE_PASSWORD": "Change Password",
+    "CHANGE_PASSWORD_DESC": "Keep your account secure by changing your password",
+    "CURRENT_PASSWORD": "Current Password",
+    "NEW_PASSWORD": "New Password",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "RULE_MIN_6": "At least 6 characters",
+    "RULE_MATCH": "Passwords match",
+    "UPDATE_PASSWORD": "Update Password",
+    "ERR_REQUIRED_FIELDS": "Please fill in all required fields",
+    "INFO_SAVED": "Profile information updated successfully",
+    "ERR_GENERIC": "An error occurred, please try again",
+    "ERR_PASSWORDS_MISMATCH": "Passwords do not match",
+    "ERR_PASSWORD_TOO_SHORT": "Password must be at least 6 characters",
+    "PASSWORD_CHANGED": "Password changed successfully",
+    "ERR_WRONG_PASS": "Incorrect current password or change request failed"
   }
 }

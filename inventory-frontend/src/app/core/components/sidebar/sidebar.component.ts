@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { LucideAngularModule, LogOut, Boxes, ChevronLeft, ChevronRight, LayoutDashboard, Package, Truck, Users, Archive, Settings } from 'lucide-angular';
+import {
+  LucideAngularModule, LogOut, Boxes, ChevronLeft, ChevronRight,
+  LayoutDashboard, Package, Truck, Users, Archive, Settings, User, X
+} from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -12,40 +15,78 @@ import { LayoutService } from '../../services/layout.service';
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent implements OnInit {
-  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight };
+export class SidebarComponent implements OnInit, OnDestroy {
+  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X };
   user: any = null;
+
+  // Resize state
+  private isResizing = false;
+  private startX = 0;
+  private startWidth = 0;
 
   menuItems = [
     { label: 'SIDEBAR.DASHBOARD', route: '/dashboard', icon: LayoutDashboard },
-    { label: 'SIDEBAR.PRODUCTS', route: '/products', icon: Package },
-    { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers', icon: Truck },
-    { label: 'SIDEBAR.CUSTOMERS', route: '/customers', icon: Users },
-    { label: 'SIDEBAR.INVENTORY', route: '/inventory', icon: Archive },
-    { label: 'SIDEBAR.USERS', route: '/users', icon: Users },
-    { label: 'SIDEBAR.SETTINGS', route: '/settings', icon: Settings },
+    { label: 'SIDEBAR.PRODUCTS',  route: '/products',  icon: Package },
+    { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck },
+    { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users },
+    { label: 'SIDEBAR.INVENTORY', route: '/inventory',  icon: Archive },
+    { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users },
+    { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User },
+    { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings },
   ];
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    public layoutService: LayoutService
+    public layoutService: LayoutService,
+    private elRef: ElementRef
   ) {}
 
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
   }
 
-  get userName() { 
-    return this.user?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 'User'; 
+  ngOnDestroy() {}
+
+  get userName() {
+    return this.user?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 'User';
   }
 
-  get userRole() { 
-    return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Employee'; 
+  get userRole() {
+    return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Employee';
   }
 
   logout() {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  /* ── Resize handle ───────────────────────────────── */
+  onResizeStart(event: MouseEvent) {
+    this.isResizing = true;
+    this.startX = event.clientX;
+    this.startWidth = this.layoutService.sidebarWidth;
+    document.body.classList.add('is-resizing');
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+    event.preventDefault();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.isResizing) return;
+    const dir = document.documentElement.dir === 'rtl' ? -1 : 1;
+    const delta = (event.clientX - this.startX) * dir;
+    this.layoutService.setSidebarWidth(this.startWidth + delta);
+  }
+
+  @HostListener('document:mouseup')
+  onMouseUp() {
+    if (this.isResizing) {
+      this.isResizing = false;
+      document.body.classList.remove('is-resizing');
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+    }
   }
 }

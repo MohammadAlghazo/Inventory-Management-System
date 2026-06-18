@@ -124,3 +124,55 @@
 .text-center { text-align: center; }
 .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
 .text-secondary { color: var(--text-secondary); }
+
+/* Custom View Modal Styles */
+.view-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed var(--border);
+  margin-bottom: 20px;
+}
+
+.view-avatar {
+  width: 64px !important;
+  height: 64px !important;
+  font-size: 1.5rem !important;
+  background-color: var(--accent) !important;
+}
+
+.view-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.view-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.view-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.view-field-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.user-action-btn {
+  padding: 6px !important;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

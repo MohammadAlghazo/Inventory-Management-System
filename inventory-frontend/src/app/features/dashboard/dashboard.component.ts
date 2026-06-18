@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Package, AlertTriangle, Activity, Archive, DollarSign, TrendingUp, BarChart2, PieChart } from 'lucide-angular';
 import { DashboardService } from '../../core/services/dashboard.service';
+import { ProductService } from '../../core/services/product.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, LucideAngularModule, BaseChartDirective, TranslatePipe],
+  imports: [CommonModule, RouterLink, LucideAngularModule, BaseChartDirective, TranslatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
@@ -19,6 +21,7 @@ export class DashboardComponent implements OnInit {
   topProducts: any[] = [];
   categories: any[] = [];
   activity: any[] = [];
+  lowStockProducts: any[] = [];
   
   isLoadingStats = true;
   isLoadingActivity = true;
@@ -60,14 +63,17 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private productService: ProductService
+  ) {}
 
   get kpis() {
     return [
-      { label: 'DASHBOARD.TOTAL_PRODUCTS', value: (this.statsObj.totalProducts || 0).toLocaleString(), icon: this.icons.Package, color: '#d2593b', bg: 'rgba(210, 89, 59, 0.12)' },
-      { label: 'DASHBOARD.TOTAL_VALUE', value: '$' + (this.statsObj.totalInventoryValue || 0).toLocaleString(), icon: this.icons.DollarSign, color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-      { label: 'DASHBOARD.LOW_STOCK', value: (this.statsObj.lowStockCount || 0).toLocaleString(), icon: this.icons.AlertTriangle, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
-      { label: 'DASHBOARD.ITEMS_OUT', value: (this.statsObj.todaysMovements || 0).toLocaleString(), icon: this.icons.Activity, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' },
+      { label: 'DASHBOARD.TOTAL_PRODUCTS', value: (this.statsObj.totalProducts || 0).toLocaleString(),       icon: this.icons.Package,       color: '#d2593b', bg: 'rgba(210, 89, 59, 0.12)',  route: '/products'  },
+      { label: 'DASHBOARD.TOTAL_VALUE',    value: '$'+(this.statsObj.totalInventoryValue||0).toLocaleString(), icon: this.icons.DollarSign,    color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)', route: '/products'  },
+      { label: 'DASHBOARD.LOW_STOCK',      value: (this.statsObj.lowStockCount || 0).toLocaleString(),       icon: this.icons.AlertTriangle, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', route: '/products'  },
+      { label: 'DASHBOARD.ITEMS_OUT',      value: (this.statsObj.todaysMovements || 0).toLocaleString(),     icon: this.icons.Activity,      color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)',  route: '/inventory' },
     ];
   }
 
@@ -78,6 +84,13 @@ export class DashboardComponent implements OnInit {
         this.isLoadingStats = false;
       },
       error: () => this.isLoadingStats = false
+    });
+
+    this.productService.getLowStockProducts().subscribe({
+      next: (res) => {
+        this.lowStockProducts = res.data || [];
+      },
+      error: () => {}
     });
 
     this.dashboardService.getActivityChart(30).subscribe({

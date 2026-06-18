@@ -15,26 +15,48 @@
     {{ error }}
   </div>
 
-  <!-- Search Bar -->
-  <div class="card" style="padding: 14px 20px;">
-    <div class="search-wrapper">
-      <span class="search-icon"><lucide-icon [img]="iconSearch" [size]="16"></lucide-icon></span>
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        (ngModelChange)="filterCustomers()"
-        [placeholder]="'COMMON.SEARCH' | translate" 
-        class="search-input"
-      >
+  <!-- Search & Filters & Exports -->
+  <div class="card search-filter-row">
+    <!-- Left: Export buttons -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || filteredCustomers.length === 0" style="display: flex; align-items: center; gap: 6px;">
+        Excel
+      </button>
+      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || filteredCustomers.length === 0" style="display: flex; align-items: center; gap: 6px;">
+        PDF
+      </button>
+    </div>
+
+    <!-- Right: Search & Select Filters -->
+    <div class="search-filter-controls">
+      <!-- Universal Search Box -->
+      <div class="search-wrapper" style="min-width: 240px;">
+        <span class="search-icon"><lucide-icon [img]="iconSearch" [size]="16"></lucide-icon></span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="filterCustomers()"
+          [placeholder]="'COMMON.SEARCH' | translate" 
+          class="search-input"
+        >
+      </div>
+
+      <!-- Status Filter -->
+      <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="selectedStatus" (ngModelChange)="filterCustomers()">
+        <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+        <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
+        <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
+      </select>
     </div>
   </div>
 
   <!-- Data Table -->
   <div class="card" style="padding: 0;">
     <div class="table-wrapper">
-      <table>
+      <table id="customers-table">
         <thead>
           <tr>
+            <th>{{ 'COMMON.ID' | translate }}</th>
             <th>{{ 'COMMON.NAME' | translate }}</th>
             <th>{{ 'SUPPLIERS.CONTACT_INFO' | translate }}</th>
             <th>{{ 'COMMON.STATUS' | translate }}</th>
@@ -43,12 +65,13 @@
         </thead>
         <tbody>
           <tr *ngIf="isLoading">
-            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
+            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
           </tr>
-          <tr *ngIf="!isLoading && filteredCustomers.length === 0">
-            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'CUSTOMERS.NO_CUSTOMERS' | translate }}</td>
+          <tr *ngIf="!isLoading && pagedCustomers.length === 0">
+            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'CUSTOMERS.NO_CUSTOMERS' | translate }}</td>
           </tr>
-          <tr *ngFor="let customer of filteredCustomers">
+          <tr *ngFor="let customer of pagedCustomers">
+            <td style="font-weight: bold; color: var(--text-muted);">#{{ customer.id }}</td>
             <td class="font-bold">{{ customer.name }}</td>
             <td>
               <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -74,6 +97,32 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+        <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+          <lucide-icon [img]="iconChevronLeft" [size]="14"></lucide-icon>
+        </button>
+        <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
+          {{ pg }}
+        </button>
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+          <lucide-icon [img]="iconChevronRight" [size]="14"></lucide-icon>
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 {
   "COMMON": {
+    "ALL": "الكل",
     "WELCOME": "مرحباً",
     "LOGOUT": "تسجيل الخروج",
     "SEARCH": "بحث...",
@@ -35,6 +36,7 @@
     "CUSTOMERS": "العملاء",
     "USERS": "المستخدمين",
     "SETTINGS": "الإعدادات",
+    "PROFILE": "ملفي الشخصي",
     "NAVIGATION": "التنقل"
   },
   "LANGUAGES": {
@@ -52,6 +54,9 @@
     "BELOW_MINIMUM": "منتجات أقل من الحد الأدنى للمخزون.",
     "CHECK_PRODUCTS": "يرجى مراجعة مستويات إعادة الطلب الخاصة بهم.",
     "TOTAL_PRODUCTS": "إجمالي المنتجات",
+    "TOTAL_VALUE": "إجمالي القيمة",
+    "LOW_STOCK": "منخفض المخزون",
+    "ITEMS_OUT": "حركات اليوم",
     "TOTAL_SUPPLIERS": "إجمالي الموردين",
     "TOTAL_CUSTOMERS": "إجمالي العملاء",
     "LOW_STOCK_ITEMS": "عناصر منخفضة المخزون",
@@ -222,5 +227,26 @@
     "COPYRIGHT": "© 2026 StockMaster. مصنوع بتميز. جميع الحقوق محفوظة.",
     "ERR_FILL_FIELDS": "يرجى إدخال اسم المستخدم وكلمة المرور",
     "ERR_INVALID_CREDS": "بيانات الاعتماد غير صالحة أو خطأ في الخادم"
+  },
+  "PROFILE": {
+    "PERSONAL_INFO": "المعلومات الشخصية",
+    "PERSONAL_INFO_DESC": "تحديث الاسم وعنوان البريد الإلكتروني الخاص بك",
+    "USERNAME_CANNOT_CHANGE": "لا يمكن تغيير اسم المستخدم",
+    "SAVE_INFO": "حفظ المعلومات",
+    "CHANGE_PASSWORD": "تغيير كلمة المرور",
+    "CHANGE_PASSWORD_DESC": "حافظ على أمان حسابك عن طريق تغيير كلمة المرور الخاصة بك",
+    "CURRENT_PASSWORD": "كلمة المرور الحالية",
+    "NEW_PASSWORD": "كلمة المرور الجديدة",
+    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+    "RULE_MIN_6": "6 أحرف على الأقل",
+    "RULE_MATCH": "كلمات المرور متطابقة",
+    "UPDATE_PASSWORD": "تحديث كلمة المرور",
+    "ERR_REQUIRED_FIELDS": "يرجى ملء جميع الحقول المطلوبة",
+    "INFO_SAVED": "تم تحديث معلومات الملف الشخصي بنجاح",
+    "ERR_GENERIC": "حدث خطأ ما، يرجى المحاولة مرة أخرى",
+    "ERR_PASSWORDS_MISMATCH": "كلمات المرور غير متطابقة",
+    "ERR_PASSWORD_TOO_SHORT": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "PASSWORD_CHANGED": "تم تغيير كلمة المرور بنجاح",
+    "ERR_WRONG_PASS": "كلمة المرور الحالية غير صحيحة أو فشل طلب التغيير"
   }
 }

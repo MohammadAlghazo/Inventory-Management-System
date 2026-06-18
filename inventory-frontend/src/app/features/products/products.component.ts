@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { ExportHelper } from '../../core/utils/export-helper';
 
 @Component({
   selector: 'app-products',
@@ -22,6 +23,9 @@ export class ProductsComponent implements OnInit {
   totalPages = 1;
   page = 1;
   searchQuery = '';
+  selectedCategory = '';
+  selectedStockStatus = '';
+  pageSize = 15;
   isLoading = false;
   viewMode: 'table' | 'grid' = 'table';
 
@@ -58,7 +62,7 @@ export class ProductsComponent implements OnInit {
 
   loadProducts() {
     this.isLoading = true;
-    this.productService.getProducts(this.page, 15, this.searchQuery).subscribe({
+    this.productService.getProducts(this.page, this.pageSize, this.searchQuery).subscribe({
       next: (res) => {
         this.products = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
@@ -67,6 +71,60 @@ export class ProductsComponent implements OnInit {
       },
       error: () => this.isLoading = false
     });
+  }
+
+  getFilteredProducts() {
+    return this.products.filter(p => {
+      const q = this.searchQuery.trim().toLowerCase();
+      const matchesSearch = q ? (
+        String(p.id).includes(q) ||
+        p.name.toLowerCase().includes(q) ||
+        (p.sku && p.sku.toLowerCase().includes(q)) ||
+        (p.category && p.category.toLowerCase().includes(q))
+      ) : true;
+
+      const matchesCategory = this.selectedCategory ? String(p.categoryId) === this.selectedCategory : true;
+
+      let matchesStock = true;
+      if (this.selectedStockStatus === 'in-stock') {
+        matchesStock = p.quantity > p.minQuantity;
+      } else if (this.selectedStockStatus === 'low-stock') {
+        matchesStock = p.quantity <= p.minQuantity && p.quantity > 0;
+      } else if (this.selectedStockStatus === 'out-of-stock') {
+        matchesStock = p.quantity === 0;
+      }
+
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  }
+
+  onFilterChange() {
+    this.page = 1;
+    this.loadProducts();
+  }
+
+  onPageSizeChange() {
+    this.page = 1;
+    this.loadProducts();
+  }
+
+  exportToExcel() {
+    const dataToExport = this.getFilteredProducts().map(p => ({
+      'ID': p.id,
+      'Name': p.name,
+      'SKU': p.sku,
+      'Category': p.category,
+      'Price': p.price,
+      'Quantity': p.quantity,
+      'Min Quantity': p.minQuantity,
+      'Supplier': p.supplier || '—',
+      'Status': p.isActive ? 'Active' : 'Inactive'
+    }));
+    ExportHelper.toExcel(dataToExport, 'Products_Report');
+  }
+
+  exportToPdf() {
+    ExportHelper.toPdf('products-table', 'Products_Report');
   }
 
   onSearch() {

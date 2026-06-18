@@ -1,10 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus } from 'lucide-angular';
+import {
+  LucideAngularModule, Search, Users, Shield, User,
+  UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save,
+  ChevronLeft, ChevronRight
+} from 'lucide-angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ExportHelper } from '../../core/utils/export-helper';
 
 @Component({
   selector: 'app-users',
@@ -13,13 +18,16 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit {
-  readonly icons = { Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus };
+  readonly icons = { Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save, ChevronLeft, ChevronRight };
 
   users: any[] = [];
   totalCount = 0;
   totalPages = 1;
   page = 1;
+  pageSize = 15;
   searchQuery = '';
+  selectedRole = '';
+  selectedStatus = '';
   isLoading = false;
 
   deleteConfirm: any = null;
@@ -29,27 +37,29 @@ export class UsersComponent implements OnInit {
   showRegisterModal = false;
   isRegistering = false;
   registerError = '';
-  newUser = {
-    username: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    role: 'Employee'
-  };
+  newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'Employee' };
+
+  // View Modal
+  viewUser: any = null;
+
+  // Edit Modal
+  editUser: any = null;
+  editForm = { firstName: '', lastName: '', email: '', role: 'Employee' };
+  isSavingEdit = false;
+  editError = '';
+  editSuccess = '';
 
   currentUser: any;
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translate: TranslateService
   ) {
     this.currentUser = this.authService.getCurrentUser();
   }
 
-  ngOnInit() {
-    this.loadUsers();
-  }
+  ngOnInit() { this.loadUsers(); }
 
   get currentUserId() {
     return this.currentUser?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
@@ -57,7 +67,7 @@ export class UsersComponent implements OnInit {
 
   loadUsers() {
     this.isLoading = true;
-    this.userService.getUsers(this.page, 15, this.searchQuery).subscribe({
+    this.userService.getUsers(this.page, this.pageSize, this.searchQuery).subscribe({
       next: (res) => {
         this.users = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
@@ -68,44 +78,84 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  onSearch() {
+  getFilteredUsers() {
+    return this.users.filter(u => {
+      const q = this.searchQuery.trim().toLowerCase();
+      const matchesSearch = q ? (
+        String(u.id).includes(q) ||
+        u.username.toLowerCase().includes(q) ||
+        (u.email && u.email.toLowerCase().includes(q)) ||
+        `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(q)
+      ) : true;
+
+      const matchesRole = this.selectedRole ? u.role === this.selectedRole : true;
+
+      let matchesStatus = true;
+      if (this.selectedStatus === 'active') {
+        matchesStatus = u.isActive === true;
+      } else if (this.selectedStatus === 'inactive') {
+        matchesStatus = u.isActive === false;
+      }
+
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }
+
+  onFilterChange() {
     this.page = 1;
     this.loadUsers();
   }
 
-  prevPage() {
-    if (this.page > 1) {
-      this.page--;
-      this.loadUsers();
-    }
+  onPageSizeChange() {
+    this.page = 1;
+    this.loadUsers();
   }
 
-  nextPage() {
-    if (this.page < this.totalPages) {
-      this.page++;
-      this.loadUsers();
+  onSearch() { this.page = 1; this.loadUsers(); }
+  prevPage() { if (this.page > 1) { this.page--; this.loadUsers(); } }
+  nextPage() { if (this.page < this.totalPages) { this.page++; this.loadUsers(); } }
+
+  goToPage(pg: number) {
+    this.page = pg;
+    this.loadUsers();
+  }
+
+  getPagesArray() {
+    const pages = [];
+    const maxPages = Math.min(this.totalPages, 5);
+    for (let i = 1; i <= maxPages; i++) {
+      pages.push(i);
     }
+    return pages;
+  }
+
+  exportToExcel() {
+    const dataToExport = this.getFilteredUsers().map(u => ({
+      'ID': u.id,
+      'Username': u.username,
+      'Email': u.email,
+      'Full Name': `${u.firstName || ''} ${u.lastName || ''}`.trim() || '—',
+      'Role': u.role,
+      'Status': u.isActive ? 'Active' : 'Inactive'
+    }));
+    ExportHelper.toExcel(dataToExport, 'Users_Report');
+  }
+
+  exportToPdf() {
+    ExportHelper.toPdf('users-table', 'Users_Report');
   }
 
   toggleStatus(user: any) {
-    this.userService.toggleStatus(user.id).subscribe(() => {
-      this.loadUsers();
-    });
+    this.userService.toggleStatus(user.id).subscribe(() => this.loadUsers());
   }
 
-  confirmDelete(user: any) {
-    this.deleteConfirm = user;
-  }
+  confirmDelete(user: any) { this.deleteConfirm = user; }
 
   deleteUser() {
     if (!this.deleteConfirm) return;
     this.isDeleting = true;
     this.userService.deleteUser(this.deleteConfirm.id).subscribe({
-      next: () => {
-        this.isDeleting = false;
-        this.deleteConfirm = null;
-        this.loadUsers();
-      },
+      next: () => { this.isDeleting = false; this.deleteConfirm = null; this.loadUsers(); },
       error: () => this.isDeleting = false
     });
   }
@@ -120,14 +170,48 @@ export class UsersComponent implements OnInit {
     this.isRegistering = true;
     this.registerError = '';
     this.authService.register(this.newUser).subscribe({
-      next: () => {
-        this.isRegistering = false;
-        this.showRegisterModal = false;
-        this.loadUsers();
-      },
+      next: () => { this.isRegistering = false; this.showRegisterModal = false; this.loadUsers(); },
       error: (err) => {
         this.isRegistering = false;
-        this.registerError = err.error?.message || 'Failed to register user. Check validation rules.';
+        this.registerError = err.error?.message || 'Failed to register user.';
+      }
+    });
+  }
+
+  openView(user: any) { this.viewUser = user; }
+  closeView() { this.viewUser = null; }
+
+  openEdit(user: any) {
+    this.editUser = user;
+    this.editForm = {
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      role: user.role || 'Employee'
+    };
+    this.editError = '';
+    this.editSuccess = '';
+  }
+
+  closeEdit() { this.editUser = null; }
+
+  saveEdit() {
+    if (!this.editForm.email?.trim()) {
+      this.editError = this.translate.instant('PROFILE.ERR_REQUIRED_FIELDS');
+      return;
+    }
+    this.isSavingEdit = true;
+    this.editError = '';
+    this.userService.updateUser(this.editUser.id, this.editForm).subscribe({
+      next: () => {
+        this.isSavingEdit = false;
+        this.editSuccess = this.translate.instant('PROFILE.INFO_SAVED');
+        this.loadUsers();
+        setTimeout(() => this.closeEdit(), 1500);
+      },
+      error: (err) => {
+        this.isSavingEdit = false;
+        this.editError = err.error?.message || this.translate.instant('PROFILE.ERR_GENERIC');
       }
     });
   }

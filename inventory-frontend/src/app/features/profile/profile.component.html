@@ -21,11 +21,11 @@
         </div>
         <div class="profile-hero-info">
           <h1 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h1>
-          <p class="profile-username">@{{ profile.username }}</p>
+          <p class="profile-username">&#64;{{ profile.username }}</p>
           <div class="profile-meta">
             <span class="badge" [ngClass]="getRoleBadgeClass()">
               <lucide-icon [img]="icons.ShieldCheck" [size]="12"></lucide-icon>
-              {{ profile.isAdmin ? ('USERS.ROLE_MANAGER' | translate) : ('USERS.ROLE_EMPLOYEE' | translate) }}
+              {{ (profile.isAdmin ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
             </span>
             <span class="profile-meta-item">
               <lucide-icon [img]="icons.Mail" [size]="13"></lucide-icon>
@@ -36,7 +36,7 @@
               {{ 'USERS.JOINED' | translate }}: {{ profile.createdAt | date:'mediumDate' }}
             </span>
             <span class="profile-status" [class.active]="profile.isActive">
-              {{ profile.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+              {{ (profile.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
             </span>
           </div>
         </div>

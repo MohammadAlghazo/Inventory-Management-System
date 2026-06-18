@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Plus, Edit2, Trash2, Search } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { SupplierService, Supplier, ApiResponse } from '../../core/services/supplier.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ExportHelper } from '../../core/utils/export-helper';
 
 @Component({
   selector: 'app-suppliers',
@@ -14,7 +15,12 @@ import { TranslatePipe } from '@ngx-translate/core';
 export class SuppliersComponent implements OnInit {
   suppliers: Supplier[] = [];
   filteredSuppliers: Supplier[] = [];
-  searchTerm = '';
+  pagedSuppliers: Supplier[] = [];
+  searchQuery = '';
+  selectedStatus = '';
+  page = 1;
+  pageSize = 10;
+  totalPages = 1;
   isLoading = true;
   error = '';
 
@@ -23,6 +29,8 @@ export class SuppliersComponent implements OnInit {
   iconEdit = Edit2;
   iconTrash = Trash2;
   iconSearch = Search;
+  iconChevronLeft = ChevronLeft;
+  iconChevronRight = ChevronRight;
 
   // Modal State
   showModal = false;
@@ -58,16 +66,85 @@ export class SuppliersComponent implements OnInit {
   }
 
   filterSuppliers() {
-    if (!this.searchTerm) {
-      this.filteredSuppliers = this.suppliers;
-    } else {
-      const term = this.searchTerm.toLowerCase();
-      this.filteredSuppliers = this.suppliers.filter(s => 
-        s.name.toLowerCase().includes(term) ||
-        s.email?.toLowerCase().includes(term) ||
-        s.phone?.toLowerCase().includes(term)
-      );
+    const q = this.searchQuery.trim().toLowerCase();
+
+    this.filteredSuppliers = this.suppliers.filter(s => {
+      const matchesSearch = q ? (
+        String(s.id).includes(q) ||
+        s.name.toLowerCase().includes(q) ||
+        (s.email && s.email.toLowerCase().includes(q)) ||
+        (s.phone && s.phone.toLowerCase().includes(q)) ||
+        (s.taxNumber && s.taxNumber.toLowerCase().includes(q))
+      ) : true;
+
+      let matchesStatus = true;
+      if (this.selectedStatus === 'active') {
+        matchesStatus = s.isActive === true;
+      } else if (this.selectedStatus === 'inactive') {
+        matchesStatus = s.isActive === false;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+
+    this.totalPages = Math.ceil(this.filteredSuppliers.length / this.pageSize) || 1;
+    if (this.page > this.totalPages) this.page = this.totalPages;
+    if (this.page < 1) this.page = 1;
+    
+    this.pagedSuppliers = this.filteredSuppliers.slice(
+      (this.page - 1) * this.pageSize,
+      this.page * this.pageSize
+    );
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.filterSuppliers();
     }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.filterSuppliers();
+    }
+  }
+
+  goToPage(pg: number) {
+    this.page = pg;
+    this.filterSuppliers();
+  }
+
+  onPageSizeChange() {
+    this.page = 1;
+    this.filterSuppliers();
+  }
+
+  getPagesArray() {
+    const pages = [];
+    const maxPages = Math.min(this.totalPages, 5);
+    for (let i = 1; i <= maxPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  exportToExcel() {
+    const dataToExport = this.filteredSuppliers.map(s => ({
+      'ID': s.id,
+      'Name': s.name,
+      'Phone': s.phone || '—',
+      'Email': s.email || '—',
+      'Address': s.address || '—',
+      'Tax Number': s.taxNumber || '—',
+      'Status': s.isActive ? 'Active' : 'Inactive'
+    }));
+    ExportHelper.toExcel(dataToExport, 'Suppliers_Report');
+  }
+
+  exportToPdf() {
+    ExportHelper.toPdf('suppliers-table', 'Suppliers_Report');
   }
 
   openModal(supplier?: Supplier) {

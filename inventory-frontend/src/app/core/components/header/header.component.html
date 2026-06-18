@@ -1,7 +1,7 @@
 <header class="header">
   <!-- Left: hamburger + title -->
   <div class="header-left">
-    <button class="header-menu-btn" aria-label="Toggle menu">
+    <button class="header-menu-btn" aria-label="Toggle sidebar" (click)="layoutService.toggleSidebar()">
       <lucide-icon [img]="icons.Menu" [size]="20"></lucide-icon>
     </button>
     <h1 class="header-title">{{ pageTitle | translate }}</h1>
@@ -40,7 +40,11 @@
           <div *ngIf="notificationsList.length === 0" class="notif-item empty">
             {{ 'DASHBOARD.NO_DATA' | translate }}
           </div>
-          <div *ngFor="let item of notificationsList" class="notif-item" [ngClass]="{ 'unread': !item.isRead }">
+          <div *ngFor="let item of notificationsList"
+               class="notif-item"
+               [ngClass]="{ 'unread': !item.isRead }"
+               (click)="navigateFromNotification(item)"
+               style="cursor: pointer;">
             <div class="notif-indicator" [ngClass]="item.type?.toLowerCase() || 'info'"></div>
             <div class="notif-content-wrapper">
               <div class="notif-item-title">{{ item.title }}</div>
@@ -60,8 +64,8 @@
       </div>
     </div>
 
-    <!-- User avatar -->
-    <div class="header-user">
+    <!-- User avatar (clickable to profile) -->
+    <div class="header-user" routerLink="/profile" style="cursor:pointer;" title="My Profile">
       <div class="avatar">
         {{ userName.charAt(0).toUpperCase() }}
       </div>

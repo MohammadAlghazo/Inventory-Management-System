@@ -5,10 +5,7 @@
       <h1 class="page-title">{{ 'SIDEBAR.INVENTORY' | translate }}</h1>
       <p class="page-subtitle">{{ 'INVENTORY.SUBTITLE' | translate }}</p>
     </div>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-      <button class="btn btn-ghost" (click)="exportToExcel()" [disabled]="!logs.length" [title]="'INVENTORY.EXPORT_EXCEL' | translate">
-        <lucide-icon [img]="icons.Download" [size]="16"></lucide-icon>
-      </button>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
       <button class="btn btn-secondary" (click)="openActionModal('return')">
         {{ 'INVENTORY.RETURN_STOCK' | translate }}
       </button>
@@ -25,35 +22,50 @@
     </div>
   </div>
 
-  <!-- Filters -->
-  <div class="card" style="padding: 14px 20px;">
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-      <label class="form-label" style="margin: 0; text-transform: none;">{{ 'INVENTORY.ACTION_FILTER' | translate }}</label>
-      
-      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === ''}" (click)="filterByAction('')">
-        {{ 'INVENTORY.ALL_ACTIONS' | translate }}
+  <!-- Search & Filters & Exports -->
+  <div class="card search-filter-row">
+    <!-- Left: Export buttons -->
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredLogs().length === 0" style="display: flex; align-items: center; gap: 6px;">
+        Excel
       </button>
-      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Add'}" [style.color]="actionFilter === 'Add' ? '#10b981' : ''" [style.background]="actionFilter === 'Add' ? 'rgba(16, 185, 129, 0.12)' : ''" (click)="filterByAction('Add')">
-        {{ 'INVENTORY.ADD' | translate }}
+      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredLogs().length === 0" style="display: flex; align-items: center; gap: 6px;">
+        PDF
       </button>
-      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Sell'}" [style.color]="actionFilter === 'Sell' ? '#ef4444' : ''" [style.background]="actionFilter === 'Sell' ? 'rgba(239, 68, 68, 0.12)' : ''" (click)="filterByAction('Sell')">
-        {{ 'INVENTORY.SELL' | translate }}
-      </button>
-      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Adjust'}" [style.color]="actionFilter === 'Adjust' ? '#f59e0b' : ''" [style.background]="actionFilter === 'Adjust' ? 'rgba(245, 158, 11, 0.12)' : ''" (click)="filterByAction('Adjust')">
-        {{ 'INVENTORY.ADJUST' | translate }}
-      </button>
-      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Return'}" [style.color]="actionFilter === 'Return' ? '#6366f1' : ''" [style.background]="actionFilter === 'Return' ? 'rgba(99, 102, 241, 0.12)' : ''" (click)="filterByAction('Return')">
-        {{ 'INVENTORY.RETURN' | translate }}
-      </button>
+    </div>
+
+    <!-- Right: Search & Select Filters -->
+    <div class="search-filter-controls">
+      <!-- Universal Search Box -->
+      <div class="search-wrapper" style="min-width: 240px;">
+        <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery" 
+          (ngModelChange)="onFilterChange()"
+          [placeholder]="'COMMON.SEARCH' | translate" 
+          class="search-input"
+        >
+      </div>
+
+      <!-- Action Type Filter -->
+      <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="actionFilter" (ngModelChange)="onFilterChange()">
+        <option value="">{{ 'INVENTORY.ACTION_FILTER' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+        <option value="Add">{{ 'INVENTORY.ADD' | translate }}</option>
+        <option value="Sell">{{ 'INVENTORY.SELL' | translate }}</option>
+        <option value="Adjust">{{ 'INVENTORY.ADJUST' | translate }}</option>
+        <option value="Return">{{ 'INVENTORY.RETURN' | translate }}</option>
+      </select>
     </div>
   </div>
 
   <!-- Table -->
   <div class="card" style="padding: 0;">
     <div class="table-wrapper">
-      <table>
+      <table id="inventory-table">
         <thead>
           <tr>
+            <th>{{ 'COMMON.ID' | translate }}</th>
             <th>{{ 'INVENTORY.DATE' | translate }}</th>
             <th>{{ 'INVENTORY.PRODUCT' | translate }}</th>
             <th>{{ 'INVENTORY.ACTION' | translate }}</th>
@@ -67,14 +79,14 @@
         <tbody>
           <ng-container *ngIf="isLoading">
             <tr *ngFor="let dummy of [1,2,3,4,5]">
-              <td *ngFor="let col of [1,2,3,4,5,6,7,8]">
+              <td *ngFor="let col of [1,2,3,4,5,6,7,8,9]">
                 <div class="skeleton" style="height: 16px; width: 75%;"></div>
               </td>
             </tr>
           </ng-container>
 
-          <tr *ngIf="!isLoading && logs.length === 0">
-            <td colspan="8">
+          <tr *ngIf="!isLoading && getFilteredLogs().length === 0">
+            <td colspan="9">
               <div class="empty-state">
                 <lucide-icon [img]="icons.ClipboardList" [size]="40"></lucide-icon>
                 <p>{{ 'INVENTORY.NO_MOVEMENTS' | translate }}</p>
@@ -82,8 +94,9 @@
             </td>
           </tr>
 
-          <ng-container *ngIf="!isLoading && logs.length > 0">
-            <tr *ngFor="let log of logs">
+          <ng-container *ngIf="!isLoading && getFilteredLogs().length > 0">
+            <tr *ngFor="let log of getFilteredLogs()">
+              <td style="font-weight: bold; color: var(--text-muted);">#{{ log.id }}</td>
               <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
                 {{ log.actionDate | date:'medium' }}
               </td>
@@ -122,11 +135,24 @@
     </div>
 
     <!-- Pagination -->
-    <div class="pagination" *ngIf="totalPages > 0">
-      <span class="pagination-info">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+    <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+        <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
       <div class="pagination-controls">
         <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
+        </button>
+        <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
+          {{ pg }}
         </button>
         <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>

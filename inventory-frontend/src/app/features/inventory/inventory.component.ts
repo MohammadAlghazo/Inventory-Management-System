@@ -6,6 +6,7 @@ import { InventoryService } from '../../core/services/inventory.service';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ExportHelper } from '../../core/utils/export-helper';
 
 @Component({
   selector: 'app-inventory',
@@ -21,7 +22,9 @@ export class InventoryComponent implements OnInit {
   totalCount = 0;
   totalPages = 1;
   page = 1;
+  pageSize = 15;
   actionFilter = '';
+  searchQuery = '';
   isLoading = false;
 
   user: any;
@@ -55,7 +58,7 @@ export class InventoryComponent implements OnInit {
 
   loadLogs() {
     this.isLoading = true;
-    this.inventoryService.getInventoryLogs(this.page, 15, this.actionFilter).subscribe({
+    this.inventoryService.getInventoryLogs(this.page, this.pageSize, this.actionFilter).subscribe({
       next: (res) => {
         this.logs = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
@@ -64,6 +67,29 @@ export class InventoryComponent implements OnInit {
       },
       error: () => this.isLoading = false
     });
+  }
+
+  getFilteredLogs() {
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.logs.filter(log => {
+      return q ? (
+        String(log.id).includes(q) ||
+        (log.productName && log.productName.toLowerCase().includes(q)) ||
+        (log.notes && log.notes.toLowerCase().includes(q)) ||
+        (log.performedBy && log.performedBy.toLowerCase().includes(q)) ||
+        (log.userName && log.userName.toLowerCase().includes(q))
+      ) : true;
+    });
+  }
+
+  onFilterChange() {
+    this.page = 1;
+    this.loadLogs();
+  }
+
+  onPageSizeChange() {
+    this.page = 1;
+    this.loadLogs();
   }
 
   loadProducts() {
@@ -91,6 +117,20 @@ export class InventoryComponent implements OnInit {
       this.page++;
       this.loadLogs();
     }
+  }
+
+  goToPage(pg: number) {
+    this.page = pg;
+    this.loadLogs();
+  }
+
+  getPagesArray() {
+    const pages = [];
+    const maxPages = Math.min(this.totalPages, 5);
+    for (let i = 1; i <= maxPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   openActionModal(action: 'add' | 'sell' | 'adjust' | 'return') {
@@ -168,6 +208,21 @@ export class InventoryComponent implements OnInit {
   }
 
   exportToExcel() {
-    alert("Export functionality requires xlsx library. Skipping for now.");
+    const dataToExport = this.getFilteredLogs().map(log => ({
+      'ID': log.id,
+      'Date': new Date(log.actionDate).toLocaleString(),
+      'Product Name': log.productName,
+      'Action': log.action,
+      'Previous Qty': log.previousQuantity,
+      'Qty Change': log.quantityChanged,
+      'New Qty': log.newQuantity,
+      'Performed By': log.performedBy || log.userName || '—',
+      'Notes': log.notes || '—'
+    }));
+    ExportHelper.toExcel(dataToExport, 'Inventory_Logs_Report');
+  }
+
+  exportToPdf() {
+    ExportHelper.toPdf('inventory-table', 'Inventory_Logs_Report');
   }
 }

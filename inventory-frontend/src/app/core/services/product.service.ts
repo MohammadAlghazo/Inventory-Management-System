@@ -28,4 +28,8 @@ export class ProductService {
   deleteProduct(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+
+  getLowStockProducts(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/low-stock`);
+  }
 }
