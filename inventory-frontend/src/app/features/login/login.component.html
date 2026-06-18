@@ -1,97 +1,362 @@
-<div class="login-page">
-  <!-- Animated background -->
-  <div class="login-bg">
-    <div class="login-bg-orb orb-1"></div>
-    <div class="login-bg-orb orb-2"></div>
-    <div class="login-bg-orb orb-3"></div>
-  </div>
+<div class="login-wrapper">
 
-  <!-- Login Card -->
-  <div class="login-card">
-    <!-- Logo -->
-    <div class="login-logo">
-      <div class="login-logo-icon">
-        <lucide-icon name="boxes" [size]="28"></lucide-icon>
+  <!-- Navigation Header -->
+  <header class="navbar navbar-expand-lg navbar-dark position-absolute top-0 start-0 w-100 z-index-3 py-3">
+    <div class="container px-4">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <div class="logo-circle shadow">
+          <img src="assets/logo.jpg" alt="StockMaster Logo">
+        </div>
+        <span class="brand-text">StockMaster</span>
+      </a>
+
+      <div class="d-none d-lg-flex navbar-nav mx-auto gap-4">
+        <a class="nav-link text-white-50 hover-white" (click)="scrollToOverview()">{{ 'LOGIN.PLATFORM' | translate }}</a>
+        <a class="nav-link text-white-50 hover-white" (click)="scrollToOverview()">{{ 'LOGIN.FEATURES' | translate }}</a>
+        <a class="nav-link text-white-50 hover-white" (click)="scrollToOverview()">{{ 'LOGIN.MODULES' | translate }}</a>
+        <a class="nav-link text-white-50 hover-white" (click)="scrollToOverview()">{{ 'LOGIN.SECURITY' | translate }}</a>
       </div>
-      <div>
-        <h2 class="login-logo-name">InvManager</h2>
-        <p class="login-logo-sub">Inventory Management System</p>
+
+      <div class="d-flex align-items-center">
+        <a href="#" class="btn btn-outline-dashed text-white rounded-pill px-4 py-2 small fw-semibold">{{ 'LOGIN.CONTACT_SUPPORT' | translate }}</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Mountains & Sunset -->
+  <section class="hero-section position-relative d-flex align-items-center justify-content-center overflow-hidden">
+    <div class="sunset-overlay"></div>
+    <div class="mountains-bg" style="background-image: url('assets/sunset_mountains_bg.png');"></div>
+
+    <div class="container hero-container position-relative z-index-2 px-4 text-center">
+      <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10">
+
+          <!-- Tagline -->
+          <div class="tag-badge mb-3 mx-auto">
+            <span>{{ 'LOGIN.TAGLINE' | translate }}</span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="display-3 text-white fw-bold hero-title mb-3">
+            {{ 'LOGIN.HERO_TITLE' | translate }}
+          </h1>
+
+          <!-- Subtitle -->
+          <p class="lead text-white-50 hero-subtitle mb-5 max-w-700 mx-auto">
+            {{ 'LOGIN.HERO_SUBTITLE' | translate }}
+          </p>
+
+          <!-- Integrated Login Console (Glassmorphism Card) -->
+          <div class="login-console mx-auto p-4 p-md-5 shadow-lg">
+            <h3 class="console-title mb-4">{{ 'LOGIN.ACCESS_ACCOUNT' | translate }}</h3>
+
+            <form (ngSubmit)="onSubmit()">
+              <div *ngIf="error" class="alert alert-danger custom-alert d-flex align-items-center mb-4 text-start"
+                role="alert">
+                <lucide-icon [img]="icons.AlertCircle" [size]="18" class="me-2"></lucide-icon>
+                <div>{{ error }}</div>
+              </div>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-floating custom-floating">
+                    <input type="text" class="form-control" id="usernameInput" [placeholder]="'LOGIN.USERNAME_LABEL' | translate" name="username"
+                      [(ngModel)]="credentials.username" required>
+                    <label for="usernameInput" class="text-white-50">
+                      <lucide-icon [img]="icons.User" [size]="14" class="me-1"></lucide-icon> {{ 'LOGIN.USERNAME_LABEL' | translate }}
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-floating custom-floating position-relative">
+                    <input [type]="showPassword ? 'text' : 'password'" class="form-control pe-5" id="passwordInput"
+                      [placeholder]="'LOGIN.PASSWORD_LABEL' | translate" name="password" [(ngModel)]="credentials.password" required>
+                    <label for="passwordInput" class="text-white-50">
+                      <lucide-icon [img]="icons.Lock" [size]="14" class="me-1"></lucide-icon> {{ 'LOGIN.PASSWORD_LABEL' | translate }}
+                    </label>
+                    <button type="button" class="btn btn-link show-pass-btn" (click)="togglePassword()">
+                      <lucide-icon [img]="showPassword ? icons.EyeOff : icons.Eye" [size]="16"></lucide-icon>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                  <button type="submit"
+                    class="btn btn-solid-white w-100 py-3 rounded-pill fw-bold text-uppercase tracking-wider"
+                    [disabled]="isLoading">
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                      aria-hidden="true"></span>
+                    {{ isLoading ? ('LOGIN.ENTERING_PLATFORM' | translate) : ('LOGIN.LOGIN_BTN' | translate) }}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <!-- Title -->
-    <div class="login-header">
-      <h1 class="login-title">Welcome Back!</h1>
-      <p class="login-subtitle">Sign in to manage your inventory</p>
+    <!-- Scroll Down Indicator -->
+    <div class="scroll-indicator-wrap position-absolute bottom-0 start-50 translate-middle-x mb-4 z-index-2 text-center"
+      (click)="scrollToOverview()">
+      <span class="text-white-50 small text-uppercase tracking-wide mb-2 d-block cursor-pointer">{{ 'LOGIN.EXPLORE_PLATFORM' | translate }}</span>
+      <div class="scroll-mouse mx-auto cursor-pointer">
+        <div class="scroll-wheel"></div>
+      </div>
     </div>
+  </section>
 
-    <!-- Error Message -->
-    <div *ngIf="error" class="error-message" style="margin-bottom: 1rem; color: #ef4444; background: rgba(239, 68, 68, 0.12); padding: 10px; border-radius: 6px; text-align: center; font-size: 14px;">
-      {{ error }}
-    </div>
+  <!-- Overview / Features Section (Wanderpine Style) -->
+  <section id="overview" class="overview-section py-5 bg-cream">
+    <div class="container py-5 px-4">
 
-    <!-- Form -->
-    <form class="login-form" (ngSubmit)="onSubmit()" autocomplete="on">
-      <div class="form-group">
-        <label class="form-label">Username</label>
-        <div class="input-wrapper">
-          <span class="input-icon"><lucide-icon name="user" [size]="16"></lucide-icon></span>
-          <input
-            type="text"
-            class="form-input with-icon"
-            placeholder="Username"
-            name="username"
-            [(ngModel)]="credentials.username"
-            autocomplete="username"
-            required
-          />
+      <!-- Section Header -->
+      <div class="row align-items-end mb-5">
+        <div class="col-lg-6">
+          <span class="text-accent text-uppercase tracking-wide fw-bold d-block mb-2">{{ 'LOGIN.WHERE_TO_NEXT' | translate }}</span>
+          <h2 class="display-5 text-dark-green fw-bold title-sora">{{ 'LOGIN.FOUR_MODULES' | translate }}</h2>
+        </div>
+        <div class="col-lg-6 mt-3 mt-lg-0">
+          <p class="lead text-dark-green-muted mb-0">
+            {{ 'LOGIN.FOUR_MODULES_DESC' | translate }}
+          </p>
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <div class="input-wrapper">
-          <span class="input-icon"><lucide-icon name="lock" [size]="16"></lucide-icon></span>
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            class="form-input with-icon with-icon-right"
-            placeholder="Password"
-            name="password"
-            [(ngModel)]="credentials.password"
-            autocomplete="current-password"
-            required
-          />
-          <button
-            type="button"
-            class="input-icon-right"
-            style="background: transparent; border: none; cursor: pointer; color: var(--text-muted);"
-            (click)="togglePassword()"
-            tabindex="-1"
-          >
-            <lucide-icon *ngIf="showPassword" name="eye-off" [size]="16"></lucide-icon>
-            <lucide-icon *ngIf="!showPassword" name="eye" [size]="16"></lucide-icon>
-          </button>
+      <!-- Modules Cards (Wanderpine Style) -->
+      <div class="row g-4 mt-2">
+
+        <!-- Module 1: Stock Master -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card module-card border-0 shadow-sm h-100">
+            <div class="card-gradient bg-grad-orange">
+              <div class="card-wave-bg"></div>
+            </div>
+            <div class="card-body p-4">
+              <span class="badge badge-accent mb-2">{{ 'LOGIN.CORE_MODULE' | translate }}</span>
+              <h4 class="card-title fw-bold text-dark-green">{{ 'LOGIN.STOCK_CONTROL' | translate }}</h4>
+              <p class="card-text text-dark-green-muted small mb-4">
+                {{ 'LOGIN.STOCK_CONTROL_DESC' | translate }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="text-accent small fw-bold">{{ 'LOGIN.LIVE_TRACKING' | translate }}</span>
+                <span class="text-dark-green fw-bold">99.9% Acc.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module 2: Supplier Hub -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card module-card border-0 shadow-sm h-100">
+            <div class="card-gradient bg-grad-purple">
+              <div class="card-wave-bg"></div>
+            </div>
+            <div class="card-body p-4">
+              <span class="badge badge-accent mb-2">{{ 'LOGIN.INTEGRATION' | translate }}</span>
+              <h4 class="card-title fw-bold text-dark-green">{{ 'LOGIN.SUPPLIER_HUB' | translate }}</h4>
+              <p class="card-text text-dark-green-muted small mb-4">
+                {{ 'LOGIN.SUPPLIER_HUB_DESC' | translate }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="text-accent small fw-bold">{{ 'LOGIN.SUPPLIER_SYNC' | translate }}</span>
+                <span class="text-dark-green fw-bold">0 Friction</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module 3: Sales Engine -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card module-card border-0 shadow-sm h-100">
+            <div class="card-gradient bg-grad-yellow">
+              <div class="card-wave-bg"></div>
+            </div>
+            <div class="card-body p-4">
+              <span class="badge badge-accent mb-2">{{ 'LOGIN.SALES' | translate }}</span>
+              <h4 class="card-title fw-bold text-dark-green">{{ 'LOGIN.SALES_LEDGER' | translate }}</h4>
+              <p class="card-text text-dark-green-muted small mb-4">
+                {{ 'LOGIN.SALES_LEDGER_DESC' | translate }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="text-accent small fw-bold">{{ 'LOGIN.INVOICING' | translate }}</span>
+                <span class="text-dark-green fw-bold">Real-time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module 4: Analytics -->
+        <div class="col-xl-3 col-md-6">
+          <div class="card module-card border-0 shadow-sm h-100">
+            <div class="card-gradient bg-grad-teal">
+              <div class="card-wave-bg"></div>
+            </div>
+            <div class="card-body p-4">
+              <span class="badge badge-accent mb-2">{{ 'LOGIN.ANALYTICS' | translate }}</span>
+              <h4 class="card-title fw-bold text-dark-green">{{ 'LOGIN.PROFIT_TRACKING' | translate }}</h4>
+              <p class="card-text text-dark-green-muted small mb-4">
+                {{ 'LOGIN.PROFIT_TRACKING_DESC' | translate }}
+              </p>
+              <div class="d-flex justify-content-between align-items-center mt-auto border-top pt-3">
+                <span class="text-accent small fw-bold">{{ 'LOGIN.REPORTS' | translate }}</span>
+                <span class="text-dark-green fw-bold">1-Click PDF</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Deep Green Interactive Banner -->
+  <section class="banner-section py-5 text-center text-white position-relative">
+    <div class="container py-5 px-4 z-index-2 position-relative">
+      <span class="text-uppercase tracking-wider small text-white-50 mb-3 d-block">{{ 'LOGIN.THE_STOCKMASTER_WAY' | translate }}</span>
+      <h2 class="display-4 fw-bold title-sora mb-5 text-white max-w-700 mx-auto">{{ 'LOGIN.BUILT_BY_DEVS' | translate }}</h2>
+
+      <div class="row g-4 justify-content-center text-start max-w-900 mx-auto mt-4 border-top border-white-10 pt-5">
+        <div class="col-md-3 col-6">
+          <div class="stat-box">
+            <span class="num text-white">99.9%</span>
+            <span class="label text-white-50">Uptime SLA</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-box">
+            <span class="num text-white">2.5x</span>
+            <span class="label text-white-50">Logistics Velocity</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-box">
+            <span class="num text-white">100%</span>
+            <span class="label text-white-50">Secure Logs</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-6">
+          <div class="stat-box">
+            <span class="num text-white">1-Click</span>
+            <span class="label text-white-50">Supplier Sync</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step-by-Step Flow Section -->
+  <section class="steps-section py-5 bg-cream">
+    <div class="container py-5 px-4 text-center">
+      <span class="text-accent small text-uppercase tracking-wide fw-bold d-block mb-3">{{ 'LOGIN.HOW_WE_OPERATE' | translate }}</span>
+      <h2 class="display-5 text-dark-green fw-bold title-sora mb-5">{{ 'LOGIN.HOW_CYCLE_GOES' | translate }}</h2>
+
+      <div class="steps-timeline position-relative mt-5">
+        <div class="timeline-line"></div>
+        <div class="row g-4 justify-content-center">
+
+          <div class="col-md-3">
+            <div class="step-node">
+              <div class="node-circle mx-auto">1</div>
+              <h5 class="fw-bold mt-4 text-dark-green">{{ 'LOGIN.RECEIVE_CARGO' | translate }}</h5>
+              <p class="text-dark-green-muted small px-3">{{ 'LOGIN.RECEIVE_CARGO_DESC' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="step-node">
+              <div class="node-circle mx-auto">2</div>
+              <h5 class="fw-bold mt-4 text-dark-green">{{ 'LOGIN.SUPPLIER_SYNC_STEP' | translate }}</h5>
+              <p class="text-dark-green-muted small px-3">{{ 'LOGIN.SUPPLIER_SYNC_DESC' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="step-node">
+              <div class="node-circle mx-auto">3</div>
+              <h5 class="fw-bold mt-4 text-dark-green">{{ 'LOGIN.POS_DISPATCH' | translate }}</h5>
+              <p class="text-dark-green-muted small px-3">{{ 'LOGIN.POS_DISPATCH_DESC' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="step-node">
+              <div class="node-circle mx-auto">4</div>
+              <h5 class="fw-bold mt-4 text-dark-green">{{ 'LOGIN.PROFIT_REPORT' | translate }}</h5>
+              <p class="text-dark-green-muted small px-3">{{ 'LOGIN.PROFIT_REPORT_DESC' | translate }}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Banner -->
+  <section class="cta-section py-5 text-center text-white">
+    <div class="container py-5 z-index-2 position-relative">
+      <h2 class="display-5 title-sora fw-bold mb-4">{{ 'LOGIN.CTA_TITLE' | translate }}</h2>
+      <p class="lead text-white-50 max-w-600 mx-auto mb-4">{{ 'LOGIN.CTA_DESC' | translate }}</p>
+
+      <div class="d-flex justify-content-center gap-3">
+        <button (click)="scrollToOverview()"
+          class="btn btn-solid-white rounded-pill px-4 py-3 fw-bold text-uppercase">{{ 'LOGIN.EXPLORE_FEATURES' | translate }}</button>
+        <a href="#" class="btn btn-outline-dashed text-white rounded-pill px-4 py-3 fw-bold text-uppercase">{{ 'LOGIN.CONTACT_IT' | translate }}</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Forest Dark Green Footer -->
+  <footer class="footer-section py-5 text-white">
+    <div class="container px-4">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-6 text-center text-lg-start">
+          <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-2 mb-3">
+            <div class="logo-circle bg-white p-1">
+              <img src="assets/logo.jpg" alt="StockMaster Logo">
+            </div>
+            <span class="brand-text text-white">StockMaster</span>
+          </div>
+          <p class="text-white-50 small mb-0 max-w-400">
+            {{ 'LOGIN.FOOTER_DESC' | translate }}
+          </p>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="row g-3 text-center text-lg-end">
+            <div class="col-4">
+              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">{{ 'LOGIN.PLATFORM' | translate }}</h6>
+              <ul class="list-unstyled small d-flex flex-column gap-2">
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">{{ 'SIDEBAR.DASHBOARD' | translate }}</a></li>
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">{{ 'SIDEBAR.INVENTORY' | translate }}</a></li>
+              </ul>
+            </div>
+            <div class="col-4">
+              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">COMPANY</h6>
+              <ul class="list-unstyled small d-flex flex-column gap-2">
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">Terms</a></li>
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.SECURITY' | translate }}</a></li>
+              </ul>
+            </div>
+            <div class="col-4">
+              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">HELP</h6>
+              <ul class="list-unstyled small d-flex flex-column gap-2">
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.CONTACT_SUPPORT' | translate }}</a></li>
+                <li><a href="#" class="text-white-50 text-decoration-none hover-white">Guides</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
 
-      <button
-        type="submit"
-        class="btn btn-primary btn-lg w-full"
-        [disabled]="isLoading"
-      >
-        <ng-container *ngIf="isLoading">
-          <span class="spinner"></span>
-          Logging In...
-        </ng-container>
-        <ng-container *ngIf="!isLoading">
-          Sign In
-        </ng-container>
-      </button>
-    </form>
+      <div class="text-center text-white-50 small border-top border-white-10 mt-5 pt-4">
+        {{ 'LOGIN.COPYRIGHT' | translate }}
+      </div>
+    </div>
+  </footer>
 
-    <!-- Footer -->
-    <p class="login-footer">
-      © 2026 InvManager · All rights reserved
-    </p>
-  </div>
 </div>

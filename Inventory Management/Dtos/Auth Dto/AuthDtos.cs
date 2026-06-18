@@ -46,6 +46,14 @@ namespace Inventory_Management.Dtos.Auth_Dto
         public string Role { get; set; } = string.Empty;
     }
 
+    /// <summary>DTO for a user updating their own profile (no role change)</summary>
+    public class UpdateProfileDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+    }
+
     public class ChangePasswordDto
     {
         public string CurrentPassword { get; set; } = string.Empty;

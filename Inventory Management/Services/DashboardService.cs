@@ -39,9 +39,9 @@ namespace Inventory_Management.Services
             var logs = await _db.InventoryLogs
                 .Where(l => l.ActionDate >= from)
                 .GroupBy(l => l.ActionDate.Date)
-                .Select(g => new ActivityChartDto
+                .Select(g => new
                 {
-                    Date           = g.Key.ToString("yyyy-MM-dd"),
+                    Date           = g.Key,
                     AddCount       = g.Count(l => l.Action == Models.InventoryAction.Add),
                     SellCount      = g.Count(l => l.Action == Models.InventoryAction.Sell),
                     AdjustCount    = g.Count(l => l.Action == Models.InventoryAction.Adjust),
@@ -54,9 +54,25 @@ namespace Inventory_Management.Services
             var result = new List<ActivityChartDto>();
             for (int i = 0; i < days; i++)
             {
-                var date = from.AddDays(i).ToString("yyyy-MM-dd");
-                var existing = logs.FirstOrDefault(l => l.Date == date);
-                result.Add(existing ?? new ActivityChartDto { Date = date });
+                var targetDate = from.AddDays(i);
+                var dateStr = targetDate.ToString("yyyy-MM-dd");
+                var existing = logs.FirstOrDefault(l => l.Date.Date == targetDate.Date);
+
+                if (existing != null)
+                {
+                    result.Add(new ActivityChartDto
+                    {
+                        Date = dateStr,
+                        AddCount = existing.AddCount,
+                        SellCount = existing.SellCount,
+                        AdjustCount = existing.AdjustCount,
+                        TotalMovements = existing.TotalMovements
+                    });
+                }
+                else
+                {
+                    result.Add(new ActivityChartDto { Date = dateStr });
+                }
             }
 
             return ApiResponse<List<ActivityChartDto>>.Ok(result);
@@ -65,8 +81,9 @@ namespace Inventory_Management.Services
         public async Task<ApiResponse<List<CategoryBreakdownDto>>> GetCategoryBreakdownAsync()
         {
             var breakdown = await _db.Products
+                .Include(p => p.Category)
                 .Where(p => p.IsActive)
-                .GroupBy(p => p.Category)
+                .GroupBy(p => p.Category != null ? p.Category.Name : "Uncategorized")
                 .Select(g => new CategoryBreakdownDto
                 {
                     Category     = g.Key,
@@ -84,13 +101,14 @@ namespace Inventory_Management.Services
         {
             var topProducts = await _db.InventoryLogs
                 .Include(l => l.Product)
+                .ThenInclude(p => p.Category)
                 .Where(l => l.Product.IsActive)
-                .GroupBy(l => new { l.ProductId, l.Product.Name, l.Product.Category, l.Product.Quantity })
+                .GroupBy(l => new { l.ProductId, l.Product.Name, CategoryName = l.Product.Category != null ? l.Product.Category.Name : "Uncategorized", l.Product.Quantity })
                 .Select(g => new TopProductDto
                 {
                     ProductId      = g.Key.ProductId,
                     ProductName    = g.Key.Name,
-                    Category       = g.Key.Category,
+                    Category       = g.Key.CategoryName,
                     TotalMovements = g.Count(),
                     CurrentQuantity= g.Key.Quantity
                 })

@@ -11,8 +11,7 @@ namespace Inventory_Management.Validators
             RuleFor(x => x.Price).GreaterThanOrEqualTo(0).WithMessage("Price must be 0 or greater.");
             RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("Quantity must be 0 or greater.");
             RuleFor(x => x.MinQuantity).GreaterThanOrEqualTo(0).WithMessage("Minimum quantity must be 0 or greater.");
-            RuleFor(x => x.Category).NotEmpty().WithMessage("Category is required.");
-            RuleFor(x => x.Unit).NotEmpty().WithMessage("Unit is required.");
+            RuleFor(x => x.CategoryId).NotNull().WithMessage("Category is required.");
         }
     }
 
@@ -24,8 +23,7 @@ namespace Inventory_Management.Validators
             RuleFor(x => x.Price).GreaterThanOrEqualTo(0).WithMessage("Price must be 0 or greater.");
             RuleFor(x => x.Quantity).GreaterThanOrEqualTo(0).WithMessage("Quantity must be 0 or greater.");
             RuleFor(x => x.MinQuantity).GreaterThanOrEqualTo(0).WithMessage("Minimum quantity must be 0 or greater.");
-            RuleFor(x => x.Category).NotEmpty().WithMessage("Category is required.");
-            RuleFor(x => x.Unit).NotEmpty().WithMessage("Unit is required.");
+            RuleFor(x => x.CategoryId).NotNull().WithMessage("Category is required.");
         }
     }
 }

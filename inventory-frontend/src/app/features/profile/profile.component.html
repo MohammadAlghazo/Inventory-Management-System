@@ -1,0 +1,200 @@
+<div class="profile-page">
+
+  <!-- Loading skeleton -->
+  <ng-container *ngIf="isLoadingProfile">
+    <div class="profile-hero skeleton" style="height: 180px; border-radius: 20px;"></div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+      <div class="skeleton" style="height: 320px; border-radius: 16px;"></div>
+      <div class="skeleton" style="height: 320px; border-radius: 16px;"></div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoadingProfile && profile">
+
+    <!-- Hero Card -->
+    <div class="profile-hero card">
+      <div class="profile-hero-bg"></div>
+      <div class="profile-hero-content">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">{{ getInitials() }}</div>
+          <div class="profile-avatar-ring"></div>
+        </div>
+        <div class="profile-hero-info">
+          <h1 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h1>
+          <p class="profile-username">@{{ profile.username }}</p>
+          <div class="profile-meta">
+            <span class="badge" [ngClass]="getRoleBadgeClass()">
+              <lucide-icon [img]="icons.ShieldCheck" [size]="12"></lucide-icon>
+              {{ profile.isAdmin ? ('USERS.ROLE_MANAGER' | translate) : ('USERS.ROLE_EMPLOYEE' | translate) }}
+            </span>
+            <span class="profile-meta-item">
+              <lucide-icon [img]="icons.Mail" [size]="13"></lucide-icon>
+              {{ profile.email }}
+            </span>
+            <span class="profile-meta-item">
+              <lucide-icon [img]="icons.Calendar" [size]="13"></lucide-icon>
+              {{ 'USERS.JOINED' | translate }}: {{ profile.createdAt | date:'mediumDate' }}
+            </span>
+            <span class="profile-status" [class.active]="profile.isActive">
+              {{ profile.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="profile-grid">
+
+      <!-- Personal Info Card -->
+      <div class="card profile-card">
+        <div class="profile-card-header">
+          <div class="profile-card-icon">
+            <lucide-icon [img]="icons.UserCircle2" [size]="18"></lucide-icon>
+          </div>
+          <div>
+            <h2 class="profile-card-title">{{ 'PROFILE.PERSONAL_INFO' | translate }}</h2>
+            <p class="profile-card-subtitle">{{ 'PROFILE.PERSONAL_INFO_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Success / Error alerts -->
+        <div class="profile-alert success" *ngIf="infoSuccess">
+          <lucide-icon [img]="icons.CheckCircle" [size]="16"></lucide-icon>
+          {{ infoSuccess }}
+        </div>
+        <div class="profile-alert error" *ngIf="infoError">
+          <lucide-icon [img]="icons.XCircle" [size]="16"></lucide-icon>
+          {{ infoError }}
+        </div>
+
+        <form (ngSubmit)="saveInfo()" class="profile-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">{{ 'USERS.FIRST_NAME' | translate }} *</label>
+              <input class="form-input" [(ngModel)]="infoForm.firstName" name="firstName" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">{{ 'USERS.LAST_NAME' | translate }}</label>
+              <input class="form-input" [(ngModel)]="infoForm.lastName" name="lastName" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">{{ 'COMMON.EMAIL' | translate }} *</label>
+            <div class="input-icon-wrap">
+              <lucide-icon [img]="icons.Mail" [size]="16" class="input-icon"></lucide-icon>
+              <input class="form-input with-icon" type="email" [(ngModel)]="infoForm.email" name="email" required />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">{{ 'USERS.USERNAME' | translate }}</label>
+            <input class="form-input" [value]="profile.username" disabled style="opacity: 0.5; cursor: not-allowed;" />
+            <span class="form-hint">{{ 'PROFILE.USERNAME_CANNOT_CHANGE' | translate }}</span>
+          </div>
+
+          <div class="profile-card-footer">
+            <button type="submit" class="btn btn-primary" [disabled]="isSavingInfo">
+              <span class="spinner" *ngIf="isSavingInfo"></span>
+              <lucide-icon [img]="icons.Save" [size]="15" *ngIf="!isSavingInfo"></lucide-icon>
+              {{ 'PROFILE.SAVE_INFO' | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Change Password Card -->
+      <div class="card profile-card">
+        <div class="profile-card-header">
+          <div class="profile-card-icon danger">
+            <lucide-icon [img]="icons.Lock" [size]="18"></lucide-icon>
+          </div>
+          <div>
+            <h2 class="profile-card-title">{{ 'PROFILE.CHANGE_PASSWORD' | translate }}</h2>
+            <p class="profile-card-subtitle">{{ 'PROFILE.CHANGE_PASSWORD_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Success / Error alerts -->
+        <div class="profile-alert success" *ngIf="passwordSuccess">
+          <lucide-icon [img]="icons.CheckCircle" [size]="16"></lucide-icon>
+          {{ passwordSuccess }}
+        </div>
+        <div class="profile-alert error" *ngIf="passwordError">
+          <lucide-icon [img]="icons.XCircle" [size]="16"></lucide-icon>
+          {{ passwordError }}
+        </div>
+
+        <form (ngSubmit)="savePassword()" class="profile-form">
+          <div class="form-group">
+            <label class="form-label">{{ 'PROFILE.CURRENT_PASSWORD' | translate }} *</label>
+            <div class="input-icon-wrap">
+              <lucide-icon [img]="icons.Lock" [size]="16" class="input-icon"></lucide-icon>
+              <input class="form-input with-icon"
+                [type]="showCurrentPass ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.currentPassword"
+                name="currentPassword"
+                required />
+              <button type="button" class="input-eye-btn" (click)="showCurrentPass = !showCurrentPass">
+                <lucide-icon [img]="showCurrentPass ? icons.EyeOff : icons.Eye" [size]="15"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">{{ 'PROFILE.NEW_PASSWORD' | translate }} *</label>
+            <div class="input-icon-wrap">
+              <lucide-icon [img]="icons.Lock" [size]="16" class="input-icon"></lucide-icon>
+              <input class="form-input with-icon"
+                [type]="showNewPass ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.newPassword"
+                name="newPassword"
+                required />
+              <button type="button" class="input-eye-btn" (click)="showNewPass = !showNewPass">
+                <lucide-icon [img]="showNewPass ? icons.EyeOff : icons.Eye" [size]="15"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">{{ 'PROFILE.CONFIRM_PASSWORD' | translate }} *</label>
+            <div class="input-icon-wrap">
+              <lucide-icon [img]="icons.Lock" [size]="16" class="input-icon"></lucide-icon>
+              <input class="form-input with-icon"
+                [type]="showConfirmPass ? 'text' : 'password'"
+                [(ngModel)]="passwordForm.confirmPassword"
+                name="confirmPassword"
+                required />
+              <button type="button" class="input-eye-btn" (click)="showConfirmPass = !showConfirmPass">
+                <lucide-icon [img]="showConfirmPass ? icons.EyeOff : icons.Eye" [size]="15"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Password strength indicators -->
+          <div class="password-rules" *ngIf="passwordForm.newPassword">
+            <div class="rule" [class.ok]="passwordForm.newPassword.length >= 6">
+              <lucide-icon [img]="passwordForm.newPassword.length >= 6 ? icons.CheckCircle : icons.XCircle" [size]="13"></lucide-icon>
+              {{ 'PROFILE.RULE_MIN_6' | translate }}
+            </div>
+            <div class="rule" [class.ok]="passwordForm.newPassword === passwordForm.confirmPassword && !!passwordForm.confirmPassword">
+              <lucide-icon [img]="(passwordForm.newPassword === passwordForm.confirmPassword && !!passwordForm.confirmPassword) ? icons.CheckCircle : icons.XCircle" [size]="13"></lucide-icon>
+              {{ 'PROFILE.RULE_MATCH' | translate }}
+            </div>
+          </div>
+
+          <div class="profile-card-footer">
+            <button type="submit" class="btn btn-danger-soft" [disabled]="isSavingPassword">
+              <span class="spinner" *ngIf="isSavingPassword"></span>
+              <lucide-icon [img]="icons.Lock" [size]="15" *ngIf="!isSavingPassword"></lucide-icon>
+              {{ 'PROFILE.UPDATE_PASSWORD' | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </ng-container>
+
+</div>

@@ -1,50 +1,106 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Package, AlertTriangle, Activity, Archive, DollarSign, TrendingUp } from 'lucide-angular';
-import { ProductService } from '../../core/services/product.service';
+import { LucideAngularModule, Package, AlertTriangle, Activity, Archive, DollarSign, TrendingUp, BarChart2, PieChart } from 'lucide-angular';
+import { DashboardService } from '../../core/services/dashboard.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration } from 'chart.js';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, BaseChartDirective, TranslatePipe],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  stats = {
-    totalProducts: 0,
-    lowStock: 0,
-    totalValue: 0,
-    recentActivity: 0
+  readonly icons = { Package, AlertTriangle, Activity, Archive, DollarSign, TrendingUp, BarChart2, PieChart };
+
+  statsObj: any = {};
+  topProducts: any[] = [];
+  categories: any[] = [];
+  activity: any[] = [];
+  
+  isLoadingStats = true;
+  isLoadingActivity = true;
+
+  // Activity Chart
+  activityChartData: ChartConfiguration['data'] = {
+    datasets: [
+      { data: [], label: 'Add', borderColor: '#d2593b', backgroundColor: 'rgba(210, 89, 59, 0.3)', fill: true, tension: 0.4 },
+      { data: [], label: 'Sell', borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.3)', fill: true, tension: 0.4 }
+    ],
+    labels: []
+  };
+  activityChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af' } },
+      y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#9ca3af' } }
+    },
+    plugins: {
+      legend: { labels: { color: '#f3f4f6' } }
+    }
   };
 
-  recentLogs: any[] = [];
-  isLoading = false;
+  // Category Pie Chart
+  pieChartData: ChartConfiguration['data'] = {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: ['#d2593b', '#f97316', '#a855f7', '#7e22ce', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'],
+      borderWidth: 0
+    }]
+  };
+  pieChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'right', labels: { color: '#f3f4f6' } }
+    }
+  };
+
+  constructor(private dashboardService: DashboardService) {}
 
   get kpis() {
     return [
-      { label: 'Total Products', value: this.stats.totalProducts.toString(), icon: 'package', color: '#6366f1', bg: 'rgba(99, 102, 241, 0.12)' },
-      { label: 'Total Value', value: '$' + this.stats.totalValue.toLocaleString(), icon: 'dollar-sign', color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
-      { label: 'Low Stock', value: this.stats.lowStock.toString(), icon: 'alert-triangle', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
-      { label: 'Items Out', value: this.stats.recentActivity.toString(), icon: 'activity', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' },
+      { label: 'DASHBOARD.TOTAL_PRODUCTS', value: (this.statsObj.totalProducts || 0).toLocaleString(), icon: this.icons.Package, color: '#d2593b', bg: 'rgba(210, 89, 59, 0.12)' },
+      { label: 'DASHBOARD.TOTAL_VALUE', value: '$' + (this.statsObj.totalInventoryValue || 0).toLocaleString(), icon: this.icons.DollarSign, color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)' },
+      { label: 'DASHBOARD.LOW_STOCK', value: (this.statsObj.lowStockCount || 0).toLocaleString(), icon: this.icons.AlertTriangle, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)' },
+      { label: 'DASHBOARD.ITEMS_OUT', value: (this.statsObj.todaysMovements || 0).toLocaleString(), icon: this.icons.Activity, color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)' },
     ];
   }
 
-  constructor(private productService: ProductService) {}
-
   ngOnInit() {
-    this.loadDashboardData();
-  }
-
-  loadDashboardData() {
-    this.isLoading = true;
-    this.productService.getProducts().subscribe({
-      next: (products: any[]) => {
-        this.stats.totalProducts = products.length;
-        this.stats.lowStock = products.filter(p => p.quantity <= p.minQuantity).length;
-        this.stats.totalValue = products.reduce((acc, p) => acc + (p.price * p.quantity), 0);
-        this.isLoading = false;
+    this.dashboardService.getStats().subscribe({
+      next: (res) => {
+        this.statsObj = res.data;
+        this.isLoadingStats = false;
       },
-      error: () => this.isLoading = false
+      error: () => this.isLoadingStats = false
+    });
+
+    this.dashboardService.getActivityChart(30).subscribe({
+      next: (res) => {
+        this.activity = res.data;
+        this.activityChartData.labels = this.activity.map(a => a.date.substring(5));
+        this.activityChartData.datasets[0].data = this.activity.map(a => a.addCount);
+        this.activityChartData.datasets[1].data = this.activity.map(a => a.sellCount);
+        this.activityChartData = { ...this.activityChartData };
+        this.isLoadingActivity = false;
+      },
+      error: () => this.isLoadingActivity = false
+    });
+
+    this.dashboardService.getCategoryBreakdown().subscribe(res => {
+      this.categories = res.data;
+      this.pieChartData.labels = this.categories.map(c => c.category);
+      this.pieChartData.datasets[0].data = this.categories.map(c => c.productCount);
+      this.pieChartData = { ...this.pieChartData };
+    });
+
+    this.dashboardService.getTopProducts(5).subscribe(res => {
+      this.topProducts = res.data;
     });
   }
 }

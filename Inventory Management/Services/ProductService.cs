@@ -17,38 +17,35 @@ namespace Inventory_Management.Services
 
         public async Task<ApiResponse<PagedResult<ProductDto>>> GetAllAsync(ProductQueryParams query)
         {
-            var q = _db.Products.AsQueryable();
+            var q = _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .AsQueryable();
 
-            // Filter inactive
             if (!query.IncludeInactive)
                 q = q.Where(p => p.IsActive);
 
-            // Search
             if (!string.IsNullOrWhiteSpace(query.Search))
             {
-                var search = query.Search.ToLower();
                 q = q.Where(p =>
-                    p.Name.ToLower().Contains(search) ||
-                    p.SKU.ToLower().Contains(search) ||
-                    p.Description.ToLower().Contains(search) ||
-                    p.Category.ToLower().Contains(search));
+                    p.Name.Contains(query.Search) ||
+                    p.SKU.Contains(query.Search) ||
+                    p.Description.Contains(query.Search));
             }
 
-            // Category filter
-            if (!string.IsNullOrWhiteSpace(query.Category))
-                q = q.Where(p => p.Category.ToLower() == query.Category.ToLower());
+            if (query.CategoryId.HasValue)
+                q = q.Where(p => p.CategoryId == query.CategoryId.Value);
 
-            // Price filter
             if (query.MinPrice.HasValue)
                 q = q.Where(p => p.Price >= query.MinPrice.Value);
             if (query.MaxPrice.HasValue)
                 q = q.Where(p => p.Price <= query.MaxPrice.Value);
 
-            // Low stock filter
             if (query.IsLowStock.HasValue && query.IsLowStock.Value)
                 q = q.Where(p => p.Quantity <= p.MinQuantity);
 
-            // Sort
             q = (query.SortBy.ToLower(), query.SortOrder.ToLower()) switch
             {
                 ("price", "asc") => q.OrderBy(p => p.Price),
@@ -80,7 +77,13 @@ namespace Inventory_Management.Services
 
         public async Task<ApiResponse<ProductDto>> GetByIdAsync(int id)
         {
-            var product = await _db.Products.FindAsync(id);
+            var product = await _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null || !product.IsActive)
                 return ApiResponse<ProductDto>.NotFound($"Product with ID {id} not found");
 
@@ -89,7 +92,6 @@ namespace Inventory_Management.Services
 
         public async Task<ApiResponse<ProductDto>> CreateAsync(CreateProductDto dto)
         {
-            // Check duplicate SKU
             if (!string.IsNullOrWhiteSpace(dto.SKU) &&
                 await _db.Products.AnyAsync(p => p.SKU == dto.SKU && p.IsActive))
                 return ApiResponse<ProductDto>.Fail($"A product with SKU '{dto.SKU}' already exists");
@@ -98,49 +100,111 @@ namespace Inventory_Management.Services
             {
                 Name = dto.Name,
                 SKU = dto.SKU,
+                Barcode = dto.Barcode,
+                QRCode = dto.QRCode,
+                PurchasePrice = dto.PurchasePrice,
                 Price = dto.Price,
+                Tax = dto.Tax,
                 Quantity = dto.Quantity,
                 MinQuantity = dto.MinQuantity,
-                Category = dto.Category,
+                Weight = dto.Weight,
+                Color = dto.Color,
+                Size = dto.Size,
+                Manufacturer = dto.Manufacturer,
+                CategoryId = dto.CategoryId,
                 Description = dto.Description,
-                Unit = dto.Unit,
+                UnitId = dto.UnitId,
                 ImageUrl = dto.ImageUrl,
-                Supplier = dto.Supplier,
+                SupplierId = dto.SupplierId,
+                BrandId = dto.BrandId,
+                ExpiryDate = dto.ExpiryDate,
+                BatchNumber = dto.BatchNumber,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
 
             _db.Products.Add(product);
+            
+            // Add notification
+            _db.Notifications.Add(new Notification
+            {
+                Title = "Product Added",
+                Message = $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.",
+                Type = "Success",
+                TargetRole = "All",
+                CreatedAt = DateTime.UtcNow
+            });
+
             await _db.SaveChangesAsync();
+
+            // Load nav properties to return full DTO
+            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Brand).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Supplier).LoadAsync();
 
             return ApiResponse<ProductDto>.Created(MapToDto(product), "Product created successfully");
         }
 
         public async Task<ApiResponse<ProductDto>> UpdateAsync(int id, UpdateProductDto dto)
         {
-            var product = await _db.Products.FindAsync(id);
+            var product = await _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (product == null || !product.IsActive)
                 return ApiResponse<ProductDto>.NotFound($"Product with ID {id} not found");
 
-            // Check duplicate SKU (excluding self)
             if (!string.IsNullOrWhiteSpace(dto.SKU) &&
                 await _db.Products.AnyAsync(p => p.SKU == dto.SKU && p.Id != id && p.IsActive))
                 return ApiResponse<ProductDto>.Fail($"A product with SKU '{dto.SKU}' already exists");
 
             product.Name = dto.Name;
             product.SKU = dto.SKU;
+            product.Barcode = dto.Barcode;
+            product.QRCode = dto.QRCode;
+            product.PurchasePrice = dto.PurchasePrice;
             product.Price = dto.Price;
+            product.Tax = dto.Tax;
             product.Quantity = dto.Quantity;
             product.MinQuantity = dto.MinQuantity;
-            product.Category = dto.Category;
+            product.Weight = dto.Weight;
+            product.Color = dto.Color;
+            product.Size = dto.Size;
+            product.Manufacturer = dto.Manufacturer;
+            product.CategoryId = dto.CategoryId;
             product.Description = dto.Description;
-            product.Unit = dto.Unit;
+            product.UnitId = dto.UnitId;
             product.ImageUrl = dto.ImageUrl;
-            product.Supplier = dto.Supplier;
+            product.SupplierId = dto.SupplierId;
+            product.BrandId = dto.BrandId;
+            product.ExpiryDate = dto.ExpiryDate;
+            product.BatchNumber = dto.BatchNumber;
             product.UpdatedAt = DateTime.UtcNow;
 
+            if (product.Quantity <= product.MinQuantity)
+            {
+                _db.Notifications.Add(new Notification
+                {
+                    Title = "Low Stock Alert",
+                    Message = $"Product '{product.Name}' is low on stock! Remaining: {product.Quantity}.",
+                    Type = "Warning",
+                    TargetRole = "All",
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
             await _db.SaveChangesAsync();
+
+            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Brand).LoadAsync();
+            await _db.Entry(product).Reference(p => p.Supplier).LoadAsync();
+
             return ApiResponse<ProductDto>.Ok(MapToDto(product), "Product updated successfully");
         }
 
@@ -150,7 +214,6 @@ namespace Inventory_Management.Services
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound($"Product with ID {id} not found");
 
-            // Soft delete
             product.IsActive = false;
             product.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
@@ -161,6 +224,10 @@ namespace Inventory_Management.Services
         public async Task<ApiResponse<List<ProductDto>>> GetLowStockAsync()
         {
             var products = await _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
                 .Where(p => p.IsActive && p.Quantity <= p.MinQuantity)
                 .OrderBy(p => p.Quantity)
                 .Select(p => MapToDto(p))
@@ -171,9 +238,8 @@ namespace Inventory_Management.Services
 
         public async Task<ApiResponse<List<string>>> GetCategoriesAsync()
         {
-            var categories = await _db.Products
-                .Where(p => p.IsActive)
-                .Select(p => p.Category)
+            var categories = await _db.Categories
+                .Select(c => c.Name)
                 .Distinct()
                 .OrderBy(c => c)
                 .ToListAsync();
@@ -192,7 +258,7 @@ namespace Inventory_Management.Services
                 OutOfStockCount = await _db.Products.CountAsync(p => p.IsActive && p.Quantity == 0),
                 TotalInventoryValue = await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.Quantity),
                 TodayMovements = await _db.InventoryLogs.CountAsync(l => l.ActionDate.Date == today),
-                TotalCategories = await _db.Products.Where(p => p.IsActive).Select(p => p.Category).Distinct().CountAsync()
+                TotalCategories = await _db.Categories.CountAsync()
             };
 
             return ApiResponse<DashboardStatsDto>.Ok(stats);
@@ -204,14 +270,29 @@ namespace Inventory_Management.Services
             Id = p.Id,
             Name = p.Name,
             SKU = p.SKU,
+            Barcode = p.Barcode,
+            QRCode = p.QRCode,
+            PurchasePrice = p.PurchasePrice,
             Price = p.Price,
+            Tax = p.Tax,
             Quantity = p.Quantity,
             MinQuantity = p.MinQuantity,
-            Category = p.Category,
+            Weight = p.Weight,
+            Color = p.Color,
+            Size = p.Size,
+            Manufacturer = p.Manufacturer,
+            CategoryId = p.CategoryId,
+            CategoryName = p.Category?.Name,
             Description = p.Description,
-            Unit = p.Unit,
+            UnitId = p.UnitId,
+            UnitName = p.Unit?.Name,
             ImageUrl = p.ImageUrl,
-            Supplier = p.Supplier,
+            SupplierId = p.SupplierId,
+            SupplierName = p.Supplier?.Name,
+            BrandId = p.BrandId,
+            BrandName = p.Brand?.Name,
+            ExpiryDate = p.ExpiryDate,
+            BatchNumber = p.BatchNumber,
             IsLowStock = p.Quantity <= p.MinQuantity,
             TotalValue = p.Price * p.Quantity,
             CreatedAt = p.CreatedAt,

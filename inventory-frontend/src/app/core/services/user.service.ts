@@ -11,7 +11,17 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getUsers(page: number = 1, pageSize: number = 15, search?: string): Observable<any> {
+    let url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
+    if (search) url += `&search=${search}`;
+    return this.http.get<any>(url);
+  }
+
+  toggleStatus(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/toggle-status`, {});
+  }
+
+  deleteUser(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }

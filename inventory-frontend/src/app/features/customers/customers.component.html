@@ -1,0 +1,127 @@
+<div style="display: flex; flex-direction: column; gap: 20px;">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ 'SIDEBAR.CUSTOMERS' | translate }}</h1>
+      <p class="page-subtitle">{{ 'CUSTOMERS.SUBTITLE' | translate }}</p>
+    </div>
+    <button (click)="openModal()" class="btn btn-primary">
+      <lucide-icon [img]="iconPlus" [size]="16"></lucide-icon>
+      {{ 'COMMON.ADD' | translate }}
+    </button>
+  </div>
+
+  <div *ngIf="error" class="badge badge-danger" style="padding: 12px; margin-bottom: 10px; border-radius: 8px; font-size: 13px;">
+    {{ error }}
+  </div>
+
+  <!-- Search Bar -->
+  <div class="card" style="padding: 14px 20px;">
+    <div class="search-wrapper">
+      <span class="search-icon"><lucide-icon [img]="iconSearch" [size]="16"></lucide-icon></span>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="filterCustomers()"
+        [placeholder]="'COMMON.SEARCH' | translate" 
+        class="search-input"
+      >
+    </div>
+  </div>
+
+  <!-- Data Table -->
+  <div class="card" style="padding: 0;">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'COMMON.NAME' | translate }}</th>
+            <th>{{ 'SUPPLIERS.CONTACT_INFO' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
+            <th style="text-align: right;">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
+          </tr>
+          <tr *ngIf="!isLoading && filteredCustomers.length === 0">
+            <td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'CUSTOMERS.NO_CUSTOMERS' | translate }}</td>
+          </tr>
+          <tr *ngFor="let customer of filteredCustomers">
+            <td class="font-bold">{{ customer.name }}</td>
+            <td>
+              <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span>{{ customer.email || '—' }}</span>
+                <span class="text-xs text-muted">{{ customer.phone || '—' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="customer.isActive ? 'badge-success' : 'badge-danger'">
+                {{ customer.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+              </span>
+            </td>
+            <td>
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
+                  <lucide-icon [img]="iconEdit" [size]="14"></lucide-icon>
+                </button>
+                <button (click)="deleteCustomer(customer.id!)" class="btn btn-danger btn-icon btn-sm" [title]="'COMMON.DELETE' | translate">
+                  <lucide-icon [img]="iconTrash" [size]="14"></lucide-icon>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div *ngIf="showModal" class="custom-modal-overlay" (click)="closeModal()">
+  <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+    <div class="custom-modal-header">
+      <h3 class="custom-modal-title">
+        {{ editingCustomer ? ('CUSTOMERS.EDIT_CUSTOMER' | translate) : ('CUSTOMERS.ADD_CUSTOMER' | translate) }}
+      </h3>
+    </div>
+    
+    <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+      <div class="form-group">
+        <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
+        <input type="text" [(ngModel)]="customerForm.name" class="form-input">
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.EMAIL' | translate }}</label>
+          <input type="email" [(ngModel)]="customerForm.email" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.PHONE' | translate }}</label>
+          <input type="text" [(ngModel)]="customerForm.phone" class="form-input">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">{{ 'COMMON.ADDRESS' | translate }}</label>
+        <textarea [(ngModel)]="customerForm.address" rows="2" class="form-textarea"></textarea>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+        <input type="checkbox" [(ngModel)]="customerForm.isActive" id="isActiveCustomer" style="width: 16px; height: 16px;">
+        <label for="isActiveCustomer" class="form-label" style="margin: 0; text-transform: none;">{{ 'SUPPLIERS.IS_ACTIVE' | translate }}</label>
+      </div>
+    </div>
+    
+    <div class="custom-modal-footer">
+      <button (click)="closeModal()" class="btn btn-ghost">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button (click)="saveCustomer()" class="btn btn-primary" [disabled]="!customerForm.name">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

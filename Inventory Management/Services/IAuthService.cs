@@ -10,5 +10,6 @@ namespace Inventory_Management.Services
         Task<ApiResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken);
         Task<ApiResponse<UserProfileDto>> GetCurrentUserAsync(int userId);
         Task<ApiResponse<object>> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+        Task<ApiResponse<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto);
     }
 }

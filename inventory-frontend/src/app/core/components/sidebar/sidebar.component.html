@@ -1,18 +1,16 @@
-<aside class="sidebar">
+<aside class="sidebar" [class.collapsed]="layoutService.isCollapsed">
   <!-- Logo -->
   <div class="sidebar-logo">
-    <div class="sidebar-logo-icon">
-      <lucide-icon name="boxes" [size]="22"></lucide-icon>
-    </div>
+    <img src="assets/logo.jpg" class="sidebar-logo-img" alt="StockMaster Logo">
     <div class="sidebar-logo-text">
-      <span class="logo-name">InvManager</span>
-      <span class="logo-version">v2.0</span>
+      <span class="logo-name">StockMaster</span>
+      <span class="logo-version">ERP</span>
     </div>
   </div>
 
   <!-- Nav -->
   <nav class="sidebar-nav">
-    <span class="sidebar-section-label">NAVIGATION</span>
+    <span class="sidebar-section-label">{{ 'SIDEBAR.NAVIGATION' | translate }}</span>
     
     <a *ngFor="let item of menuItems" 
        [routerLink]="item.route" 
@@ -20,9 +18,9 @@
        [routerLinkActiveOptions]="{exact: item.route === '/'}"
        class="sidebar-link">
       <span class="sidebar-link-icon">
-        <lucide-icon [name]="item.icon" [size]="18"></lucide-icon>
+        <lucide-icon [img]="item.icon" [size]="18"></lucide-icon>
       </span>
-      <span class="sidebar-link-label">{{ item.label }}</span>
+      <span class="sidebar-link-label">{{ item.label | translate }}</span>
     </a>
   </nav>
 
@@ -30,16 +28,21 @@
   <div class="sidebar-footer">
     <div class="sidebar-user">
       <div class="avatar" style="width: 34px; height: 34px; font-size: 13px;">
-        A
+        {{ userName.charAt(0).toUpperCase() }}
       </div>
       <div class="sidebar-user-info">
-        <span class="sidebar-user-name">Admin</span>
-        <span class="sidebar-user-role">Manager</span>
+        <span class="sidebar-user-name">{{ userName }}</span>
+        <span class="sidebar-user-role">{{ userRole }}</span>
       </div>
     </div>
     <button class="sidebar-logout-btn" title="Logout" (click)="logout()">
-      <lucide-icon name="log-out" [size]="16"></lucide-icon>
-      <span>Logout</span>
+      <lucide-icon [img]="icons.LogOut" [size]="16"></lucide-icon>
+      <span>{{ 'COMMON.LOGOUT' | translate }}</span>
     </button>
   </div>
+
+  <!-- Collapse toggle button -->
+  <button class="sidebar-collapse-btn" (click)="layoutService.toggleCollapse()">
+    <lucide-icon [img]="layoutService.isCollapsed ? icons.ChevronRight : icons.ChevronLeft" [size]="14"></lucide-icon>
+  </button>
 </aside>

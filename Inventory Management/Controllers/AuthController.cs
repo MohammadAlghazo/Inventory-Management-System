@@ -64,5 +64,15 @@ namespace Inventory_Management.Controllers
             var result = await _authService.ChangePasswordAsync(userId, dto);
             return StatusCode(result.StatusCode, result);
         }
+
+        /// <summary>Update profile for the authenticated user (email, name)</summary>
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var result = await _authService.UpdateProfileAsync(userId, dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

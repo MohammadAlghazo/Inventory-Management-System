@@ -1,57 +1,205 @@
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Users</h1>
-    <p class="page-subtitle">Manage system users and access roles</p>
+<div style="display: flex; flex-direction: column; gap: 20px;">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ 'SIDEBAR.USERS' | translate }}</h1>
+      <p class="page-subtitle">{{ 'USERS.SUBTITLE' | translate }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="openRegister()">
+      <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon>
+      {{ 'USERS.REGISTER_USER' | translate }}
+    </button>
   </div>
-  <button class="btn btn-primary">
-    <lucide-icon name="user-plus" class="btn-icon"></lucide-icon>
-    Add User
-  </button>
-</div>
 
-<div class="card">
-  <div class="card-header">
-    <div class="search-box">
-      <lucide-icon name="search" class="search-icon"></lucide-icon>
-      <input type="text" placeholder="Search users..." class="search-input" />
+  <!-- Search Bar -->
+  <div class="card" style="padding: 14px 20px;">
+    <div class="search-wrapper">
+      <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
+      <input
+        class="search-input"
+        [placeholder]="'COMMON.SEARCH' | translate"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearch()"
+      />
     </div>
   </div>
 
-  <div class="table-container">
-    <div *ngIf="isLoading" class="loading-state">Loading users...</div>
+  <!-- Data Table -->
+  <div class="card" style="padding: 0;">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'USERS.USERNAME' | translate }}</th>
+            <th>{{ 'COMMON.EMAIL' | translate }}</th>
+            <th>{{ 'USERS.ROLE' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
+            <th>{{ 'USERS.JOINED' | translate }}</th>
+            <th style="text-align: right;">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loading state -->
+          <tr *ngIf="isLoading">
+            <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
+          </tr>
+
+          <!-- Empty state -->
+          <tr *ngIf="!isLoading && users.length === 0">
+            <td colspan="6">
+              <div class="empty-state">
+                <lucide-icon [img]="icons.Users" [size]="40"></lucide-icon>
+                <p>{{ 'USERS.NO_USERS' | translate }}</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Data rows -->
+          <ng-container *ngIf="!isLoading && users.length > 0">
+            <tr *ngFor="let u of users">
+              <td>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="avatar">
+                    {{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}
+                  </div>
+                  <div>
+                    <div class="font-bold">{{ u.username }}</div>
+                    <div class="text-xs text-muted">
+                      {{ u.firstName }} {{ u.lastName }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ u.email || '—' }}</td>
+              <td>
+                <span class="badge" [ngClass]="u.role === 'Manager' ? 'badge-accent' : 'badge-info'">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="u.isActive ? 'badge-success' : 'badge-danger'">
+                  {{ u.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                </span>
+              </td>
+              <td style="font-size: 12px; color: var(--text-secondary);">
+                {{ u.createdAt | date:'mediumDate' }}
+              </td>
+              <td>
+                <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                  <button
+                    class="btn btn-sm" [ngClass]="u.isActive ? 'btn-ghost' : 'btn-secondary'"
+                    (click)="toggleStatus(u)"
+                    [title]="'USERS.TOGGLE_STATUS' | translate"
+                  >
+                    <lucide-icon [img]="u.isActive ? icons.UserX : icons.UserCheck" [size]="13"></lucide-icon>
+                  </button>
+                  <button
+                    *ngIf="u.id.toString() !== currentUserId"
+                    class="btn btn-danger btn-icon btn-sm"
+                    (click)="confirmDelete(u)"
+                    [title]="'USERS.DELETE_USER' | translate"
+                  >
+                    <lucide-icon [img]="icons.Trash2" [size]="13"></lucide-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
     
-    <table *ngIf="!isLoading">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Role</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>
-            <div class="user-cell">
-              <div class="avatar">{{ user.unique_name[0].toUpperCase() }}</div>
-              <span class="user-name">{{ user.unique_name }}</span>
-            </div>
-          </td>
-          <td>
-            <span class="role-badge" [ngClass]="user.role === 'Admin' ? 'badge-admin' : 'badge-user'">
-              {{ user.role }}
-            </span>
-          </td>
-          <td>
-            <div class="actions">
-              <button class="action-btn text-blue"><lucide-icon name="edit-2"></lucide-icon></button>
-              <button class="action-btn text-red"><lucide-icon name="trash-2"></lucide-icon></button>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="users.length === 0">
-          <td colspan="3" class="text-center py-4 text-secondary">No users found.</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="pagination" *ngIf="totalPages > 0">
+      <span class="pagination-info">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">‹</button>
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">›</button>
+      </div>
+    </div>
   </div>
+
+  <!-- Delete Modal -->
+  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
+    <div class="custom-modal" style="max-width: 400px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title" style="color: var(--danger);">{{ 'USERS.DELETE_USER' | translate }}</h3>
+      </div>
+      <div class="custom-modal-body" style="padding-top: 16px;">
+        <p style="color: var(--text-secondary); font-size: 14px;">
+          {{ 'USERS.DELETE_USER_MSG' | translate:{username: deleteConfirm.username} }}
+        </p>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn btn-ghost" (click)="deleteConfirm = null">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button
+          class="btn btn-danger"
+          (click)="deleteUser()"
+          [disabled]="isDeleting"
+        >
+          <span class="spinner" *ngIf="isDeleting"></span>
+          <lucide-icon [img]="icons.Trash2" [size]="14" *ngIf="!isDeleting"></lucide-icon>
+          {{ 'COMMON.DELETE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false">
+    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">{{ 'USERS.REGISTER_NEW_USER' | translate }}</h3>
+      </div>
+      <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+        
+        <div class="badge badge-danger" *ngIf="registerError" style="padding: 10px; border-radius: 8px; font-size: 13px;">
+          {{ registerError }}
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">{{ 'USERS.FIRST_NAME' | translate }}</label>
+            <input class="form-input" [(ngModel)]="newUser.firstName" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">{{ 'USERS.LAST_NAME' | translate }}</label>
+            <input class="form-input" [(ngModel)]="newUser.lastName" />
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ 'USERS.USERNAME' | translate }} *</label>
+          <input class="form-input" [(ngModel)]="newUser.username" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.EMAIL' | translate }} *</label>
+          <input type="email" class="form-input" [(ngModel)]="newUser.email" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ 'USERS.PASSWORD' | translate }} *</label>
+          <input type="password" class="form-input" [(ngModel)]="newUser.password" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ 'USERS.ROLE' | translate }} *</label>
+          <select class="form-select" [(ngModel)]="newUser.role">
+            <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
+            <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn btn-ghost" (click)="showRegisterModal = false">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button class="btn btn-primary" (click)="registerUser()" [disabled]="!newUser.username || !newUser.email || !newUser.password || isRegistering">
+          <span class="spinner" *ngIf="isRegistering"></span>
+          {{ 'USERS.REGISTER_USER' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>

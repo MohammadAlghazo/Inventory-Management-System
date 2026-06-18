@@ -11,7 +11,25 @@ export class InventoryService {
 
   constructor(private http: HttpClient) {}
 
-  getInventoryLogs(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getInventoryLogs(page: number = 1, pageSize: number = 15, action?: string): Observable<any> {
+    let url = `${this.apiUrl}/logs?page=${page}&pageSize=${pageSize}`;
+    if (action) url += `&action=${action}`;
+    return this.http.get<any>(url);
+  }
+
+  addStock(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/add`, data);
+  }
+
+  sellStock(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/sell`, data);
+  }
+
+  adjustStock(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/adjust`, data);
+  }
+
+  returnStock(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/return`, data);
   }
 }

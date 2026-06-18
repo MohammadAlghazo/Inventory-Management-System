@@ -3,15 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { LucideAngularModule, Package, User, Lock, ArrowRight } from 'lucide-angular';
+import { LucideAngularModule, User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users } from 'lucide-angular';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  icons = { User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users };
+  
   credentials = {
     username: '',
     password: ''
@@ -20,17 +23,25 @@ export class LoginComponent {
   isLoading: boolean = false;
   showPassword = false;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private translate: TranslateService
+  ) {}
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  scrollToOverview() {
+    document.getElementById('overview')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   onSubmit() {
     this.error = '';
     
     if (!this.credentials.username || !this.credentials.password) {
-      this.error = 'Please enter both username and password';
+      this.error = this.translate.instant('LOGIN.ERR_FILL_FIELDS');
       return;
     }
 
@@ -42,7 +53,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        this.error = err.error?.message || 'Invalid credentials or server error';
+        this.error = err.error?.message || this.translate.instant('LOGIN.ERR_INVALID_CREDS');
       }
     });
   }

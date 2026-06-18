@@ -135,7 +135,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ILookupService, LookupService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 // FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
@@ -173,4 +176,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+// Seed Database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    DbInitializer.Seed(context);
+}
+
 app.Run();
+

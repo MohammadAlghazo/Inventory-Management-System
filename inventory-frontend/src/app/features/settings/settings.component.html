@@ -1,0 +1,209 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ 'SIDEBAR.SETTINGS' | translate }}</h1>
+    <p class="page-subtitle">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
+  </div>
+</div>
+
+<div class="card" style="padding: 0;">
+  <div class="tabs">
+    <button class="tab-btn" [class.active]="activeTab === 'categories'" (click)="setTab('categories')">{{ 'SETTINGS.CATEGORIES' | translate }}</button>
+    <button class="tab-btn" [class.active]="activeTab === 'brands'" (click)="setTab('brands')">{{ 'SETTINGS.BRANDS' | translate }}</button>
+    <button class="tab-btn" [class.active]="activeTab === 'units'" (click)="setTab('units')">{{ 'SETTINGS.UNITS' | translate }}</button>
+    <button class="tab-btn" [class.active]="activeTab === 'warehouses'" (click)="setTab('warehouses')">{{ 'SETTINGS.WAREHOUSES' | translate }}</button>
+  </div>
+
+  <div class="tab-content" style="padding: 24px;">
+    <!-- CATEGORIES -->
+    <div *ngIf="activeTab === 'categories'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2>{{ 'SETTINGS.CATEGORIES' | translate }}</h2>
+        <button class="btn btn-primary btn-sm" (click)="openModal('category')">{{ 'SETTINGS.ADD_CATEGORY' | translate }}</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'COMMON.ID' | translate }}</th>
+              <th>{{ 'COMMON.NAME' | translate }}</th>
+              <th>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="categories.length === 0">
+              <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_CATEGORIES' | translate }}</td>
+            </tr>
+            <tr *ngFor="let item of categories">
+              <td><code>#{{ item.id }}</code></td>
+              <td class="font-bold">{{ item.name }}</td>
+              <td class="text-secondary">{{ item.description || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- BRANDS -->
+    <div *ngIf="activeTab === 'brands'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2>{{ 'SETTINGS.BRANDS' | translate }}</h2>
+        <button class="btn btn-primary btn-sm" (click)="openModal('brand')">{{ 'SETTINGS.ADD_BRAND' | translate }}</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'COMMON.ID' | translate }}</th>
+              <th>{{ 'COMMON.NAME' | translate }}</th>
+              <th>{{ 'COMMON.DESCRIPTION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="brands.length === 0">
+              <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_BRANDS' | translate }}</td>
+            </tr>
+            <tr *ngFor="let item of brands">
+              <td><code>#{{ item.id }}</code></td>
+              <td class="font-bold">{{ item.name }}</td>
+              <td class="text-secondary">{{ item.description || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- UNITS -->
+    <div *ngIf="activeTab === 'units'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2>{{ 'SETTINGS.UNITS' | translate }}</h2>
+        <button class="btn btn-primary btn-sm" (click)="openModal('unit')">{{ 'SETTINGS.ADD_UNIT' | translate }}</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'COMMON.ID' | translate }}</th>
+              <th>{{ 'COMMON.NAME' | translate }}</th>
+              <th>{{ 'SETTINGS.ABBREVIATION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="units.length === 0">
+              <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_UNITS' | translate }}</td>
+            </tr>
+            <tr *ngFor="let item of units">
+              <td><code>#{{ item.id }}</code></td>
+              <td class="font-bold">{{ item.name }}</td>
+              <td><span class="badge badge-accent">{{ item.abbreviation }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WAREHOUSES -->
+    <div *ngIf="activeTab === 'warehouses'">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2>{{ 'SETTINGS.WAREHOUSES' | translate }}</h2>
+        <button class="btn btn-primary btn-sm" (click)="openModal('warehouse')">{{ 'SETTINGS.ADD_WAREHOUSE' | translate }}</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ 'COMMON.ID' | translate }}</th>
+              <th>{{ 'COMMON.NAME' | translate }}</th>
+              <th>{{ 'SETTINGS.LOCATION' | translate }}</th>
+              <th>{{ 'SETTINGS.MANAGER' | translate }}</th>
+              <th>{{ 'SETTINGS.CAPACITY' | translate }}</th>
+              <th>{{ 'COMMON.STATUS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="warehouses.length === 0">
+              <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_WAREHOUSES' | translate }}</td>
+            </tr>
+            <tr *ngFor="let item of warehouses">
+              <td><code>#{{ item.id }}</code></td>
+              <td class="font-bold">{{ item.name }}</td>
+              <td class="text-secondary">{{ item.location || '—' }}</td>
+              <td>{{ item.managerName || '—' }}</td>
+              <td>{{ item.capacity || '—' }}</td>
+              <td>
+                <span class="badge" [ngClass]="item.isActive ? 'badge-success' : 'badge-danger'">
+                  {{ item.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="custom-modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    <div class="custom-modal-header">
+      <h3 class="custom-modal-title">
+        {{ 'SETTINGS.ADD_TYPE' | translate:{type: (modalType | titlecase)} }}
+      </h3>
+    </div>
+    <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+      
+      <!-- Category/Brand fields -->
+      <ng-container *ngIf="modalType === 'category' || modalType === 'brand'">
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.DESCRIPTION' | translate }}</label>
+          <textarea class="form-textarea" [(ngModel)]="formData.description" rows="3"></textarea>
+        </div>
+      </ng-container>
+
+      <!-- Unit fields -->
+      <ng-container *ngIf="modalType === 'unit'">
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'SETTINGS.ABBREVIATION' | translate }} *</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.abbreviation">
+        </div>
+      </ng-container>
+
+      <!-- Warehouse fields -->
+      <ng-container *ngIf="modalType === 'warehouse'">
+        <div class="form-group">
+          <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'SETTINGS.LOCATION' | translate }}</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.location">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'SETTINGS.MANAGER' | translate }}</label>
+          <input type="text" class="form-input" [(ngModel)]="formData.managerName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'SETTINGS.CAPACITY' | translate }}</label>
+          <input type="number" class="form-input" [(ngModel)]="formData.capacity">
+        </div>
+      </ng-container>
+
+    </div>
+    <div class="custom-modal-footer">
+      <button class="btn btn-ghost" (click)="closeModal()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="save()" [disabled]="!formData.name">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

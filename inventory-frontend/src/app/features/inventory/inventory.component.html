@@ -1,59 +1,186 @@
-<div class="page-header">
-  <div>
-    <h1 class="page-title">Inventory Movements</h1>
-    <p class="page-subtitle">Track stock in and stock out activities</p>
-  </div>
-  <div class="header-actions">
-    <button class="btn btn-outline text-red">
-      <lucide-icon name="arrow-down-circle" class="btn-icon"></lucide-icon>
-      Stock Out
-    </button>
-    <button class="btn btn-primary text-green-btn">
-      <lucide-icon name="arrow-up-circle" class="btn-icon"></lucide-icon>
-      Stock In
-    </button>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-header">
-    <div class="search-box">
-      <lucide-icon name="search" class="search-icon"></lucide-icon>
-      <input type="text" placeholder="Search logs..." class="search-input" />
+<div style="display: flex; flex-direction: column; gap: 20px;">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ 'SIDEBAR.INVENTORY' | translate }}</h1>
+      <p class="page-subtitle">{{ 'INVENTORY.SUBTITLE' | translate }}</p>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn btn-ghost" (click)="exportToExcel()" [disabled]="!logs.length" [title]="'INVENTORY.EXPORT_EXCEL' | translate">
+        <lucide-icon [img]="icons.Download" [size]="16"></lucide-icon>
+      </button>
+      <button class="btn btn-secondary" (click)="openActionModal('return')">
+        {{ 'INVENTORY.RETURN_STOCK' | translate }}
+      </button>
+      <button *ngIf="isAdmin" class="btn btn-secondary" (click)="openActionModal('adjust')">
+        {{ 'INVENTORY.ADJUST_STOCK' | translate }}
+      </button>
+      <button class="btn btn-danger" style="background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239,68,68,0.2);" (click)="openActionModal('sell')">
+        {{ 'INVENTORY.SELL_STOCK' | translate }}
+      </button>
+      <button class="btn btn-primary" (click)="openActionModal('add')">
+        <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon>
+        {{ 'INVENTORY.ADD_STOCK' | translate }}
+      </button>
     </div>
   </div>
 
-  <div class="table-container">
-    <div *ngIf="isLoading" class="loading-state">Loading inventory logs...</div>
-    
-    <table *ngIf="!isLoading">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Product</th>
-          <th>Type</th>
-          <th>Quantity</th>
-          <th>User</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let log of inventoryLogs">
-          <td>{{ log.createdAt | date:'short' }}</td>
-          <td>{{ log.product?.name }}</td>
-          <td>
-            <span class="type-badge" [ngClass]="log.type === 'IN' ? 'badge-in' : 'badge-out'">
-              {{ log.type }}
-            </span>
-          </td>
-          <td [ngClass]="log.type === 'IN' ? 'text-green' : 'text-red'">
-            {{ log.type === 'IN' ? '+' : '-' }}{{ log.quantity }}
-          </td>
-          <td>{{ log.user?.unique_name }}</td>
-        </tr>
-        <tr *ngIf="inventoryLogs.length === 0">
-          <td colspan="5" class="text-center py-4 text-secondary">No inventory logs found.</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Filters -->
+  <div class="card" style="padding: 14px 20px;">
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <label class="form-label" style="margin: 0; text-transform: none;">{{ 'INVENTORY.ACTION_FILTER' | translate }}</label>
+      
+      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === ''}" (click)="filterByAction('')">
+        {{ 'INVENTORY.ALL_ACTIONS' | translate }}
+      </button>
+      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Add'}" [style.color]="actionFilter === 'Add' ? '#10b981' : ''" [style.background]="actionFilter === 'Add' ? 'rgba(16, 185, 129, 0.12)' : ''" (click)="filterByAction('Add')">
+        {{ 'INVENTORY.ADD' | translate }}
+      </button>
+      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Sell'}" [style.color]="actionFilter === 'Sell' ? '#ef4444' : ''" [style.background]="actionFilter === 'Sell' ? 'rgba(239, 68, 68, 0.12)' : ''" (click)="filterByAction('Sell')">
+        {{ 'INVENTORY.SELL' | translate }}
+      </button>
+      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Adjust'}" [style.color]="actionFilter === 'Adjust' ? '#f59e0b' : ''" [style.background]="actionFilter === 'Adjust' ? 'rgba(245, 158, 11, 0.12)' : ''" (click)="filterByAction('Adjust')">
+        {{ 'INVENTORY.ADJUST' | translate }}
+      </button>
+      <button class="btn btn-ghost btn-sm" [ngClass]="{'active': actionFilter === 'Return'}" [style.color]="actionFilter === 'Return' ? '#6366f1' : ''" [style.background]="actionFilter === 'Return' ? 'rgba(99, 102, 241, 0.12)' : ''" (click)="filterByAction('Return')">
+        {{ 'INVENTORY.RETURN' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card" style="padding: 0;">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>{{ 'INVENTORY.DATE' | translate }}</th>
+            <th>{{ 'INVENTORY.PRODUCT' | translate }}</th>
+            <th>{{ 'INVENTORY.ACTION' | translate }}</th>
+            <th>{{ 'INVENTORY.PREVIOUS' | translate }}</th>
+            <th>{{ 'INVENTORY.CHANGE' | translate }}</th>
+            <th>{{ 'INVENTORY.NEW' | translate }}</th>
+            <th>{{ 'INVENTORY.CHANGED_BY' | translate }}</th>
+            <th>{{ 'INVENTORY.NOTES' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let dummy of [1,2,3,4,5]">
+              <td *ngFor="let col of [1,2,3,4,5,6,7,8]">
+                <div class="skeleton" style="height: 16px; width: 75%;"></div>
+              </td>
+            </tr>
+          </ng-container>
+
+          <tr *ngIf="!isLoading && logs.length === 0">
+            <td colspan="8">
+              <div class="empty-state">
+                <lucide-icon [img]="icons.ClipboardList" [size]="40"></lucide-icon>
+                <p>{{ 'INVENTORY.NO_MOVEMENTS' | translate }}</p>
+              </div>
+            </td>
+          </tr>
+
+          <ng-container *ngIf="!isLoading && logs.length > 0">
+            <tr *ngFor="let log of logs">
+              <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
+                {{ log.actionDate | date:'medium' }}
+              </td>
+              <td class="font-bold">{{ log.productName }}</td>
+              <td>
+                <span class="badge" 
+                      [ngClass]="{
+                        'badge-success': log.action === 'Add',
+                        'badge-danger': log.action === 'Sell',
+                        'badge-warning': log.action === 'Adjust',
+                        'badge-info': log.action === 'Return'
+                      }">
+                  {{ ('INVENTORY.' + log.action.toUpperCase()) | translate }}
+                </span>
+              </td>
+              <td>{{ log.previousQuantity }}</td>
+              <td class="font-bold" 
+                  [ngStyle]="{
+                    'color': log.action === 'Sell' ? 'var(--danger)' : 
+                             (log.action === 'Add' ? 'var(--success)' : 
+                             (log.action === 'Return' ? 'var(--info)' : 'var(--warning)'))
+                  }">
+                {{ log.action === 'Sell' ? '-' : '+' }}{{ log.quantityChanged }}
+              </td>
+              <td class="font-bold">{{ log.newQuantity }}</td>
+              <td>
+                <span class="badge badge-accent">{{ log.performedBy || '—' }}</span>
+              </td>
+              <td style="font-size: 12px; color: var(--text-secondary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="log.notes">
+                {{ log.notes || '—' }}
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 0">
+      <span class="pagination-info">{{ 'PRODUCTS.PAGE' | translate }} {{ page }} / {{ totalPages }}</span>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+          <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
+        </button>
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+          <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Modal -->
+  <div class="custom-modal-overlay" *ngIf="actionModal" (click)="closeActionModal()">
+    <div class="custom-modal" style="max-width: 440px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">{{ getModalTitle() | translate }}</h3>
+      </div>
+      <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+        
+        <div class="badge badge-danger" *ngIf="actionError" style="padding: 10px; border-radius: 8px; font-size: 13px;">
+          {{ actionError }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'INVENTORY.PRODUCT' | translate }} *</label>
+          <select class="form-select" [(ngModel)]="selectedProductId">
+            <option value="">{{ 'INVENTORY.SELECT_PRODUCT' | translate }}</option>
+            <option *ngFor="let p of products" [value]="p.id">
+              {{ p.name }} ({{ 'PRODUCTS.QUANTITY' | translate }}: {{ p.quantity }} {{ p.unitName }})
+            </option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ getQtyLabel() | translate }} *</label>
+          <input class="form-input" type="number" [min]="actionModal === 'adjust' ? 0 : 1" [(ngModel)]="quantity" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">{{ 'INVENTORY.NOTES' | translate }}</label>
+          <textarea class="form-textarea" rows="2" [(ngModel)]="notes"></textarea>
+        </div>
+
+      </div>
+      <div class="custom-modal-footer">
+        <button class="btn btn-ghost" (click)="closeActionModal()">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button
+          class="btn btn-primary"
+          [disabled]="!selectedProductId || quantity < 0 || isSubmitting"
+          (click)="submitAction()"
+        >
+          <span class="spinner" *ngIf="isSubmitting"></span>
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

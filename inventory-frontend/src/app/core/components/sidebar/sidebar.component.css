@@ -1,4 +1,4 @@
-﻿/* Sidebar Styles */
+/* Sidebar Styles */
 .sidebar {
   position: fixed;
   top: 0;
@@ -44,15 +44,11 @@
   flex-shrink: 0;
 }
 
-.sidebar-logo-icon {
+.sidebar-logo-img {
   width: 38px;
   height: 38px;
-  background: linear-gradient(135deg, var(--accent), var(--violet));
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
+  object-fit: cover;
   flex-shrink: 0;
   box-shadow: 0 4px 12px var(--accent-glow);
 }

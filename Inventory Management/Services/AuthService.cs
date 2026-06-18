@@ -83,6 +83,17 @@ namespace Inventory_Management.Services
             };
 
             _db.Users.Add(newUser);
+
+            // Notification
+            _db.Notifications.Add(new Notification
+            {
+                Title = "User Registered",
+                Message = $"New user '{newUser.Username}' has been registered as '{newUser.Role}'.",
+                Type = "Info",
+                TargetRole = "Manager",
+                CreatedAt = DateTime.UtcNow
+            });
+
             await _db.SaveChangesAsync();
 
             return ApiResponse<object>.Created(new { userId = newUser.Id }, "User registered successfully");
@@ -135,6 +146,26 @@ namespace Inventory_Management.Services
             await _db.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null!, "Password changed successfully");
+        }
+
+        public async Task<ApiResponse<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+        {
+            var user = await _db.Users.FindAsync(userId);
+            if (user == null) return ApiResponse<UserProfileDto>.NotFound("User not found");
+
+            // Check email uniqueness (excluding self)
+            if (!string.IsNullOrWhiteSpace(dto.Email) &&
+                await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != userId))
+                return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
+
+            if (!string.IsNullOrWhiteSpace(dto.Email))     user.Email     = dto.Email;
+            if (!string.IsNullOrWhiteSpace(dto.FirstName)) user.FirstName = dto.FirstName;
+            if (!string.IsNullOrWhiteSpace(dto.LastName))  user.LastName  = dto.LastName;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return ApiResponse<UserProfileDto>.Ok(MapToProfile(user), "Profile updated successfully");
         }
 
         // ── Private helpers ─────────────────────────────────────────────
