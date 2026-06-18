@@ -16,21 +16,10 @@
   </div>
 
   <!-- Search & Filters & Exports -->
-  <div class="card search-filter-row">
-    <!-- Left: Export buttons -->
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || filteredSuppliers.length === 0" style="display: flex; align-items: center; gap: 6px;">
-        Excel
-      </button>
-      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || filteredSuppliers.length === 0" style="display: flex; align-items: center; gap: 6px;">
-        PDF
-      </button>
-    </div>
-
-    <!-- Right: Search & Select Filters -->
-    <div class="search-filter-controls">
-      <!-- Universal Search Box -->
-      <div class="search-wrapper" style="min-width: 240px;">
+  <div class="card" style="padding: 12px 16px;">
+    <div class="search-filter-row">
+      <!-- Search Box -->
+      <div class="search-wrapper" style="min-width: 220px; flex: 1; max-width: 320px;">
         <span class="search-icon"><lucide-icon [img]="iconSearch" [size]="16"></lucide-icon></span>
         <input 
           type="text" 
@@ -41,12 +30,23 @@
         >
       </div>
 
-      <!-- Status Filter -->
-      <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="selectedStatus" (ngModelChange)="filterSuppliers()">
-        <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
-        <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
-        <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
-      </select>
+      <!-- Filters + Export Buttons (all on same row) -->
+      <div class="search-filter-controls">
+        <!-- Status Filter -->
+        <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="selectedStatus" (ngModelChange)="filterSuppliers()">
+          <option value="">{{ 'COMMON.STATUS' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+          <option value="active">{{ 'COMMON.ACTIVE' | translate }}</option>
+          <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
+        </select>
+
+        <!-- Export Buttons -->
+        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || filteredSuppliers.length === 0">
+          Excel
+        </button>
+        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || filteredSuppliers.length === 0">
+          PDF
+        </button>
+      </div>
     </div>
   </div>
 

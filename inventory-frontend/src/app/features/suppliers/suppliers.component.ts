@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { SupplierService, Supplier, ApiResponse } from '../../core/services/supplier.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ExportHelper } from '../../core/utils/export-helper';
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-suppliers',
@@ -44,7 +45,11 @@ export class SuppliersComponent implements OnInit {
     isActive: true
   };
 
-  constructor(private supplierService: SupplierService) {}
+  constructor(
+    private supplierService: SupplierService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
+  ) {}
 
   ngOnInit() {
     this.loadSuppliers();
@@ -140,11 +145,11 @@ export class SuppliersComponent implements OnInit {
       'Tax Number': s.taxNumber || '—',
       'Status': s.isActive ? 'Active' : 'Inactive'
     }));
-    ExportHelper.toExcel(dataToExport, 'Suppliers_Report');
+    this.exportExcel.export(dataToExport, 'Suppliers_Report');
   }
 
   exportToPdf() {
-    ExportHelper.toPdf('suppliers-table', 'Suppliers_Report');
+    this.exportPdf.export('suppliers-table', 'Suppliers_Report');
   }
 
   openModal(supplier?: Supplier) {

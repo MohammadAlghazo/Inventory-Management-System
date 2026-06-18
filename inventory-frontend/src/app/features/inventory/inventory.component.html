@@ -23,21 +23,10 @@
   </div>
 
   <!-- Search & Filters & Exports -->
-  <div class="card search-filter-row">
-    <!-- Left: Export buttons -->
-    <div style="display: flex; gap: 8px; align-items: center;">
-      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredLogs().length === 0" style="display: flex; align-items: center; gap: 6px;">
-        Excel
-      </button>
-      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredLogs().length === 0" style="display: flex; align-items: center; gap: 6px;">
-        PDF
-      </button>
-    </div>
-
-    <!-- Right: Search & Select Filters -->
-    <div class="search-filter-controls">
-      <!-- Universal Search Box -->
-      <div class="search-wrapper" style="min-width: 240px;">
+  <div class="card" style="padding: 12px 16px;">
+    <div class="search-filter-row">
+      <!-- Search Box -->
+      <div class="search-wrapper" style="min-width: 220px; flex: 1; max-width: 320px;">
         <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
         <input 
           type="text" 
@@ -48,14 +37,25 @@
         >
       </div>
 
-      <!-- Action Type Filter -->
-      <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="actionFilter" (ngModelChange)="onFilterChange()">
-        <option value="">{{ 'INVENTORY.ACTION_FILTER' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
-        <option value="Add">{{ 'INVENTORY.ADD' | translate }}</option>
-        <option value="Sell">{{ 'INVENTORY.SELL' | translate }}</option>
-        <option value="Adjust">{{ 'INVENTORY.ADJUST' | translate }}</option>
-        <option value="Return">{{ 'INVENTORY.RETURN' | translate }}</option>
-      </select>
+      <!-- Filters + Export Buttons (all on same row) -->
+      <div class="search-filter-controls">
+        <!-- Action Type Filter -->
+        <select class="form-select filter-select" style="width: 180px;" [(ngModel)]="actionFilter" (ngModelChange)="onFilterChange()">
+          <option value="">{{ 'INVENTORY.ACTION_FILTER' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
+          <option value="Add">{{ 'INVENTORY.ADD' | translate }}</option>
+          <option value="Sell">{{ 'INVENTORY.SELL' | translate }}</option>
+          <option value="Adjust">{{ 'INVENTORY.ADJUST' | translate }}</option>
+          <option value="Return">{{ 'INVENTORY.RETURN' | translate }}</option>
+        </select>
+
+        <!-- Export Buttons -->
+        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredLogs().length === 0">
+          Excel
+        </button>
+        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredLogs().length === 0">
+          PDF
+        </button>
+      </div>
     </div>
   </div>
 

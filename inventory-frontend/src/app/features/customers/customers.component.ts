@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { CustomerService, Customer, ApiResponse } from '../../core/services/customer.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ExportHelper } from '../../core/utils/export-helper';
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-customers',
@@ -43,7 +44,11 @@ export class CustomersComponent implements OnInit {
     isActive: true
   };
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
+  ) {}
 
   ngOnInit() {
     this.loadCustomers();
@@ -137,11 +142,11 @@ export class CustomersComponent implements OnInit {
       'Address': c.address || '—',
       'Status': c.isActive ? 'Active' : 'Inactive'
     }));
-    ExportHelper.toExcel(dataToExport, 'Customers_Report');
+    this.exportExcel.export(dataToExport, 'Customers_Report');
   }
 
   exportToPdf() {
-    ExportHelper.toPdf('customers-table', 'Customers_Report');
+    this.exportPdf.export('customers-table', 'Customers_Report');
   }
 
   openModal(customer?: Customer) {

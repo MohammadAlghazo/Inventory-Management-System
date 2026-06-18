@@ -7,7 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
-import { ExportHelper } from '../../core/utils/export-helper';
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-products',
@@ -39,7 +40,9 @@ export class ProductsComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -120,11 +123,11 @@ export class ProductsComponent implements OnInit {
       'Supplier': p.supplier || '—',
       'Status': p.isActive ? 'Active' : 'Inactive'
     }));
-    ExportHelper.toExcel(dataToExport, 'Products_Report');
+    this.exportExcel.export(dataToExport, 'Products_Report');
   }
 
   exportToPdf() {
-    ExportHelper.toPdf('products-table', 'Products_Report');
+    this.exportPdf.export('products-table', 'Products_Report');
   }
 
   onSearch() {

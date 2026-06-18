@@ -45,7 +45,7 @@
                [ngClass]="{ 'unread': !item.isRead }"
                (click)="navigateFromNotification(item)"
                style="cursor: pointer;">
-            <div class="notif-indicator" [ngClass]="item.type?.toLowerCase() || 'info'"></div>
+            <div class="notif-indicator" [ngClass]="item.type.toLowerCase() || 'info'"></div>
             <div class="notif-content-wrapper">
               <div class="notif-item-title">{{ item.title }}</div>
               <div class="notif-item-desc">{{ item.message }}</div>

@@ -9,12 +9,19 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.isTokenValid());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    // Clean up expired token on startup
+    if (!this.isTokenValid()) {
+      localStorage.removeItem('token');
+    }
+  }
 
   login(credentials: any): Observable<any> {
+    // Remove any stale token before a fresh login attempt
+    localStorage.removeItem('token');
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
         if (response.data && response.data.token) {
@@ -39,7 +46,20 @@ export class AuthService {
   }
 
   hasToken(): boolean {
-    return !!this.getToken();
+    return this.isTokenValid();
+  }
+
+  isTokenValid(): boolean {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    try {
+      const decoded: any = jwtDecode(token);
+      if (!decoded.exp) return true; // no expiry claim — treat as valid
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      return decoded.exp > nowSeconds;
+    } catch {
+      return false;
+    }
   }
 
   getCurrentUser(): any {

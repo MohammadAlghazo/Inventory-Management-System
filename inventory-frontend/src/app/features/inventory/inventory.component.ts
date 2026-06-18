@@ -6,7 +6,8 @@ import { InventoryService } from '../../core/services/inventory.service';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ExportHelper } from '../../core/utils/export-helper';
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-inventory',
@@ -42,7 +43,9 @@ export class InventoryComponent implements OnInit {
   constructor(
     private inventoryService: InventoryService,
     private productService: ProductService,
-    private authService: AuthService
+    private authService: AuthService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -219,10 +222,10 @@ export class InventoryComponent implements OnInit {
       'Performed By': log.performedBy || log.userName || '—',
       'Notes': log.notes || '—'
     }));
-    ExportHelper.toExcel(dataToExport, 'Inventory_Logs_Report');
+    this.exportExcel.export(dataToExport, 'Inventory_Logs_Report');
   }
 
   exportToPdf() {
-    ExportHelper.toPdf('inventory-table', 'Inventory_Logs_Report');
+    this.exportPdf.export('inventory-table', 'Inventory_Logs_Report');
   }
 }

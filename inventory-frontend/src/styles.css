@@ -681,8 +681,11 @@ code {
 .search-icon {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
   pointer-events: none;
 }
@@ -922,37 +925,34 @@ code {
 }
 
 .search-filter-row {
-  padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
   width: 100%;
+  /* NO flex-wrap: keep everything on one row */
 }
 
 .search-filter-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  flex: 1;
-  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
-/* Ensure equal heights on select/input/button filters for vertical alignment */
-.search-filter-controls .search-wrapper,
+/* Equal heights for all row elements */
+.search-filter-row .search-wrapper,
+.search-filter-row .search-input,
 .search-filter-controls .form-select,
-.search-filter-controls .form-input,
 .search-filter-controls .search-input,
-.search-filter-row .btn {
+.search-filter-row .btn,
+.search-filter-controls .btn {
   height: 38px !important;
 }
 
 .search-filter-controls .form-select {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
-  line-height: 38px !important;
   background-color: var(--bg-input) !important;
   color: var(--text-primary) !important;
   border: 1px solid var(--border) !important;
@@ -960,8 +960,52 @@ code {
   cursor: pointer;
   outline: none;
   font-size: 14px;
+  height: 38px !important;
+  line-height: 1 !important;
 }
 
 .search-filter-controls .form-select:focus {
   border-color: var(--accent) !important;
+}
+
+/* ── Light mode border & icon visibility ── */
+[data-theme="light"] .search-input,
+[data-theme="light"] .search-wrapper input {
+  border: 1px solid rgba(28, 45, 39, 0.25) !important;
+  color: #1c2d27 !important;
+}
+
+[data-theme="light"] .search-input::placeholder {
+  color: #6f7f7a !important;
+}
+
+[data-theme="light"] .search-icon {
+  color: #6f7f7a !important;
+}
+
+[data-theme="light"] .table-wrapper {
+  border: 1px solid rgba(28, 45, 39, 0.15) !important;
+}
+
+[data-theme="light"] thead {
+  background: #f9fafb !important;
+}
+
+[data-theme="light"] thead th {
+  color: #374151 !important;
+  border-bottom: 1px solid rgba(28, 45, 39, 0.15) !important;
+}
+
+[data-theme="light"] .card {
+  border: 1px solid rgba(28, 45, 39, 0.10) !important;
+}
+
+/* Fix lucide icons color in light mode */
+[data-theme="light"] lucide-icon svg {
+  stroke: currentColor !important;
+}
+
+/* Fix text that is hardcoded white on light mode - override using var */
+[data-theme="light"] .text-primary-forced {
+  color: #1c2d27 !important;
 }

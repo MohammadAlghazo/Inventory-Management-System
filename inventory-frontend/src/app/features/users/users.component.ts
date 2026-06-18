@@ -9,7 +9,8 @@ import {
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { ExportHelper } from '../../core/utils/export-helper';
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-users',
@@ -54,7 +55,9 @@ export class UsersComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
   ) {
     this.currentUser = this.authService.getCurrentUser();
   }
@@ -138,11 +141,11 @@ export class UsersComponent implements OnInit {
       'Role': u.role,
       'Status': u.isActive ? 'Active' : 'Inactive'
     }));
-    ExportHelper.toExcel(dataToExport, 'Users_Report');
+    this.exportExcel.export(dataToExport, 'Users_Report');
   }
 
   exportToPdf() {
-    ExportHelper.toPdf('users-table', 'Users_Report');
+    this.exportPdf.export('users-table', 'Users_Report');
   }
 
   toggleStatus(user: any) {

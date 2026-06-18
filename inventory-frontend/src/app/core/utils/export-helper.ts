@@ -23,14 +23,32 @@ export class ExportHelper {
       return Promise.reject(`Element with ID '${elementId}' not found.`);
     }
 
+    // Temporarily hide columns that shouldn't be in the PDF (e.g. Actions)
+    const hiddenElements: HTMLElement[] = [];
+    const actionHeaders = element.querySelectorAll('th');
+    actionHeaders.forEach(th => {
+      if (th.textContent?.trim().toLowerCase().includes('actions') || th.textContent?.trim() === 'إجراءات') {
+        const idx = Array.from(th.parentNode!.children).indexOf(th);
+        th.style.display = 'none';
+        hiddenElements.push(th);
+        const rows = element.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+          const td = row.children[idx] as HTMLElement;
+          if (td) {
+            td.style.display = 'none';
+            hiddenElements.push(td);
+          }
+        });
+      }
+    });
+
     // Temporarily apply inline styles if needed, or render the canvas as is
     return html2canvas(element, {
-      scale: 2,
+      scale: 3, // Increased scale for crisper text
       useCORS: true,
-      // Respect the theme backgrounds
       backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#ffffff'
     }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       
       // Calculate dimensions for A4 paper (210mm x 297mm)
       const pdf = new jsPDF('p', 'mm', 'a4');
@@ -51,6 +69,9 @@ export class ExportHelper {
       }
       
       pdf.save(`${filename}.pdf`);
+    }).finally(() => {
+      // Restore hidden elements
+      hiddenElements.forEach(el => el.style.display = '');
     });
   }
 }
