@@ -1,0 +1,39 @@
+<header class="header">
+  <!-- Left: hamburger + title -->
+  <div class="header-left">
+    <button class="header-menu-btn" aria-label="Toggle menu">
+      <lucide-icon name="menu" [size]="20"></lucide-icon>
+    </button>
+    <h1 class="header-title">Dashboard</h1>
+  </div>
+
+  <!-- Right: controls -->
+  <div class="header-right">
+    <!-- Language switcher -->
+    <button class="header-icon-btn" title="English">
+      <lucide-icon name="globe" [size]="18"></lucide-icon>
+      <span class="header-lang-label">EN</span>
+    </button>
+
+    <!-- Theme toggle -->
+    <button class="header-icon-btn" title="Dark Mode">
+      <lucide-icon name="moon" [size]="18"></lucide-icon>
+    </button>
+
+    <!-- Notifications -->
+    <button class="header-icon-btn header-notif-btn" title="Low Stock Alerts">
+      <lucide-icon name="bell" [size]="18"></lucide-icon>
+    </button>
+
+    <!-- User avatar -->
+    <div class="header-user">
+      <div class="avatar">
+        A
+      </div>
+      <div class="header-user-info">
+        <span class="header-user-name">Admin User</span>
+        <span class="header-user-role">Manager</span>
+      </div>
+    </div>
+  </div>
+</header>

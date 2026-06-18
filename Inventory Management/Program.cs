@@ -57,7 +57,7 @@ builder.Services.AddSwaggerGen(c =>
 // 3. Database
 // ─────────────────────────────────────────────
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("AppDbContext")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext")));
 
 // ─────────────────────────────────────────────
 // 4. JWT Authentication (key from config — NOT hardcoded)

@@ -1,0 +1,54 @@
+<div class="dashboard">
+  <!-- KPI Grid -->
+  <div class="kpi-grid">
+    <div class="kpi-card" *ngFor="let kpi of kpis">
+      <div class="kpi-icon" [style.background]="kpi.bg">
+        <lucide-icon [name]="kpi.icon" [size]="22" [style.color]="kpi.color"></lucide-icon>
+      </div>
+      <div>
+        <p class="kpi-label">{{ kpi.label }}</p>
+        <p class="kpi-value" [style.color]="kpi.color">{{ kpi.value }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="dashboard-charts">
+    <div class="card chart-card">
+      <h3 class="chart-title">Activity Overview</h3>
+      <div class="empty-state" style="padding: 40px 0;">
+        <lucide-icon name="bar-chart-2" [size]="36"></lucide-icon>
+        <span>Chart data will be loaded here</span>
+      </div>
+    </div>
+
+    <div class="card chart-card chart-small">
+      <h3 class="chart-title">Category Breakdown</h3>
+      <div class="empty-state" style="padding: 40px 0;">
+        <lucide-icon name="pie-chart" [size]="36"></lucide-icon>
+        <span>Chart data will be loaded here</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="dashboard-bottom">
+    <div class="card">
+      <h3 class="chart-title mb-4">Top Products</h3>
+      <div class="empty-state" style="padding: 30px 0;">
+        <lucide-icon name="activity" [size]="32"></lucide-icon>
+        <span>No movement data yet</span>
+      </div>
+    </div>
+
+    <div class="card low-stock-card">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <lucide-icon name="alert-triangle" [size]="18" style="color: var(--warning);"></lucide-icon>
+        <h3 class="chart-title" style="margin-bottom: 0;">Low Stock Alerts</h3>
+      </div>
+      <p style="font-size: 14px; color: var(--text-secondary);">
+        All products have sufficient stock
+      </p>
+    </div>
+  </div>
+</div>

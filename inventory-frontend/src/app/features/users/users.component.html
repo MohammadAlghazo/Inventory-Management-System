@@ -1,0 +1,57 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Users</h1>
+    <p class="page-subtitle">Manage system users and access roles</p>
+  </div>
+  <button class="btn btn-primary">
+    <lucide-icon name="user-plus" class="btn-icon"></lucide-icon>
+    Add User
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="search-box">
+      <lucide-icon name="search" class="search-icon"></lucide-icon>
+      <input type="text" placeholder="Search users..." class="search-input" />
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">Loading users...</div>
+    
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>
+            <div class="user-cell">
+              <div class="avatar">{{ user.unique_name[0].toUpperCase() }}</div>
+              <span class="user-name">{{ user.unique_name }}</span>
+            </div>
+          </td>
+          <td>
+            <span class="role-badge" [ngClass]="user.role === 'Admin' ? 'badge-admin' : 'badge-user'">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="action-btn text-blue"><lucide-icon name="edit-2"></lucide-icon></button>
+              <button class="action-btn text-red"><lucide-icon name="trash-2"></lucide-icon></button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="users.length === 0">
+          <td colspan="3" class="text-center py-4 text-secondary">No users found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

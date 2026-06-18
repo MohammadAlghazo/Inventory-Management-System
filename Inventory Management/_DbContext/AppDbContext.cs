@@ -19,8 +19,8 @@ namespace Inventory_Management._DbContext
 
                 entity.Property(u => u.Role).HasDefaultValue("Employee");
                 entity.Property(u => u.IsActive).HasDefaultValue(true);
-                entity.Property(u => u.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(u => u.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 // Seed default admin — password: Admin@123
                 entity.HasData(new User
@@ -43,8 +43,8 @@ namespace Inventory_Management._DbContext
             {
                 entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.IsActive).HasDefaultValue(true);
-                entity.Property(p => p.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
-                entity.Property(p => p.UpdatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.Unit).HasDefaultValue("piece");
 
                 // Ignore computed properties (not stored in DB)

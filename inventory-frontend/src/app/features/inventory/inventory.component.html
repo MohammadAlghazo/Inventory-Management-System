@@ -1,0 +1,59 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Inventory Movements</h1>
+    <p class="page-subtitle">Track stock in and stock out activities</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline text-red">
+      <lucide-icon name="arrow-down-circle" class="btn-icon"></lucide-icon>
+      Stock Out
+    </button>
+    <button class="btn btn-primary text-green-btn">
+      <lucide-icon name="arrow-up-circle" class="btn-icon"></lucide-icon>
+      Stock In
+    </button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="search-box">
+      <lucide-icon name="search" class="search-icon"></lucide-icon>
+      <input type="text" placeholder="Search logs..." class="search-input" />
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">Loading inventory logs...</div>
+    
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Product</th>
+          <th>Type</th>
+          <th>Quantity</th>
+          <th>User</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let log of inventoryLogs">
+          <td>{{ log.createdAt | date:'short' }}</td>
+          <td>{{ log.product?.name }}</td>
+          <td>
+            <span class="type-badge" [ngClass]="log.type === 'IN' ? 'badge-in' : 'badge-out'">
+              {{ log.type }}
+            </span>
+          </td>
+          <td [ngClass]="log.type === 'IN' ? 'text-green' : 'text-red'">
+            {{ log.type === 'IN' ? '+' : '-' }}{{ log.quantity }}
+          </td>
+          <td>{{ log.user?.unique_name }}</td>
+        </tr>
+        <tr *ngIf="inventoryLogs.length === 0">
+          <td colspan="5" class="text-center py-4 text-secondary">No inventory logs found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

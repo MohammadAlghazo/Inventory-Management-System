@@ -1,0 +1,56 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Products</h1>
+    <p class="page-subtitle">Manage your product catalog and quantities</p>
+  </div>
+  <button class="btn btn-primary">
+    <lucide-icon name="plus" class="btn-icon"></lucide-icon>
+    Add Product
+  </button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="search-box">
+      <lucide-icon name="search" class="search-icon"></lucide-icon>
+      <input type="text" placeholder="Search products..." class="search-input" />
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="isLoading" class="loading-state">Loading products...</div>
+    
+    <table *ngIf="!isLoading">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Barcode</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>{{ product.name }}</td>
+          <td>{{ product.barcode }}</td>
+          <td>${{ product.price | number:'1.2-2' }}</td>
+          <td>
+            <span class="quantity-badge" [class.low-stock]="product.quantity <= product.minQuantity">
+              {{ product.quantity }}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="action-btn text-blue"><lucide-icon name="edit-2"></lucide-icon></button>
+              <button class="action-btn text-red"><lucide-icon name="trash-2"></lucide-icon></button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="products.length === 0">
+          <td colspan="5" class="text-center py-4 text-secondary">No products found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
