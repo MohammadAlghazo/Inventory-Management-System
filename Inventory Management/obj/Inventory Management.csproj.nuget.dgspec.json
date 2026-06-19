@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj": {}
+    "D:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj": {}
   },
   "projects": {
-    "d:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj": {
+    "D:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj",
+        "projectUniqueName": "D:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj",
         "projectName": "Inventory Management",
-        "projectPath": "d:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj",
+        "projectPath": "D:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\Inventory Management.csproj",
         "packagesPath": "C:\\Users\\moham\\.nuget\\packages\\",
-        "outputPath": "d:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\obj\\",
+        "outputPath": "D:\\Projects\\Inventory Management\\Inventory-Management\\Inventory Management\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\Downloaded Programs\\VisualStudio\\SharedComponents\\NuGetPackages"
