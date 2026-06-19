@@ -37,11 +37,10 @@ export class AppComponent {
       this.swUpdate.versionUpdates.pipe(
         filter((evt): evt is VersionReadyEvent => evt.type === 'VERSION_READY')
       ).subscribe(() => {
-        const isAr = this.translate.currentLang === 'ar' || document.documentElement.lang === 'ar';
         this.sweetAlert.confirm(
-          isAr ? 'تحديث جديد متاح! 🚀' : 'New Update Available! 🚀',
-          isAr ? 'تم تحديث الموقع بخصائص جديدة، الرجاء إعادة تحميل الصفحة لتطبيق التحديث.' : 'A new version of StockMaster is available. Reload now to update?',
-          isAr ? 'تحديث الآن' : 'Update Now'
+          'New Update Available',
+          'A new version of StockMaster is available. Reload now to update?',
+          'Update Now'
         ).then((result) => {
           if (result.isConfirmed) {
             window.location.reload();

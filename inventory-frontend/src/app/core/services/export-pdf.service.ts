@@ -203,13 +203,13 @@ export class ExportPdfService {
             <h1 style="margin:0;font-size:30px;line-height:1.2;font-weight:800;">${this.escapeHtml(title)}</h1>
             <p style="margin:8px 0 0;color:#e5e7eb;font-size:14px;">StockMaster ERP</p>
           </div>
-          <div style="background:#fff7ed;color:#111827;border-radius:14px;padding:12px 22px;text-align:center;min-width:130px;">
-            <div style="color:#d2593b;font-size:12px;font-weight:800;">عدد السجلات</div>
-            <div style="font-size:26px;font-weight:900;line-height:1.1;">${rows.length}</div>
+          <div style="background:#fff7ed;color:#111827;border-radius:14px;padding:12px 22px;display:flex;justify-content:space-between;align-items:flex-end;">
+            <div style="color:#d2593b;font-size:12px;font-weight:800;">Total Records</div>
+            <div style="font-size:24px;font-weight:800;color:#1e293b;line-height:1;">${rows.length}</div>
           </div>
         </div>
       </div>
-      <div style="margin-bottom:18px;color:#6b7280;font-size:13px;">تاريخ الانشاء: ${this.escapeHtml(generatedAt)}</div>
+      <div style="margin-bottom:18px;color:#6b7280;font-size:13px;">Generated At: ${this.escapeHtml(generatedAt)}</div>
       <table style="width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;font-size:13px;">
         <thead>
           <tr>
