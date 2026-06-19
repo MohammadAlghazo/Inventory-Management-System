@@ -1232,6 +1232,15 @@ body:not([data-theme="light"]) .app-layout .text-black {
 
 /* 1. Sunset (Default) */
 :root[data-color="sunset"] {
+  --bg-base: #100c0a;
+  --bg-primary: #15110f;
+  --bg-secondary: #1a1512;
+  --bg-secondary-rgb: 26, 21, 18;
+  --bg-card: #1d1715;
+  --bg-card-hover: #241d1a;
+  --bg-input: rgba(210, 89, 59, 0.05);
+  --bg-input-focus: rgba(210, 89, 59, 0.09);
+
   --accent: #d2593b;
   --accent-hover: #f97316;
   --accent-light: rgba(210, 89, 59, 0.10);
@@ -1243,139 +1252,37 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 30px rgba(210, 89, 59, 0.12);
 }
 [data-theme="light"][data-color="sunset"] {
+  --bg-base: #fdfaf9;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fbf5f3;
+  --bg-input: #ffffff;
+  --bg-input-focus: #fdf8f7;
+
   --accent: #c84b2a;
   --accent-hover: #b33f22;
   --accent-light: rgba(200, 75, 42, 0.08);
   --accent-glow: rgba(200, 75, 42, 0.12);
   --violet: #6d3ac0;
   --violet-light: rgba(109, 58, 192, 0.08);
-  --border: rgba(28, 45, 39, 0.12);
-  --border-hover: rgba(28, 45, 39, 0.25);
+  --border: rgba(200, 75, 42, 0.12);
+  --border-hover: rgba(200, 75, 42, 0.25);
   --shadow-glow: 0 0 20px rgba(200, 75, 42, 0.08);
 }
 
-/* 2. Ocean Blue */
-:root[data-color="ocean"] {
-  --accent: #0ea5e9;
-  --accent-hover: #38bdf8;
-  --accent-light: rgba(14, 165, 233, 0.10);
-  --accent-glow: rgba(14, 165, 233, 0.20);
-  --violet: #3b82f6;
-  --violet-light: rgba(59, 130, 246, 0.08);
-  --border: rgba(14, 165, 233, 0.15);
-  --border-hover: rgba(14, 165, 233, 0.40);
-  --shadow-glow: 0 0 30px rgba(14, 165, 233, 0.12);
-}
-[data-theme="light"][data-color="ocean"] {
-  --accent: #0284c7;
-  --accent-hover: #0369a1;
-  --accent-light: rgba(2, 132, 199, 0.08);
-  --accent-glow: rgba(2, 132, 199, 0.12);
-  --violet: #2563eb;
-  --violet-light: rgba(37, 99, 235, 0.08);
-  --border: rgba(2, 132, 199, 0.12);
-  --border-hover: rgba(2, 132, 199, 0.25);
-  --shadow-glow: 0 0 20px rgba(2, 132, 199, 0.08);
-}
-
-/* 3. Emerald Green */
-:root[data-color="emerald"] {
-  --accent: #10b981;
-  --accent-hover: #34d399;
-  --accent-light: rgba(16, 185, 129, 0.10);
-  --accent-glow: rgba(16, 185, 129, 0.20);
-  --violet: #059669;
-  --violet-light: rgba(5, 150, 105, 0.08);
-  --border: rgba(16, 185, 129, 0.15);
-  --border-hover: rgba(16, 185, 129, 0.40);
-  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.12);
-}
-[data-theme="light"][data-color="emerald"] {
-  --accent: #059669;
-  --accent-hover: #047857;
-  --accent-light: rgba(5, 150, 105, 0.08);
-  --accent-glow: rgba(5, 150, 105, 0.12);
-  --violet: #10b981;
-  --violet-light: rgba(16, 185, 129, 0.08);
-  --border: rgba(5, 150, 105, 0.12);
-  --border-hover: rgba(5, 150, 105, 0.25);
-  --shadow-glow: 0 0 20px rgba(5, 150, 105, 0.08);
-}
-
-/* 4. Amethyst Purple */
-:root[data-color="amethyst"] {
-  --accent: #8b5cf6;
-  --accent-hover: #a78bfa;
-  --accent-light: rgba(139, 92, 246, 0.10);
-  --accent-glow: rgba(139, 92, 246, 0.20);
-  --violet: #6366f1;
-  --violet-light: rgba(99, 102, 241, 0.08);
-  --border: rgba(139, 92, 246, 0.15);
-  --border-hover: rgba(139, 92, 246, 0.40);
-  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.12);
-}
-[data-theme="light"][data-color="amethyst"] {
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --accent-light: rgba(124, 58, 237, 0.08);
-  --accent-glow: rgba(124, 58, 237, 0.12);
-  --violet: #4f46e5;
-  --violet-light: rgba(79, 70, 229, 0.08);
-  --border: rgba(124, 58, 237, 0.12);
-  --border-hover: rgba(124, 58, 237, 0.25);
-  --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.08);
-}
-
-/* 5. Ruby Red */
-:root[data-color="ruby"] {
-  --accent: #ef4444;
-  --accent-hover: #f87171;
-  --accent-light: rgba(239, 68, 68, 0.10);
-  --accent-glow: rgba(239, 68, 68, 0.20);
-  --violet: #e11d48;
-  --violet-light: rgba(225, 29, 72, 0.08);
-  --border: rgba(239, 68, 68, 0.15);
-  --border-hover: rgba(239, 68, 68, 0.40);
-  --shadow-glow: 0 0 30px rgba(239, 68, 68, 0.12);
-}
-[data-theme="light"][data-color="ruby"] {
-  --accent: #dc2626;
-  --accent-hover: #b91c1c;
-  --accent-light: rgba(220, 38, 38, 0.08);
-  --accent-glow: rgba(220, 38, 38, 0.12);
-  --violet: #be123c;
-  --violet-light: rgba(190, 18, 60, 0.08);
-  --border: rgba(220, 38, 38, 0.12);
-  --border-hover: rgba(220, 38, 38, 0.25);
-  --shadow-glow: 0 0 20px rgba(220, 38, 38, 0.08);
-}
-
-/* 6. Golden Amber */
-:root[data-color="amber"] {
-  --accent: #f59e0b;
-  --accent-hover: #fbbf24;
-  --accent-light: rgba(245, 158, 11, 0.10);
-  --accent-glow: rgba(245, 158, 11, 0.20);
-  --violet: #d97706;
-  --violet-light: rgba(217, 119, 6, 0.08);
-  --border: rgba(245, 158, 11, 0.15);
-  --border-hover: rgba(245, 158, 11, 0.40);
-  --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.12);
-}
-[data-theme="light"][data-color="amber"] {
-  --accent: #d97706;
-  --accent-hover: #b45309;
-  --accent-light: rgba(217, 119, 6, 0.08);
-  --accent-glow: rgba(217, 119, 6, 0.12);
-  --violet: #ea580c;
-  --violet-light: rgba(234, 88, 12, 0.08);
-  --border: rgba(217, 119, 6, 0.12);
-  --border-hover: rgba(217, 119, 6, 0.25);
-  --shadow-glow: 0 0 20px rgba(217, 119, 6, 0.08);
-}
-
-/* 7. Cyberpunk Neon */
+/* 2. Cyberpunk Neon */
 :root[data-color="cyberpunk"] {
+  --bg-base: #060e12;
+  --bg-primary: #0a131a;
+  --bg-secondary: #0d1a24;
+  --bg-secondary-rgb: 13, 26, 36;
+  --bg-card: #0f1c26;
+  --bg-card-hover: #142633;
+  --bg-input: rgba(6, 182, 212, 0.05);
+  --bg-input-focus: rgba(6, 182, 212, 0.09);
+
   --accent: #06b6d4;
   --accent-hover: #22d3ee;
   --accent-light: rgba(6, 182, 212, 0.10);
@@ -1387,6 +1294,15 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 30px rgba(6, 182, 212, 0.12);
 }
 [data-theme="light"][data-color="cyberpunk"] {
+  --bg-base: #f7fcfe;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0fafd;
+  --bg-input: #ffffff;
+  --bg-input-focus: #f3fbfc;
+
   --accent: #0891b2;
   --accent-hover: #0e7490;
   --accent-light: rgba(8, 145, 178, 0.08);
@@ -1398,8 +1314,17 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 20px rgba(8, 145, 178, 0.08);
 }
 
-/* 8. Midnight Indigo */
+/* 3. Midnight Indigo */
 :root[data-color="midnight"] {
+  --bg-base: #080712;
+  --bg-primary: #0c0b1a;
+  --bg-secondary: #110f24;
+  --bg-secondary-rgb: 17, 15, 36;
+  --bg-card: #131129;
+  --bg-card-hover: #1a1738;
+  --bg-input: rgba(99, 102, 241, 0.05);
+  --bg-input-focus: rgba(99, 102, 241, 0.09);
+
   --accent: #6366f1;
   --accent-hover: #818cf8;
   --accent-light: rgba(99, 102, 241, 0.10);
@@ -1411,6 +1336,15 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.12);
 }
 [data-theme="light"][data-color="midnight"] {
+  --bg-base: #f8f8fe;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f3fd;
+  --bg-input: #ffffff;
+  --bg-input-focus: #f5f5fe;
+
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-light: rgba(79, 70, 229, 0.08);
@@ -1422,8 +1356,59 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 20px rgba(79, 70, 229, 0.08);
 }
 
-/* 9. Rose Gold */
+/* 4. Golden Amber */
+:root[data-color="amber"] {
+  --bg-base: #120e03;
+  --bg-primary: #1a1406;
+  --bg-secondary: #241c0a;
+  --bg-secondary-rgb: 36, 28, 10;
+  --bg-card: #2b210c;
+  --bg-card-hover: #382c11;
+  --bg-input: rgba(245, 158, 11, 0.05);
+  --bg-input-focus: rgba(245, 158, 11, 0.09);
+
+  --accent: #f59e0b;
+  --accent-hover: #fbbf24;
+  --accent-light: rgba(245, 158, 11, 0.10);
+  --accent-glow: rgba(245, 158, 11, 0.20);
+  --violet: #d97706;
+  --violet-light: rgba(217, 119, 6, 0.08);
+  --border: rgba(245, 158, 11, 0.15);
+  --border-hover: rgba(245, 158, 11, 0.40);
+  --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.12);
+}
+[data-theme="light"][data-color="amber"] {
+  --bg-base: #fefcf8;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fdf8eb;
+  --bg-input: #ffffff;
+  --bg-input-focus: #fdf9f1;
+
+  --accent: #d97706;
+  --accent-hover: #b45309;
+  --accent-light: rgba(217, 119, 6, 0.08);
+  --accent-glow: rgba(217, 119, 6, 0.12);
+  --violet: #ea580c;
+  --violet-light: rgba(234, 88, 12, 0.08);
+  --border: rgba(217, 119, 6, 0.12);
+  --border-hover: rgba(217, 119, 6, 0.25);
+  --shadow-glow: 0 0 20px rgba(217, 119, 6, 0.08);
+}
+
+/* 5. Rose Gold */
 :root[data-color="rose"] {
+  --bg-base: #120508;
+  --bg-primary: #1c0a0e;
+  --bg-secondary: #261014;
+  --bg-secondary-rgb: 38, 16, 20;
+  --bg-card: #2e141a;
+  --bg-card-hover: #3d1c23;
+  --bg-input: rgba(244, 63, 94, 0.05);
+  --bg-input-focus: rgba(244, 63, 94, 0.09);
+
   --accent: #f43f5e;
   --accent-hover: #fb7185;
   --accent-light: rgba(244, 63, 94, 0.10);
@@ -1435,6 +1420,15 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --shadow-glow: 0 0 30px rgba(244, 63, 94, 0.12);
 }
 [data-theme="light"][data-color="rose"] {
+  --bg-base: #fff9fa;
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-secondary-rgb: 255, 255, 255;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fef0f2;
+  --bg-input: #ffffff;
+  --bg-input-focus: #fdf5f6;
+
   --accent: #e11d48;
   --accent-hover: #be123c;
   --accent-light: rgba(225, 29, 72, 0.08);
@@ -1444,28 +1438,4 @@ body:not([data-theme="light"]) .app-layout .text-black {
   --border: rgba(225, 29, 72, 0.12);
   --border-hover: rgba(225, 29, 72, 0.25);
   --shadow-glow: 0 0 20px rgba(225, 29, 72, 0.08);
-}
-
-/* 10. Slate Chrome */
-:root[data-color="slate"] {
-  --accent: #64748b;
-  --accent-hover: #94a3b8;
-  --accent-light: rgba(100, 116, 139, 0.10);
-  --accent-glow: rgba(100, 116, 139, 0.20);
-  --violet: #475569;
-  --violet-light: rgba(71, 85, 105, 0.08);
-  --border: rgba(100, 116, 139, 0.15);
-  --border-hover: rgba(100, 116, 139, 0.40);
-  --shadow-glow: 0 0 30px rgba(100, 116, 139, 0.12);
-}
-[data-theme="light"][data-color="slate"] {
-  --accent: #475569;
-  --accent-hover: #334155;
-  --accent-light: rgba(71, 85, 105, 0.08);
-  --accent-glow: rgba(71, 85, 105, 0.12);
-  --violet: #1e293b;
-  --violet-light: rgba(30, 41, 59, 0.08);
-  --border: rgba(71, 85, 105, 0.12);
-  --border-hover: rgba(71, 85, 105, 0.25);
-  --shadow-glow: 0 0 20px rgba(71, 85, 105, 0.08);
 }

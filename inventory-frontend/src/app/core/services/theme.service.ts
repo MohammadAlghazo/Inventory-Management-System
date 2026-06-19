@@ -13,15 +13,10 @@ export interface ColorScheme {
 export class ThemeService {
   public readonly availableSchemes: ColorScheme[] = [
     { id: 'sunset', name: 'Sunset (Default)', color: '#d2593b' },
-    { id: 'ocean', name: 'Ocean Blue', color: '#0ea5e9' },
-    { id: 'emerald', name: 'Emerald Green', color: '#10b981' },
-    { id: 'amethyst', name: 'Amethyst Purple', color: '#8b5cf6' },
-    { id: 'ruby', name: 'Ruby Red', color: '#ef4444' },
-    { id: 'amber', name: 'Golden Amber', color: '#f59e0b' },
     { id: 'cyberpunk', name: 'Cyberpunk Neon', color: '#06b6d4' },
     { id: 'midnight', name: 'Midnight Indigo', color: '#6366f1' },
-    { id: 'rose', name: 'Rose Gold', color: '#f43f5e' },
-    { id: 'slate', name: 'Slate Chrome', color: '#64748b' }
+    { id: 'amber', name: 'Golden Amber', color: '#f59e0b' },
+    { id: 'rose', name: 'Rose Gold', color: '#f43f5e' }
   ];
 
   private isDarkModeSubject = new BehaviorSubject<boolean>(true);

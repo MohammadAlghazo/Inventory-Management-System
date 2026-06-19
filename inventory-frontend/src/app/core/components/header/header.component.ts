@@ -151,7 +151,7 @@ export class HeaderComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (this.showNotifications && !target.closest('.notifications-dropdown') && !target.closest('.notification-btn')) {
+    if (this.showNotifications && !target.closest('.notif-dropdown') && !target.closest('.header-notif-btn')) {
       this.showNotifications = false;
     }
     if (this.showThemes && !target.closest('.themes-dropdown') && !target.closest('.theme-btn')) {
