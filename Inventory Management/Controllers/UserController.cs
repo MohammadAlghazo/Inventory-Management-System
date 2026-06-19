@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using InventoryManagement.Application.Dtos.Auth_Dto;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -53,6 +54,46 @@ namespace InventoryManagement.Api.Controllers
         {
             var result = await _userService.DeleteUserAsync(id);
             return StatusCode(result.StatusCode, result);
+        }
+            [HttpPut("{id}/profile-picture")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfilePicture(int id, UpdateProfilePictureDto dto)
+        {
+            // Allow if Admin OR if the user is updating their own picture
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isManager = User.IsInRole("Manager");
+
+            if (!isManager && currentUserIdStr != id.ToString())
+            {
+                return Forbid();
+            }
+
+            var result = await _userService.UpdateProfilePictureAsync(id, dto);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+        [HttpDelete("{id}/profile-picture")]
+        [Authorize]
+        public async Task<IActionResult> DeleteProfilePicture(int id)
+        {
+            var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isManager = User.IsInRole("Manager");
+
+            if (!isManager && currentUserIdStr != id.ToString())
+            {
+                return Forbid();
+            }
+
+            var result = await _userService.DeleteProfilePictureAsync(id);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

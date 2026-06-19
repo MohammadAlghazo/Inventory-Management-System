@@ -146,6 +146,34 @@ namespace InventoryManagement.Application.Services
 
             return ApiResponse<object>.Ok(null!, "User deactivated successfully");
         }
+                    public async Task<ApiResponse<object>> UpdateProfilePictureAsync(int id, UpdateProfilePictureDto dto)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user == null)
+            {
+                return ApiResponse<object>.NotFound("User not found.");
+            }
+
+            user.ProfilePicture = dto.ProfilePictureUrl;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return ApiResponse<object>.Ok(new { ProfilePicture = user.ProfilePicture }, "Profile picture updated successfully.");
+        }
+
+        public async Task<ApiResponse<object>> DeleteProfilePictureAsync(int id)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user == null)
+            {
+                return ApiResponse<object>.NotFound("User not found.");
+            }
+
+            user.ProfilePicture = null;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+            return ApiResponse<object>.Ok(null!, "Profile picture deleted successfully.");
+        }
     }
 }
-

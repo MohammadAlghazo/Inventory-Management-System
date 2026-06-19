@@ -63,4 +63,9 @@ namespace InventoryManagement.Application.Dtos.Auth_Dto
     {
         public string RefreshToken { get; set; } = string.Empty;
     }
+
+    public class UpdateProfilePictureDto
+    {
+        public string ProfilePictureUrl { get; set; } = string.Empty;
+    }
 }

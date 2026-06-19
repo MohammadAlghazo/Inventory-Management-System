@@ -4,14 +4,20 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, User, Mail, Lock, Eye, EyeOff, Save, CheckCircle, XCircle, ShieldCheck, Calendar, UserCircle2 } from 'lucide-angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProfileService } from '../../core/services/profile.service';
+import { UserService } from '../../core/services/user.service';
+import { environment } from '../../../environments/environment';
+import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
+  environment = environment;
+  showProfilePictureModal = false;
+
   readonly icons = { User, Mail, Lock, Eye, EyeOff, Save, CheckCircle, XCircle, ShieldCheck, Calendar, UserCircle2 };
 
   profile: any = null;
@@ -32,6 +38,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private profileService: ProfileService,
+    private userService: UserService,
     private translate: TranslateService
   ) {}
 
@@ -121,5 +128,37 @@ export class ProfileComponent implements OnInit {
 
   getRoleBadgeClass(): string {
     return this.profile?.isAdmin ? 'badge-manager' : 'badge-employee';
+  }
+  openProfilePictureModal() {
+    this.showProfilePictureModal = true;
+  }
+
+  closeProfilePictureModal() {
+    this.showProfilePictureModal = false;
+  }
+
+  onProfilePictureUploaded(url: string) {
+    this.showProfilePictureModal = false;
+    this.userService.updateProfilePicture(this.profile.id, url).subscribe({
+      next: (res) => {
+        this.profile.profilePicture = url;
+      },
+      error: (err) => {
+        console.error('Failed to update profile picture in database', err);
+      }
+    });
+  }
+
+  deleteProfilePicture() {
+    if (confirm(this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete your profile picture?')) {
+      this.userService.deleteProfilePicture(this.profile.id).subscribe({
+        next: (res) => {
+          this.profile.profilePicture = null;
+        },
+        error: (err) => {
+          console.error('Failed to delete profile picture', err);
+        }
+      });
+    }
   }
 }

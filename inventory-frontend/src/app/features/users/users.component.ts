@@ -4,22 +4,28 @@ import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule, Search, Users, Shield, User,
   UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, UserCircle2
 } from 'lucide-angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
 export class UsersComponent implements OnInit {
-  readonly icons = { Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save, ChevronLeft, ChevronRight };
+  environment = environment;
+  showProfilePictureModal = false;
+  selectedUserIdForPicture: number | null = null;
+
+  readonly icons = { UserCircle2, Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save, ChevronLeft, ChevronRight };
 
   users: any[] = [];
   totalCount = 0;
@@ -214,5 +220,37 @@ export class UsersComponent implements OnInit {
         this.editError = err.error?.message || this.translate.instant('PROFILE.ERR_GENERIC');
       }
     });
+  }
+
+  openProfilePictureModal(user: any) {
+    this.selectedUserIdForPicture = user.id;
+    this.showProfilePictureModal = true;
+  }
+
+  closeProfilePictureModal() {
+    this.showProfilePictureModal = false;
+    this.selectedUserIdForPicture = null;
+  }
+
+  onProfilePictureUploaded(url: string) {
+    this.showProfilePictureModal = false;
+    if (this.selectedUserIdForPicture) {
+      this.userService.updateProfilePicture(this.selectedUserIdForPicture, url).subscribe({
+        next: () => {
+          this.loadUsers();
+          this.selectedUserIdForPicture = null;
+        },
+        error: (err) => console.error(err)
+      });
+    }
+  }
+
+  deleteProfilePicture(user: any) {
+    if (confirm(this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete this profile picture?')) {
+      this.userService.deleteProfilePicture(user.id).subscribe({
+        next: () => this.loadUsers(),
+        error: (err) => console.error(err)
+      });
+    }
   }
 }

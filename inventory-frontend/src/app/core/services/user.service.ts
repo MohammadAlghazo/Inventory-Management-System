@@ -28,4 +28,12 @@ export class UserService {
   updateUser(id: number, dto: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, dto);
   }
+
+  updateProfilePicture(id: number, profilePictureUrl: string): Observable<any> {
+    return this.http.put(`//profile-picture`, { profilePictureUrl });
+  }
+
+  deleteProfilePicture(id: number): Observable<any> {
+    return this.http.delete(`//profile-picture`);
+  }
 }

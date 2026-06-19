@@ -13,9 +13,15 @@
     <div class="profile-hero card">
       <div class="profile-hero-bg"></div>
       <div class="profile-hero-content">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar">{{ getInitials() }}</div>
+        <div class="profile-avatar-wrap relative">
+          <img *ngIf="profile.profilePicture" [src]="profile.profilePicture" class="profile-avatar" style="object-fit: cover; width: 100%; height: 100%; border-radius: 50%;" />
+          <div *ngIf="!profile.profilePicture" class="profile-avatar">{{ getInitials() }}</div>
           <div class="profile-avatar-ring"></div>
+          
+          <div class="mt-4 flex gap-2 justify-center absolute -bottom-12 left-1/2 -translate-x-1/2 w-max">
+            <button class="btn btn-xs btn-primary rounded-full shadow-lg" (click)="openProfilePictureModal()">Upload Picture</button>
+            <button class="btn btn-xs btn-error rounded-full shadow-lg" *ngIf="profile.profilePicture" (click)="deleteProfilePicture()">Delete</button>
+          </div>
         </div>
         <div class="profile-hero-info">
           <h1 class="profile-name">{{ profile.firstName }} {{ profile.lastName }}</h1>
@@ -188,6 +194,14 @@
 
     </div>
   </ng-container>
+
+  <app-profile-picture-modal 
+    *ngIf="showProfilePictureModal"
+    [cloudName]="environment.cloudinary.cloudName"
+    [uploadPreset]="environment.cloudinary.uploadPreset"
+    (close)="closeProfilePictureModal()"
+    (imageUploaded)="onProfilePictureUploaded($event)">
+  </app-profile-picture-modal>
 
 </div>
 

@@ -10,6 +10,8 @@ namespace InventoryManagement.Application.Services
         Task<ApiResponse<UserProfileDto>> UpdateUserAsync(int id, UpdateUserDto dto);
         Task<ApiResponse<object>> ToggleUserStatusAsync(int id);
         Task<ApiResponse<object>> DeleteUserAsync(int id);
+    
+        Task<ApiResponse<object>> UpdateProfilePictureAsync(int id, UpdateProfilePictureDto dto);
+        Task<ApiResponse<object>> DeleteProfilePictureAsync(int id);
     }
 }
-

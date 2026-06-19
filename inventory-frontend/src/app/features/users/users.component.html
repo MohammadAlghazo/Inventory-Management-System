@@ -84,7 +84,10 @@
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
               <td [attr.data-label]="'USERS.USERNAME' | translate">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div class="avatar">{{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}</div>
+                  <div class="avatar relative group cursor-pointer" style="overflow: hidden;">
+                    <img *ngIf="u.profilePicture" [src]="u.profilePicture" class="w-full h-full object-cover" />
+                    <span *ngIf="!u.profilePicture">{{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}</span>
+                  </div>
                   <div>
                     <div class="font-bold">{{ u.username }}</div>
                     <div class="text-xs text-muted">{{ u.firstName }} {{ u.lastName }}</div>
@@ -106,6 +109,16 @@
               <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                   
+                  <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-sm btn-ghost user-action-btn" title="Profile Picture">
+                      <lucide-icon [img]="icons.UserCircle2" [size]="13"></lucide-icon>
+                    </label>
+                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-44 border border-base-content/10">
+                      <li><a (click)="openProfilePictureModal(u)">Upload Picture</a></li>
+                      <li *ngIf="u.profilePicture"><a class="text-error" (click)="deleteProfilePicture(u)">Delete Picture</a></li>
+                    </ul>
+                  </div>
+
                   <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" title="View Details">
                     <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
                   </button>
