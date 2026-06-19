@@ -376,6 +376,7 @@ body.is-resizing .main-content {
 }
 
 .form-label {
+  margin-bottom: 0 !important;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -1219,3 +1220,4 @@ body:not([data-theme="light"]) .app-layout .text-black {
     overflow-x: visible !important;
   }
 }
+
