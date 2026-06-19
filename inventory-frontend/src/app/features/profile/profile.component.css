@@ -30,11 +30,13 @@
 .profile-avatar-wrap {
   position: relative;
   flex-shrink: 0;
+  width: 88px;
+  height: 88px;
 }
 
 .profile-avatar {
-  width: 88px;
-  height: 88px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--accent-dark, #7c3aed));
   color: #fff;

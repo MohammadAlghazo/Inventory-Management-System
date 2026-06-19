@@ -1,24 +1,25 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus } from 'lucide-angular';
+import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus, ImagePlus } from 'lucide-angular';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
+import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { environment } from '../../../environments/environment';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductsComponent implements OnInit {
-  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus };
+  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus, ImagePlus };
 
   products: any[] = [];
   totalCount = 0;
@@ -35,6 +36,10 @@ export class ProductsComponent implements OnInit {
 
   deleteConfirm: any = null;
   isDeleting = false;
+
+  showImageModal = false;
+  selectedProductIdForImage: number | null = null;
+  environment = environment;
 
   user: any;
 
@@ -62,6 +67,33 @@ export class ProductsComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  openImageModal(p: any) {
+    this.selectedProductIdForImage = p.id;
+    this.showImageModal = true;
+  }
+
+  closeImageModal() {
+    this.showImageModal = false;
+    this.selectedProductIdForImage = null;
+  }
+
+  onImageUploaded(url: string) {
+    if (this.selectedProductIdForImage) {
+      const p = this.products.find(x => x.id === this.selectedProductIdForImage);
+      if (p) {
+        const updatePayload = { ...p, imageUrl: url };
+        this.productService.updateProduct(p.id, updatePayload).subscribe({
+          next: () => {
+            p.imageUrl = url;
+            this.closeImageModal();
+            this.cdr.markForCheck();
+          },
+          error: (err) => console.error('Image upload update failed:', err)
+        });
+      }
+    }
   }
 
   get isAdmin() {

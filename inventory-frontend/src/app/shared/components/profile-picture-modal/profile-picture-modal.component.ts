@@ -1,16 +1,18 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile-picture-modal',
   standalone: true,
-  imports: [CommonModule, ImageCropperComponent],
+  imports: [CommonModule, ImageCropperComponent, TranslatePipe],
   templateUrl: './profile-picture-modal.component.html',
   styleUrls: ['./profile-picture-modal.component.css']
 })
 export class ProfilePictureModalComponent {
+  @Input() title: string = 'Update Profile Picture';
   @Input() cloudName: string = ''; // to be provided
   @Input() uploadPreset: string = ''; // to be provided
   @Output() close = new EventEmitter<void>();

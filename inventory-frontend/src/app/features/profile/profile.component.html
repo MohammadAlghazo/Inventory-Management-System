@@ -18,7 +18,7 @@
           <div *ngIf="!profile.profilePicture" class="profile-avatar">{{ getInitials() }}</div>
           <div class="profile-avatar-ring"></div>
           
-          <div class="mt-4 flex gap-2 justify-center absolute -bottom-12 left-1/2 -translate-x-1/2 w-max">
+          <div style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); z-index: 10;" class="flex gap-2 justify-center w-max">
             <button class="btn btn-xs btn-primary rounded-full shadow-lg" (click)="openProfilePictureModal()">Upload Picture</button>
             <button class="btn btn-xs btn-error rounded-full shadow-lg" *ngIf="profile.profilePicture" (click)="deleteProfilePicture()">Delete</button>
           </div>
@@ -197,6 +197,7 @@
 
   <app-profile-picture-modal 
     *ngIf="showProfilePictureModal"
+    title="PROFILE.UPLOAD_PICTURE"
     [cloudName]="environment.cloudinary.cloudName"
     [uploadPreset]="environment.cloudinary.uploadPreset"
     (close)="closeProfilePictureModal()"

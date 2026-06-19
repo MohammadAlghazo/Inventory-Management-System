@@ -96,9 +96,10 @@
             <tr *ngFor="let p of getFilteredProducts()">
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
               <td [attr.data-label]="'PRODUCTS.PRODUCT_NAME' | translate">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <div class="product-icon-mini">
-                    <lucide-icon [img]="icons.Package" [size]="14"></lucide-icon>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="product-icon-mini" style="overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                    <img *ngIf="p.imageUrl" [src]="p.imageUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+                    <lucide-icon *ngIf="!p.imageUrl" [img]="icons.Package" [size]="14"></lucide-icon>
                   </div>
                   <div>
                     <div style="font-weight: 600; font-size: 14px;">{{ p.name }}</div>
@@ -130,6 +131,9 @@
               </td>
               <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display: flex; gap: 6px;">
+                                    <button *ngIf="isAdmin" class="btn btn-ghost btn-icon btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
+                    <lucide-icon [img]="icons.ImagePlus" [size]="14"></lucide-icon>
+                  </button>
                   <button class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
                     <lucide-icon [img]="icons.Edit" [size]="14"></lucide-icon>
                   </button>
@@ -178,14 +182,15 @@
 
     <ng-container *ngIf="!isLoading">
       <div *ngFor="let p of getFilteredProducts()" class="product-card">
-        <div class="product-card-header">
-          <div class="product-card-icon">
-            <lucide-icon [img]="icons.Package" [size]="20"></lucide-icon>
+                  <div class="product-card-header">
+            <div class="product-card-icon" style="overflow: hidden; padding: 0;">
+              <img *ngIf="p.imageUrl" [src]="p.imageUrl" style="width: 100%; height: 100%; object-fit: cover;" />
+              <lucide-icon *ngIf="!p.imageUrl" [img]="icons.Package" [size]="20" style="margin: auto;"></lucide-icon>
+            </div>
+            <span class="badge" [ngClass]="getStockBadgeClass(p.quantity, p.minQuantity)">
+              {{ getStockBadgeText(p.quantity, p.minQuantity) | translate }}
+            </span>
           </div>
-          <span class="badge" [ngClass]="getStockBadgeClass(p.quantity, p.minQuantity)">
-            {{ getStockBadgeText(p.quantity, p.minQuantity) | translate }}
-          </span>
-        </div>
         <h3 class="product-card-name">{{ p.name }}</h3>
         <p class="product-card-sku">{{ p.sku }}</p>
         <div class="product-card-stats">
@@ -199,10 +204,13 @@
           <span>{{ 'PRODUCTS.QUANTITY' | translate }}: <strong>{{ p.quantity }}</strong></span>
           <span class="text-muted">{{ 'PRODUCTS.MIN' | translate }}: {{ p.minQuantity }}</span>
         </div>
-        <div class="product-card-actions">
-          <button class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
-            <lucide-icon [img]="icons.Edit" [size]="13"></lucide-icon> {{ 'COMMON.EDIT' | translate }}
-          </button>
+                  <div class="product-card-actions">
+            <button *ngIf="isAdmin" class="btn btn-ghost btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
+              <lucide-icon [img]="icons.ImagePlus" [size]="13"></lucide-icon>
+            </button>
+            <button class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
+              <lucide-icon [img]="icons.Edit" [size]="13"></lucide-icon> {{ 'COMMON.EDIT' | translate }}
+            </button>
           <button *ngIf="isAdmin" class="btn btn-danger btn-sm" (click)="confirmDelete(p)">
             <lucide-icon [img]="icons.Trash2" [size]="13"></lucide-icon> {{ 'COMMON.DELETE' | translate }}
           </button>
@@ -292,6 +300,11 @@
       </div>
     </div>
   </div>
+  <app-profile-picture-modal
+    *ngIf="showImageModal"
+    [cloudName]="environment.cloudinary.cloudName"
+    [uploadPreset]="environment.cloudinary.uploadPreset"
+    (close)="closeImageModal()"
+    (imageUploaded)="onImageUploaded($event)">
+  </app-profile-picture-modal>
 </div>
-
-
