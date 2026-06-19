@@ -219,6 +219,7 @@ body.is-resizing .main-content {
   width: 100%;
   margin: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
   scrollbar-gutter: stable;
 }
@@ -568,6 +569,7 @@ code {
   max-width: 560px;
   max-height: 90vh;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-lg);
   animation: slideUp 0.2s ease;
   color: var(--text-primary);
@@ -1065,6 +1067,7 @@ body:not([data-theme="light"]) .app-layout .text-black {
     align-items: flex-start;
     padding: 10px;
     overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   }
 
   .custom-modal,
@@ -1220,4 +1223,5 @@ body:not([data-theme="light"]) .app-layout .text-black {
     overflow-x: visible !important;
   }
 }
+
 

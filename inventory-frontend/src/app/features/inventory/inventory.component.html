@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngIf="isLoading">
+          <ng-container *ngIf="isLoading && inventoryItems.length === 0">
             <tr *ngFor="let dummy of [1,2,3,4,5]">
               <td *ngFor="let col of [1,2,3,4,5,6,7,8,9]">
                 <div class="skeleton" style="height: 16px; width: 75%;"></div>
@@ -90,7 +90,7 @@
             </td>
           </tr>
 
-          <ng-container *ngIf="!isLoading && getFilteredLogs().length > 0">
+          <ng-container *ngIf="getFilteredLogs().length > 0">
             <tr *ngFor="let log of getFilteredLogs()">
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ log.id }}</td>
               <td [attr.data-label]="'INVENTORY.DATE' | translate" style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
@@ -204,3 +204,5 @@
     </div>
   </div>
 </div>
+
+

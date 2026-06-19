@@ -60,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="isLoading">
+          <tr *ngIf="isLoading && customers.length === 0">
             <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
           </tr>
           <tr *ngIf="!isLoading && customers.length === 0">
@@ -168,3 +168,5 @@
     </div>
   </div>
 </div>
+
+
