@@ -184,6 +184,8 @@ namespace Inventory_Management.Services
 
             var expirationDays = _config.GetValue<int>("JwtSettings:ExpirationDays", 1);
             var token = new JwtSecurityToken(
+                issuer: _config["JwtSettings:Issuer"],
+                audience: _config["JwtSettings:Audience"],
                 claims: claims,
                 signingCredentials: creds,
                 expires: DateTime.UtcNow.AddDays(expirationDays)
