@@ -2,6 +2,7 @@ using Inventory_Management._DbContext;
 using Inventory_Management.Common;
 using Inventory_Management.Dtos.Inventory_Dtos;
 using Inventory_Management.Models;
+using Inventory_Management.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Management.Services
@@ -40,14 +41,7 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "Stock Added",
-                Message = $"{dto.QuantityToAdd} units of '{product.Name}' added. New stock: {product.Quantity}.",
-                Type = "Success",
-                TargetRole = "All",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("Stock Added", $"{dto.QuantityToAdd} units of '{product.Name}' added. New stock: {product.Quantity}.", "Success", "All");
 
             await _db.SaveChangesAsync();
             return ApiResponse<object>.Ok(null!, $"Added {dto.QuantityToAdd} units. New stock: {product.Quantity}");
@@ -81,25 +75,11 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "Stock Sold",
-                Message = $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {product.Quantity}.",
-                Type = "Info",
-                TargetRole = "All",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("Stock Sold", $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {product.Quantity}.", "Info", "All");
 
             if (product.Quantity <= product.MinQuantity)
             {
-                _db.Notifications.Add(new Notification
-                {
-                    Title = "Low Stock Warning",
-                    Message = $"Product '{product.Name}' went low stock! Only {product.Quantity} remaining.",
-                    Type = "Danger",
-                    TargetRole = "All",
-                    CreatedAt = DateTime.UtcNow
-                });
+                _db.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {product.Quantity} remaining.", "Danger", "All");
             }
 
             try
@@ -139,14 +119,7 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "Stock Adjusted",
-                Message = $"'{product.Name}' adjusted from {previous} to {product.Quantity}.",
-                Type = "Warning",
-                TargetRole = "Manager",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {product.Quantity}.", "Warning", "Manager");
 
             try
             {
@@ -184,14 +157,7 @@ namespace Inventory_Management.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "Stock Returned",
-                Message = $"{dto.QuantityToReturn} units of '{product.Name}' returned. New stock: {product.Quantity}.",
-                Type = "Info",
-                TargetRole = "All",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("Stock Returned", $"{dto.QuantityToReturn} units of '{product.Name}' returned. New stock: {product.Quantity}.", "Info", "All");
 
             await _db.SaveChangesAsync();
             return ApiResponse<object>.Ok(null!, $"Returned {dto.QuantityToReturn} units. New stock: {product.Quantity}");
@@ -287,3 +253,4 @@ namespace Inventory_Management.Services
         }
     }
 }
+

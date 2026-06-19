@@ -2,6 +2,7 @@ using Inventory_Management._DbContext;
 using Inventory_Management.Common;
 using Inventory_Management.Dtos.Auth_Dto;
 using Inventory_Management.Models;
+using Inventory_Management.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,11 +16,13 @@ namespace Inventory_Management.Services
     {
         private readonly AppDbContext _db;
         private readonly IConfiguration _config;
+        private readonly IEmailService _emailService;
 
-        public AuthService(AppDbContext db, IConfiguration config)
+        public AuthService(AppDbContext db, IConfiguration config, IEmailService emailService)
         {
             _db = db;
             _config = config;
+            _emailService = emailService;
         }
 
         public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginDto dto)
@@ -84,16 +87,28 @@ namespace Inventory_Management.Services
 
             _db.Users.Add(newUser);
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "User Registered",
-                Message = $"New user '{newUser.Username}' has been registered as '{newUser.Role}'.",
-                Type = "Info",
-                TargetRole = "Manager",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{newUser.Role}'.", "Info", "Manager");
 
             await _db.SaveChangesAsync();
+
+            // Send Welcome Email
+            if (!string.IsNullOrEmpty(newUser.Email))
+            {
+                var emailHtml = _emailService.GenerateEmailTemplate(
+                    "Welcome to StockMaster!",
+                    $@"Hello {newUser.FirstName},<br><br>
+                    An account has been created for you on the StockMaster platform as a <b>{newUser.Role}</b>.<br><br>
+                    Your login details are:<br>
+                    <b>Username:</b> {newUser.Username}<br>
+                    <b>Password:</b> {dto.Password}<br><br>
+                    Please log in and change your password as soon as possible.",
+                    "Login to StockMaster",
+                    "https://inventory-management-system-5nz.pages.dev/login"
+                );
+
+                // Run in background so it doesn't block the API response
+                _ = _emailService.SendEmailAsync(newUser.Email, "Welcome to StockMaster - Your Account Details", emailHtml);
+            }
 
             return ApiResponse<object>.Created(new { userId = newUser.Id }, "User registered successfully");
         }
@@ -216,3 +231,4 @@ namespace Inventory_Management.Services
         };
     }
 }
+

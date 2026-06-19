@@ -11,3 +11,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<List<TopProductDto>>> GetTopProductsAsync(int limit = 5);
     }
 }
+

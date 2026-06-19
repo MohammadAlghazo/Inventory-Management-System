@@ -15,3 +15,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<DashboardStatsDto>> GetDashboardStatsAsync();
     }
 }
+

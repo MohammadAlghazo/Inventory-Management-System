@@ -26,10 +26,12 @@ namespace Inventory_Management.Controllers
         [HttpGet]
         public async Task<IActionResult> GetNotifications()
         {
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                return Unauthorized();
 
             var query = _db.Notifications
-                .Where(n => n.TargetRole == "All" || n.TargetRole == userRole)
+                .Where(n => n.UserId == userId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(50);
 
@@ -52,8 +54,8 @@ namespace Inventory_Management.Controllers
                 return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "Notification not found" });
             }
 
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
-            if (notif.TargetRole != "All" && notif.TargetRole != userRole)
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId) || notif.UserId != userId)
             {
                 return Forbid();
             }
@@ -67,10 +69,12 @@ namespace Inventory_Management.Controllers
         [HttpPost("mark-all-read")]
         public async Task<IActionResult> MarkAllRead()
         {
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
+                return Unauthorized();
 
             var unread = await _db.Notifications
-                .Where(n => (n.TargetRole == "All" || n.TargetRole == userRole) && !n.IsRead)
+                .Where(n => n.UserId == userId && !n.IsRead)
                 .ToListAsync();
 
             foreach (var n in unread)
@@ -92,8 +96,8 @@ namespace Inventory_Management.Controllers
                 return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "Notification not found" });
             }
 
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
-            if (notif.TargetRole != "All" && notif.TargetRole != userRole)
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId) || notif.UserId != userId)
             {
                 return Forbid();
             }

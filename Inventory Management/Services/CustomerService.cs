@@ -18,10 +18,12 @@ namespace Inventory_Management.Services
     public class CustomerService : ICustomerService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public CustomerService(AppDbContext context)
+        public CustomerService(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
@@ -97,6 +99,20 @@ namespace Inventory_Management.Services
             _context.Customers.Add(customer);
             await _context.SaveChangesAsync();
 
+            // Send Welcome Email
+            if (!string.IsNullOrEmpty(customer.Email))
+            {
+                var emailHtml = _emailService.GenerateEmailTemplate(
+                    "Welcome to StockMaster!",
+                    $@"Hello {customer.Name},<br><br>
+                    You have been successfully registered as a customer in our StockMaster system.<br>
+                    We look forward to serving you with the best inventory tracking and supply chain management.<br><br>
+                    If you have any questions or concerns, please don't hesitate to reach out to us."
+                );
+
+                _ = _emailService.SendEmailAsync(customer.Email, "Welcome to StockMaster", emailHtml);
+            }
+
             return ApiResponse<CustomerDto>.Created(new CustomerDto
             {
                 Id = customer.Id,
@@ -146,3 +162,4 @@ namespace Inventory_Management.Services
         }
     }
 }
+

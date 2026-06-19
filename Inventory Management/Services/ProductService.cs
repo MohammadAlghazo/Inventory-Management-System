@@ -2,6 +2,7 @@ using Inventory_Management._DbContext;
 using Inventory_Management.Common;
 using Inventory_Management.Dtos.Product_Dtos;
 using Inventory_Management.Models;
+using Inventory_Management.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory_Management.Services
@@ -136,14 +137,7 @@ namespace Inventory_Management.Services
 
             _db.Products.Add(product);
 
-            _db.Notifications.Add(new Notification
-            {
-                Title = "Product Added",
-                Message = $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.",
-                Type = "Success",
-                TargetRole = "All",
-                CreatedAt = DateTime.UtcNow
-            });
+            _db.AddNotification("Product Added", $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.", "Success", "All");
 
             await _db.SaveChangesAsync();
 
@@ -196,14 +190,7 @@ namespace Inventory_Management.Services
 
             if (product.Quantity <= product.MinQuantity)
             {
-                _db.Notifications.Add(new Notification
-                {
-                    Title = "Low Stock Alert",
-                    Message = $"Product '{product.Name}' is low on stock! Remaining: {product.Quantity}.",
-                    Type = "Warning",
-                    TargetRole = "All",
-                    CreatedAt = DateTime.UtcNow
-                });
+                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {product.Quantity}.", "Warning", "All");
             }
 
             await _db.SaveChangesAsync();
@@ -307,3 +294,4 @@ namespace Inventory_Management.Services
         };
     }
 }
+

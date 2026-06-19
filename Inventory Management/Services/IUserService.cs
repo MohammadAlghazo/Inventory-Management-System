@@ -12,3 +12,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<object>> DeleteUserAsync(int id);
     }
 }
+

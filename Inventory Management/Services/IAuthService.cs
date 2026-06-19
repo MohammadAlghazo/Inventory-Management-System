@@ -13,3 +13,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto);
     }
 }
+

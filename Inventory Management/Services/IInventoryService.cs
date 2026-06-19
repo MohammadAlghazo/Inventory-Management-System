@@ -13,3 +13,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<List<InventoryLogDto>>> GetLogsByProductAsync(int productId);
     }
 }
+

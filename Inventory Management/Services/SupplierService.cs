@@ -18,10 +18,12 @@ namespace Inventory_Management.Services
     public class SupplierService : ISupplierService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public SupplierService(AppDbContext context)
+        public SupplierService(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<ApiResponse<PagedResult<SupplierDto>>> GetAllSuppliersAsync(int page = 1, int pageSize = 10, string? search = null)
@@ -100,6 +102,20 @@ namespace Inventory_Management.Services
             _context.Suppliers.Add(supplier);
             await _context.SaveChangesAsync();
 
+            // Send Welcome Email
+            if (!string.IsNullOrEmpty(supplier.Email))
+            {
+                var emailHtml = _emailService.GenerateEmailTemplate(
+                    "Welcome to StockMaster Network!",
+                    $@"Hello {supplier.Name},<br><br>
+                    You have been successfully added as a supplier in our StockMaster ecosystem.<br>
+                    We value our partnership and look forward to a successful business relationship.<br><br>
+                    If you have any questions, please contact our procurement team."
+                );
+
+                _ = _emailService.SendEmailAsync(supplier.Email, "Welcome to StockMaster as a Supplier", emailHtml);
+            }
+
             return ApiResponse<SupplierDto>.Created(new SupplierDto
             {
                 Id = supplier.Id,
@@ -152,3 +168,4 @@ namespace Inventory_Management.Services
         }
     }
 }
+

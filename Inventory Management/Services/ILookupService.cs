@@ -28,3 +28,4 @@ namespace Inventory_Management.Services
         Task<ApiResponse<bool>> DeleteWarehouseAsync(int id);
     }
 }
+

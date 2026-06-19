@@ -108,6 +108,8 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 
+builder.Services.AddHttpClient<IEmailService, GoogleAppsScriptEmailService>();
+builder.Services.AddScoped<IEmailService, GoogleAppsScriptEmailService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
