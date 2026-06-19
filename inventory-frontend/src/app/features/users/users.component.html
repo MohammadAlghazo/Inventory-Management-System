@@ -81,8 +81,8 @@
           
           <ng-container *ngIf="!isLoading && getFilteredUsers().length > 0">
             <tr *ngFor="let u of getFilteredUsers()">
-              <td style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
-              <td>
+              <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
+              <td [attr.data-label]="'USERS.USERNAME' | translate">
                 <div style="display:flex;align-items:center;gap:10px;">
                   <div class="avatar">{{ u.firstName?.charAt(0) || u.username?.charAt(0) || 'U' }}</div>
                   <div>
@@ -91,19 +91,19 @@
                   </div>
                 </div>
               </td>
-              <td>{{ u.email || '—' }}</td>
-              <td>
+              <td [attr.data-label]="'COMMON.EMAIL' | translate">{{ u.email || '—' }}</td>
+              <td [attr.data-label]="'USERS.ROLE' | translate">
                 <span class="badge" [ngClass]="u.role === 'Manager' ? 'badge-accent' : 'badge-info'">
                   {{ (u.role === 'Manager' ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
                 </span>
               </td>
-              <td>
+              <td [attr.data-label]="'COMMON.STATUS' | translate">
                 <span class="badge" [ngClass]="u.isActive ? 'badge-success' : 'badge-danger'">
                   {{ (u.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
                 </span>
               </td>
-              <td style="font-size:12px;color:var(--text-secondary);">{{ u.createdAt | date:'mediumDate' }}</td>
-              <td>
+              <td [attr.data-label]="'USERS.JOINED' | translate" style="font-size:12px;color:var(--text-secondary);">{{ u.createdAt | date:'mediumDate' }}</td>
+              <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
                   
                   <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" title="View Details">

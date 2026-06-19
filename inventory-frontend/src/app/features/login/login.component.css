@@ -59,7 +59,7 @@
   min-height: 100vh;
   padding-top: 140px;
   padding-bottom: 120px;
-  background: #0f0a15; 
+  background: #0f1c18; 
 }
 
 .sunset-overlay {
@@ -68,7 +68,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, #0b0f19 0%, #1a233a 50%, #2d3250 80%, #423e60 100%);
+  background: linear-gradient(to bottom, #0f1c18 0%, #173832 40%, #51716d 70%, #d89871 100%);
   z-index: 0;
 }
 

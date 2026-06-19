@@ -34,9 +34,9 @@
               <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_CATEGORIES' | translate }}</td>
             </tr>
             <tr *ngFor="let item of categories">
-              <td><code>#{{ item.id }}</code></td>
-              <td class="font-bold">{{ item.name }}</td>
-              <td class="text-secondary">{{ item.description || '—' }}</td>
+              <td [attr.data-label]="'COMMON.ID' | translate"><code>#{{ item.id }}</code></td>
+              <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ item.name }}</td>
+              <td [attr.data-label]="'COMMON.DESCRIPTION' | translate" class="text-secondary">{{ item.description || '—' }}</td>
             </tr>
           </tbody>
         </table>
@@ -62,9 +62,9 @@
               <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_BRANDS' | translate }}</td>
             </tr>
             <tr *ngFor="let item of brands">
-              <td><code>#{{ item.id }}</code></td>
-              <td class="font-bold">{{ item.name }}</td>
-              <td class="text-secondary">{{ item.description || '—' }}</td>
+              <td [attr.data-label]="'COMMON.ID' | translate"><code>#{{ item.id }}</code></td>
+              <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ item.name }}</td>
+              <td [attr.data-label]="'COMMON.DESCRIPTION' | translate" class="text-secondary">{{ item.description || '—' }}</td>
             </tr>
           </tbody>
         </table>
@@ -90,9 +90,9 @@
               <td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_UNITS' | translate }}</td>
             </tr>
             <tr *ngFor="let item of units">
-              <td><code>#{{ item.id }}</code></td>
-              <td class="font-bold">{{ item.name }}</td>
-              <td><span class="badge badge-accent">{{ item.abbreviation }}</span></td>
+              <td [attr.data-label]="'COMMON.ID' | translate"><code>#{{ item.id }}</code></td>
+              <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ item.name }}</td>
+              <td [attr.data-label]="'SETTINGS.ABBREVIATION' | translate"><span class="badge badge-accent">{{ item.abbreviation }}</span></td>
             </tr>
           </tbody>
         </table>
@@ -121,12 +121,12 @@
               <td colspan="6" style="text-align: center; color: var(--text-secondary); padding: 20px;">{{ 'SETTINGS.NO_WAREHOUSES' | translate }}</td>
             </tr>
             <tr *ngFor="let item of warehouses">
-              <td><code>#{{ item.id }}</code></td>
-              <td class="font-bold">{{ item.name }}</td>
-              <td class="text-secondary">{{ item.location || '—' }}</td>
-              <td>{{ item.managerName || '—' }}</td>
-              <td>{{ item.capacity || '—' }}</td>
-              <td>
+              <td [attr.data-label]="'COMMON.ID' | translate"><code>#{{ item.id }}</code></td>
+              <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ item.name }}</td>
+              <td [attr.data-label]="'SETTINGS.LOCATION' | translate" class="text-secondary">{{ item.location || '—' }}</td>
+              <td [attr.data-label]="'SETTINGS.MANAGER' | translate">{{ item.managerName || '—' }}</td>
+              <td [attr.data-label]="'SETTINGS.CAPACITY' | translate">{{ item.capacity || '—' }}</td>
+              <td [attr.data-label]="'COMMON.STATUS' | translate">
                 <span class="badge" [ngClass]="item.isActive ? 'badge-success' : 'badge-danger'">
                   {{ item.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
                 </span>
