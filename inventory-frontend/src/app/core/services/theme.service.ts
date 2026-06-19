@@ -12,6 +12,7 @@ export interface ColorScheme {
 })
 export class ThemeService {
   public readonly availableSchemes: ColorScheme[] = [
+    { id: 'classic', name: 'Classic Blue', color: '#3b82f6' },
     { id: 'sunset', name: 'Sunset (Default)', color: '#d2593b' },
     { id: 'cyberpunk', name: 'Cyberpunk Neon', color: '#06b6d4' },
     { id: 'midnight', name: 'Midnight Indigo', color: '#6366f1' },
