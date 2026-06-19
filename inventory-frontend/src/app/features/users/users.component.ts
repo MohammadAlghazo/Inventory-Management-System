@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {
   LucideAngularModule, Search, Users, Shield, User,
   UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save,
-  ChevronLeft, ChevronRight, UserCircle2
+  ChevronLeft, ChevronRight, UserCircle2, UploadCloud
 } from 'lucide-angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -25,7 +25,7 @@ export class UsersComponent implements OnInit {
   showProfilePictureModal = false;
   selectedUserIdForPicture: number | null = null;
 
-  readonly icons = { UserCircle2, Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save, ChevronLeft, ChevronRight };
+  readonly icons = { UserCircle2, Search, Users, Shield, User, UserCheck, UserX, Trash2, Plus, Eye, Pencil, X, Save, ChevronLeft, ChevronRight, UploadCloud };
 
   users: any[] = [];
   totalCount = 0;
