@@ -18,6 +18,28 @@
       <lucide-icon [img]="isDarkMode ? icons.Sun : icons.Moon" [size]="18"></lucide-icon>
     </button>
 
+        <div class="position-relative">
+      <button class="header-icon-btn theme-btn" title="Themes" (click)="toggleThemesMenu()">
+        <lucide-icon [img]="icons.Palette" [size]="18"></lucide-icon>
+      </button>
+
+      <div *ngIf="showThemes" class="themes-dropdown shadow-lg">
+        <div class="themes-header">
+          <h6>Themes</h6>
+        </div>
+        <div class="themes-body">
+          <div *ngFor="let scheme of availableSchemes"
+               class="theme-swatch"
+               [ngClass]="{'active': currentScheme === scheme.id}"
+               (click)="selectTheme(scheme.id)">
+            <div class="color-circle" [style.backgroundColor]="scheme.color"></div>
+            <span>{{ scheme.name }}</span>
+            <lucide-icon *ngIf="currentScheme === scheme.id" [img]="icons.Check" [size]="14" class="check-icon"></lucide-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="position-relative">
       <button class="header-icon-btn header-notif-btn" [title]="'COMMON.NOTIFICATIONS' | translate" (click)="toggleNotifications()">
         <lucide-icon [img]="icons.Bell" [size]="18"></lucide-icon>

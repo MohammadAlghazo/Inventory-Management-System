@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Inventory_Management.Dtos;
-using Inventory_Management.Services;
-using Inventory_Management.Common;
+using InventoryManagement.Application.Dtos;
+using InventoryManagement.Application.Services;
+using InventoryManagement.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory_Management.Controllers
+namespace InventoryManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

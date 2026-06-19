@@ -1,10 +1,10 @@
-using Inventory_Management.Dtos.Inventory_Dtos;
-using Inventory_Management.Services;
+using InventoryManagement.Application.Dtos.Inventory_Dtos;
+using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace Inventory_Management.Controllers
+namespace InventoryManagement.Api.Controllers
 {
     [Route("api/inventory")]
     [ApiController]

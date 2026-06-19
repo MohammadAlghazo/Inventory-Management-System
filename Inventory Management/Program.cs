@@ -1,6 +1,7 @@
-using Inventory_Management._DbContext;
-using Inventory_Management.Middleware;
-using Inventory_Management.Services;
+using InventoryManagement.Infrastructure.Services;
+using InventoryManagement.Infrastructure.Data;
+using InventoryManagement.Api.Middleware;
+using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,8 @@ using System.Text;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Inventory_Management.Validators;
+using InventoryManagement.Application.Validators;
+using InventoryManagement.Application.Common.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,6 +111,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 
 builder.Services.AddHttpClient<IEmailService, GoogleAppsScriptEmailService>();
+builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();

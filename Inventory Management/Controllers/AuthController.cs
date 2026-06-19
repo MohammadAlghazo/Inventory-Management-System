@@ -1,11 +1,11 @@
-using Inventory_Management.Dtos.Auth_Dto;
-using Inventory_Management.Services;
+using InventoryManagement.Application.Dtos.Auth_Dto;
+using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
-namespace Inventory_Management.Controllers
+namespace InventoryManagement.Api.Controllers
 {
     [Route("api/auth")]
     [ApiController]

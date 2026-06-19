@@ -1,8 +1,8 @@
-using Inventory_Management.Services;
+using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inventory_Management.Controllers
+namespace InventoryManagement.Api.Controllers
 {
     [Route("api/dashboard")]
     [ApiController]

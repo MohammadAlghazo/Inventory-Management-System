@@ -1,8 +1,8 @@
-using Inventory_Management.Common;
+using InventoryManagement.Domain.Common;
 using System.Net;
 using System.Text.Json;
 
-namespace Inventory_Management.Middleware
+namespace InventoryManagement.Api.Middleware
 {
 
     public class GlobalExceptionHandlerMiddleware

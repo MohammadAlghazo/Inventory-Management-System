@@ -1,12 +1,13 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { LucideAngularModule, Menu, Globe, Moon, Sun, Bell, Check, Trash } from 'lucide-angular';
+import { LucideAngularModule, Menu, Globe, Moon, Sun, Bell, Check, Trash, Palette } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { LayoutService } from '../../services/layout.service';
+import { ThemeService, ColorScheme } from '../../services/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -16,10 +17,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent implements OnInit {
-  readonly icons = { Menu, Globe, Moon, Sun, Bell, Check, Trash };
+  readonly icons = { Menu, Globe, Moon, Sun, Bell, Check, Trash, Palette };
   user: any = null;
   currentLang: string = 'en';
+  destroyRef: DestroyRef;
   isDarkMode = true;
+  showThemes = false;
+  currentScheme = 'sunset';
+  availableSchemes: ColorScheme[] = [];
   notificationsList: Notification[] = [];
   showNotifications = false;
   pageTitle: string = 'SIDEBAR.DASHBOARD';
@@ -29,8 +34,10 @@ export class HeaderComponent implements OnInit {
     private translate: TranslateService,
     private notificationService: NotificationService,
     private router: Router,
-    public layoutService: LayoutService
+    public layoutService: LayoutService,
+    public themeService: ThemeService
   ) {
+    this.destroyRef = inject(DestroyRef);
     const lang = this.translate.currentLang || localStorage.getItem('lang') || 'en';
     this.currentLang = typeof lang === 'string' ? lang : 'en';
 
@@ -42,10 +49,9 @@ export class HeaderComponent implements OnInit {
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
 
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    this.isDarkMode = savedTheme === 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    document.documentElement.setAttribute('data-bs-theme', savedTheme);
+    this.availableSchemes = this.themeService.availableSchemes;
+    this.themeService.isDarkMode$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isDark => this.isDarkMode = isDark);
+    this.themeService.currentScheme$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(scheme => this.currentScheme = scheme);
 
     this.loadNotifications();
 
@@ -129,13 +135,11 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    const theme = this.isDarkMode ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-    document.documentElement.setAttribute('data-bs-theme', theme);
-    localStorage.setItem('theme', theme);
-  }
+  toggleTheme() { this.themeService.toggleDarkMode(); }
+
+  toggleThemesMenu() { this.showThemes = !this.showThemes; this.showNotifications = false; }
+
+  selectTheme(schemeId: string) { this.themeService.setColorScheme(schemeId); this.showThemes = false; }
 
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
@@ -147,8 +151,11 @@ export class HeaderComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
-    if (this.showNotifications && !target.closest('.position-relative')) {
+    if (this.showNotifications && !target.closest('.notifications-dropdown') && !target.closest('.notification-btn')) {
       this.showNotifications = false;
+    }
+    if (this.showThemes && !target.closest('.themes-dropdown') && !target.closest('.theme-btn')) {
+      this.showThemes = false;
     }
   }
 

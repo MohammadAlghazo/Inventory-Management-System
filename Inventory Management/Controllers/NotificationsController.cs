@@ -2,14 +2,14 @@ using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Inventory_Management._DbContext;
-using Inventory_Management.Common;
-using Inventory_Management.Models;
+using InventoryManagement.Infrastructure.Data;
+using InventoryManagement.Domain.Common;
+using InventoryManagement.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Inventory_Management.Controllers
+namespace InventoryManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
