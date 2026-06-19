@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  apiUrl: 'https://localhost:7093/api'
+  production: true,
+  apiUrl: 'https://inventory-management-system-omkq.onrender.com/api'
 };

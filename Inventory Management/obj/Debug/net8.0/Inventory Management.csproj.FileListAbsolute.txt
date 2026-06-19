@@ -465,4 +465,3 @@ D:\Projects\Inventory Management\Inventory-Management\Inventory Management\bin\D
 D:\Projects\Inventory Management\Inventory-Management\Inventory Management\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 D:\Projects\Inventory Management\Inventory-Management\Inventory Management\bin\Debug\net8.0\Npgsql.dll
 D:\Projects\Inventory Management\Inventory-Management\Inventory Management\bin\Debug\net8.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll
-D:\Projects\Inventory Management\Inventory-Management\Inventory Management\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
