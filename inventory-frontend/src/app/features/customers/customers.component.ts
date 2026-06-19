@@ -56,7 +56,7 @@ export class CustomersComponent implements OnInit {
     this.isLoading = true;
     this.customerService.getAll(this.page, this.pageSize, this.searchQuery).subscribe({
       next: (res: any) => {
-        let items = res.data.items || [];
+        let items = res?.data?.items || [];
         
         if (this.selectedStatus === 'active') {
           items = items.filter((c: any) => c.isActive === true);
@@ -65,7 +65,7 @@ export class CustomersComponent implements OnInit {
         }
         
         this.customers = items;
-        this.totalPages = Math.ceil(res.data.totalCount / this.pageSize) || 1;
+        this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
         this.cdr.markForCheck();
       },
