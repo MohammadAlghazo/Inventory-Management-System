@@ -31,15 +31,16 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     public layoutService: LayoutService
   ) {
-    const lang = this.translate.currentLang;
+    const lang = this.translate.currentLang || localStorage.getItem('lang') || 'en';
     this.currentLang = typeof lang === 'string' ? lang : 'en';
+
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(event => {
+      this.currentLang = event.lang;
+    });
   }
 
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
-    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(event => {
-      this.currentLang = event.lang;
-    });
 
     const savedTheme = localStorage.getItem('theme') || 'dark';
     this.isDarkMode = savedTheme === 'dark';
