@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus } from 'lucide-angular';
@@ -14,7 +14,8 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
   selector: 'app-products',
   imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './products.component.html',
-  styleUrl: './products.component.css'
+  styleUrl: './products.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductsComponent implements OnInit {
   readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus };
@@ -42,7 +43,8 @@ export class ProductsComponent implements OnInit {
     private authService: AuthService,
     private http: HttpClient,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private cdr: ChangeDetectorRef
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -54,7 +56,10 @@ export class ProductsComponent implements OnInit {
 
   loadCategories() {
     this.http.get<any>(`${environment.apiUrl}/lookup/categories`).subscribe({
-      next: (res) => this.categories = res.data || [],
+      next: (res) => { 
+        this.categories = res.data || [];
+        this.cdr.markForCheck();
+      },
       error: () => {}
     });
   }
@@ -65,40 +70,23 @@ export class ProductsComponent implements OnInit {
 
   loadProducts() {
     this.isLoading = true;
-    this.productService.getProducts(this.page, this.pageSize, this.searchQuery).subscribe({
+    this.productService.getProducts(this.page, this.pageSize, this.searchQuery, this.selectedCategory, this.selectedStockStatus).subscribe({
       next: (res) => {
         this.products = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
         this.totalPages = res.data?.totalPages || 1;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
-      error: () => this.isLoading = false
+      error: () => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   getFilteredProducts() {
-    return this.products.filter(p => {
-      const q = this.searchQuery.trim().toLowerCase();
-      const matchesSearch = q ? (
-        String(p.id).includes(q) ||
-        p.name.toLowerCase().includes(q) ||
-        (p.sku && p.sku.toLowerCase().includes(q)) ||
-        (p.category && p.category.toLowerCase().includes(q))
-      ) : true;
-
-      const matchesCategory = this.selectedCategory ? String(p.categoryId) === this.selectedCategory : true;
-
-      let matchesStock = true;
-      if (this.selectedStockStatus === 'in-stock') {
-        matchesStock = p.quantity > p.minQuantity;
-      } else if (this.selectedStockStatus === 'low-stock') {
-        matchesStock = p.quantity <= p.minQuantity && p.quantity > 0;
-      } else if (this.selectedStockStatus === 'out-of-stock') {
-        matchesStock = p.quantity === 0;
-      }
-
-      return matchesSearch && matchesCategory && matchesStock;
-    });
+    return this.products;
   }
 
   onFilterChange() {
@@ -187,8 +175,13 @@ export class ProductsComponent implements OnInit {
         this.isDeleting = false;
         this.deleteConfirm = null;
         this.loadProducts();
+        this.cdr.markForCheck();
       },
-      error: () => this.isDeleting = false
+      error: () => {
+        this.isLoading = false;
+        this.isDeleting = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -242,8 +235,12 @@ export class ProductsComponent implements OnInit {
         this.isSavingProduct = false;
         this.showProductModal = false;
         this.loadProducts();
+        this.cdr.markForCheck();
       },
-      error: () => this.isSavingProduct = false
+      error: () => {
+        this.isSavingProduct = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 }

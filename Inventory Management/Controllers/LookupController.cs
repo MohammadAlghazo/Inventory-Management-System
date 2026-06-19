@@ -34,6 +34,20 @@ namespace Inventory_Management.Controllers
             return Ok(await _lookupService.CreateCategoryAsync(dto));
         }
 
+        [HttpPut("categories/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<CategoryDto>>> UpdateCategory(int id, UpdateCategoryDto dto)
+        {
+            return Ok(await _lookupService.UpdateCategoryAsync(id, dto));
+        }
+
+        [HttpDelete("categories/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteCategory(int id)
+        {
+            return Ok(await _lookupService.DeleteCategoryAsync(id));
+        }
+
         [HttpGet("brands")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<ActionResult<ApiResponse<List<BrandDto>>>> GetBrands()
@@ -46,6 +60,20 @@ namespace Inventory_Management.Controllers
         public async Task<ActionResult<ApiResponse<BrandDto>>> CreateBrand(CreateBrandDto dto)
         {
             return Ok(await _lookupService.CreateBrandAsync(dto));
+        }
+
+        [HttpPut("brands/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<BrandDto>>> UpdateBrand(int id, UpdateBrandDto dto)
+        {
+            return Ok(await _lookupService.UpdateBrandAsync(id, dto));
+        }
+
+        [HttpDelete("brands/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteBrand(int id)
+        {
+            return Ok(await _lookupService.DeleteBrandAsync(id));
         }
 
         [HttpGet("units")]
@@ -62,6 +90,20 @@ namespace Inventory_Management.Controllers
             return Ok(await _lookupService.CreateUnitAsync(dto));
         }
 
+        [HttpPut("units/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<UnitDto>>> UpdateUnit(int id, UpdateUnitDto dto)
+        {
+            return Ok(await _lookupService.UpdateUnitAsync(id, dto));
+        }
+
+        [HttpDelete("units/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteUnit(int id)
+        {
+            return Ok(await _lookupService.DeleteUnitAsync(id));
+        }
+
         [HttpGet("warehouses")]
         [Authorize(Roles = "Manager,Employee")]
         public async Task<ActionResult<ApiResponse<List<WarehouseDto>>>> GetWarehouses()
@@ -74,6 +116,20 @@ namespace Inventory_Management.Controllers
         public async Task<ActionResult<ApiResponse<WarehouseDto>>> CreateWarehouse(CreateWarehouseDto dto)
         {
             return Ok(await _lookupService.CreateWarehouseAsync(dto));
+        }
+
+        [HttpPut("warehouses/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<WarehouseDto>>> UpdateWarehouse(int id, UpdateWarehouseDto dto)
+        {
+            return Ok(await _lookupService.UpdateWarehouseAsync(id, dto));
+        }
+
+        [HttpDelete("warehouses/{id}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<ActionResult<ApiResponse<bool>>> DeleteWarehouse(int id)
+        {
+            return Ok(await _lookupService.DeleteWarehouseAsync(id));
         }
     }
 }

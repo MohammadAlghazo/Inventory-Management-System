@@ -29,8 +29,12 @@ export class CustomerService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<Customer[]>> {
-    return this.http.get<ApiResponse<Customer[]>>(this.apiUrl);
+  getAll(page: number = 1, pageSize: number = 10, search: string = ''): Observable<ApiResponse<any>> {
+    let url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    return this.http.get<ApiResponse<any>>(url);
   }
 
   getById(id: number): Observable<ApiResponse<Customer>> {

@@ -8,7 +8,7 @@ namespace Inventory_Management.Services
 {
     public interface ICustomerService
     {
-        Task<ApiResponse<IEnumerable<CustomerDto>>> GetAllCustomersAsync();
+        Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null);
         Task<ApiResponse<CustomerDto>> GetCustomerByIdAsync(int id);
         Task<ApiResponse<CustomerDto>> CreateCustomerAsync(CreateCustomerDto dto);
         Task<ApiResponse<CustomerDto>> UpdateCustomerAsync(int id, UpdateCustomerDto dto);
@@ -24,10 +24,24 @@ namespace Inventory_Management.Services
             _context = context;
         }
 
-        public async Task<ApiResponse<IEnumerable<CustomerDto>>> GetAllCustomersAsync()
+        public async Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
         {
-            var customers = await _context.Customers
+            var query = _context.Customers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.ToLower();
+                query = query.Where(c => c.Name.ToLower().Contains(s) || 
+                                         c.Phone.ToLower().Contains(s) || 
+                                         c.Email.ToLower().Contains(s));
+            }
+
+            var total = await query.CountAsync();
+
+            var customers = await query
                 .OrderByDescending(c => c.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(c => new CustomerDto
                 {
                     Id = c.Id,
@@ -40,7 +54,15 @@ namespace Inventory_Management.Services
                 })
                 .ToListAsync();
 
-            return ApiResponse<IEnumerable<CustomerDto>>.Ok(customers);
+            var pagedResult = new PagedResult<CustomerDto>
+            {
+                Items = customers,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return ApiResponse<PagedResult<CustomerDto>>.Ok(pagedResult);
         }
 
         public async Task<ApiResponse<CustomerDto>> GetCustomerByIdAsync(int id)
@@ -117,10 +139,10 @@ namespace Inventory_Management.Services
             var customer = await _context.Customers.FindAsync(id);
             if (customer == null) return ApiResponse<bool>.NotFound("Customer not found");
 
-            _context.Customers.Remove(customer);
+            customer.IsActive = false;
             await _context.SaveChangesAsync();
 
-            return ApiResponse<bool>.Ok(true, "Customer deleted successfully");
+            return ApiResponse<bool>.Ok(true, "Customer deactivated successfully");
         }
     }
 }

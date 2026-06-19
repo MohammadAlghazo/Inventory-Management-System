@@ -16,16 +16,21 @@ export class AuthService {
     
     if (!this.isTokenValid()) {
       localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
     }
   }
 
   login(credentials: any): Observable<any> {
     
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
+          if (response.data.refreshToken) {
+            localStorage.setItem('refreshToken', response.data.refreshToken);
+          }
           this.isAuthenticatedSubject.next(true);
         }
       })
@@ -38,7 +43,23 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     this.isAuthenticatedSubject.next(false);
+  }
+
+  refreshToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    return this.http.post(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
+      tap((response: any) => {
+        if (response.data && response.data.token) {
+          localStorage.setItem('token', response.data.token);
+          if (response.data.refreshToken) {
+            localStorage.setItem('refreshToken', response.data.refreshToken);
+          }
+          this.isAuthenticatedSubject.next(true);
+        }
+      })
+    );
   }
 
   getToken(): string | null {

@@ -141,10 +141,10 @@ namespace Inventory_Management.Services
             if (id == 1)
                 return ApiResponse<object>.Fail("Cannot delete the primary admin account");
 
-            _db.Users.Remove(user);
+            user.IsActive = false;
             await _db.SaveChangesAsync();
 
-            return ApiResponse<object>.Ok(null!, "User deleted successfully");
+            return ApiResponse<object>.Ok(null!, "User deactivated successfully");
         }
     }
 }

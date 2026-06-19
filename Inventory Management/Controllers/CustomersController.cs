@@ -18,9 +18,9 @@ namespace Inventory_Management.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
         {
-            var result = await _customerService.GetAllCustomersAsync();
+            var result = await _customerService.GetAllCustomersAsync(page, pageSize, search);
             return StatusCode(result.StatusCode, result);
         }
 

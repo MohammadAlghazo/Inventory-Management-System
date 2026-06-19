@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +13,7 @@ export class AppComponent {
   title = 'StockMaster';
 
   constructor(private translate: TranslateService) {
-    this.translate.onLangChange.subscribe(event => {
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(event => {
       document.documentElement.dir = event.lang === 'ar' ? 'rtl' : 'ltr';
       document.documentElement.lang = event.lang;
     });

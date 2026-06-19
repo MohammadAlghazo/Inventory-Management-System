@@ -114,6 +114,7 @@ namespace Inventory_Management.Dtos.Product_Dtos
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
         public bool? IsLowStock { get; set; }
+        public string? StockStatus { get; set; }
         public string SortBy { get; set; } = "name";
         public string SortOrder { get; set; } = "asc";
         public bool IncludeInactive { get; set; } = false;

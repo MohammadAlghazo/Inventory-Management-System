@@ -52,6 +52,12 @@ namespace Inventory_Management.Controllers
                 return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "Notification not found" });
             }
 
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
+            if (notif.TargetRole != "All" && notif.TargetRole != userRole)
+            {
+                return Forbid();
+            }
+
             notif.IsRead = true;
             await _db.SaveChangesAsync();
 
@@ -84,6 +90,12 @@ namespace Inventory_Management.Controllers
             if (notif == null)
             {
                 return NotFound(new ApiResponse<object> { Success = false, StatusCode = 404, Message = "Notification not found" });
+            }
+
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "Employee";
+            if (notif.TargetRole != "All" && notif.TargetRole != userRole)
+            {
+                return Forbid();
             }
 
             _db.Notifications.Remove(notif);

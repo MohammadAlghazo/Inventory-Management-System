@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Inventory_Management</RootNamespace>
+    <UserSecretsId>a58965a2-d7d1-49ee-a43a-f7a4e12b85ad</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

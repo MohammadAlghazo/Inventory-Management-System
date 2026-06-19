@@ -102,8 +102,15 @@ namespace Inventory_Management.Services
                 });
             }
 
-            await _db.SaveChangesAsync();
-            return ApiResponse<object>.Ok(null!, $"Sold {dto.QuantityToSell} units. Remaining stock: {product.Quantity}");
+            try
+            {
+                await _db.SaveChangesAsync();
+                return ApiResponse<object>.Ok(null!, $"Sold {dto.QuantityToSell} units. Remaining stock: {product.Quantity}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return ApiResponse<object>.Fail("Stock was modified by another transaction. Please try again.");
+            }
         }
 
         public async Task<ApiResponse<object>> AdjustStockAsync(AdjustStockDto dto, int userId)
@@ -141,8 +148,15 @@ namespace Inventory_Management.Services
                 CreatedAt = DateTime.UtcNow
             });
 
-            await _db.SaveChangesAsync();
-            return ApiResponse<object>.Ok(null!, $"Stock adjusted from {previous} to {dto.NewQuantity}");
+            try
+            {
+                await _db.SaveChangesAsync();
+                return ApiResponse<object>.Ok(null!, $"Stock adjusted from {previous} to {dto.NewQuantity}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return ApiResponse<object>.Fail("Stock was modified by another transaction. Please try again.");
+            }
         }
 
         public async Task<ApiResponse<object>> ReturnProductAsync(ReturnProductDto dto, int userId)
@@ -196,6 +210,17 @@ namespace Inventory_Management.Services
             if (!string.IsNullOrWhiteSpace(query.Action) &&
                 Enum.TryParse<InventoryAction>(query.Action, true, out var actionEnum))
                 q = q.Where(l => l.Action == actionEnum);
+
+            if (!string.IsNullOrWhiteSpace(query.Search))
+            {
+                var s = query.Search.ToLower();
+                q = q.Where(l => 
+                    l.Product.Name.ToLower().Contains(s) ||
+                    (l.Notes != null && l.Notes.ToLower().Contains(s)) ||
+                    (l.User != null && l.User.Username.ToLower().Contains(s)) ||
+                    l.Id.ToString().Contains(s)
+                );
+            }
 
             if (query.FromDate.HasValue)
                 q = q.Where(l => l.ActionDate >= query.FromDate.Value);

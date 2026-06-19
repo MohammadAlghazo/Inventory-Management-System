@@ -37,10 +37,10 @@
           <option value="inactive">{{ 'COMMON.INACTIVE' | translate }}</option>
         </select>
 
-        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || filteredCustomers.length === 0">
+        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || customers.length === 0">
           Excel
         </button>
-        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || filteredCustomers.length === 0">
+        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || customers.length === 0">
           PDF
         </button>
       </div>
@@ -63,24 +63,24 @@
           <tr *ngIf="isLoading">
             <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
           </tr>
-          <tr *ngIf="!isLoading && pagedCustomers.length === 0">
+          <tr *ngIf="!isLoading && customers.length === 0">
             <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'CUSTOMERS.NO_CUSTOMERS' | translate }}</td>
           </tr>
-          <tr *ngFor="let customer of pagedCustomers">
-            <td style="font-weight: bold; color: var(--text-muted);">#{{ customer.id }}</td>
-            <td class="font-bold">{{ customer.name }}</td>
-            <td>
+          <tr *ngFor="let customer of customers">
+            <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ customer.id }}</td>
+            <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ customer.name }}</td>
+            <td [attr.data-label]="'SUPPLIERS.CONTACT_INFO' | translate">
               <div style="display: flex; flex-direction: column; gap: 2px;">
                 <span>{{ customer.email || '—' }}</span>
                 <span class="text-xs text-muted">{{ customer.phone || '—' }}</span>
               </div>
             </td>
-            <td>
+            <td [attr.data-label]="'COMMON.STATUS' | translate">
               <span class="badge" [ngClass]="customer.isActive ? 'badge-success' : 'badge-danger'">
                 {{ customer.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
               </span>
             </td>
-            <td>
+            <td [attr.data-label]="'COMMON.ACTIONS' | translate">
               <div style="display: flex; gap: 6px; justify-content: flex-end;">
                 <button (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
                   <lucide-icon [img]="iconEdit" [size]="14"></lucide-icon>

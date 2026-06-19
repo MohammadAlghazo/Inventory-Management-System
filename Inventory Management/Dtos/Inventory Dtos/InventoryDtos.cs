@@ -50,6 +50,7 @@ namespace Inventory_Management.Dtos.Inventory_Dtos
         public int PageSize { get; set; } = 20;
         public int? ProductId { get; set; }
         public string? Action { get; set; }
+        public string? Search { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
         public string SortOrder { get; set; } = "desc";

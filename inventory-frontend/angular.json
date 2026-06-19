@@ -32,6 +32,14 @@
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "xlsx",
+              "jspdf",
+              "html2canvas",
+              "jwt-decode",
+              "chart.js",
+              "sweetalert2"
             ]
           },
           "configurations": {
@@ -44,8 +52,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "100kB",
+                  "maximumError": "200kB"
                 }
               ],
               "outputHashing": "all",

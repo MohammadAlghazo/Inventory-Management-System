@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Download, Plus, ClipboardList, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -13,7 +13,8 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
   selector: 'app-inventory',
   imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './inventory.component.html',
-  styleUrl: './inventory.component.css'
+  styleUrl: './inventory.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InventoryComponent implements OnInit {
   readonly icons = { Search, Download, Plus, ClipboardList, ChevronLeft, ChevronRight };
@@ -43,7 +44,8 @@ export class InventoryComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private cdr: ChangeDetectorRef
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -59,28 +61,23 @@ export class InventoryComponent implements OnInit {
 
   loadLogs() {
     this.isLoading = true;
-    this.inventoryService.getInventoryLogs(this.page, this.pageSize, this.actionFilter).subscribe({
+    this.inventoryService.getInventoryLogs(this.page, this.pageSize, this.actionFilter, this.searchQuery).subscribe({
       next: (res) => {
         this.logs = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
         this.totalPages = res.data?.totalPages || 1;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
-      error: () => this.isLoading = false
+      error: () => {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
   getFilteredLogs() {
-    const q = this.searchQuery.trim().toLowerCase();
-    return this.logs.filter(log => {
-      return q ? (
-        String(log.id).includes(q) ||
-        (log.productName && log.productName.toLowerCase().includes(q)) ||
-        (log.notes && log.notes.toLowerCase().includes(q)) ||
-        (log.performedBy && log.performedBy.toLowerCase().includes(q)) ||
-        (log.userName && log.userName.toLowerCase().includes(q))
-      ) : true;
-    });
+    return this.logs;
   }
 
   onFilterChange() {
@@ -97,6 +94,7 @@ export class InventoryComponent implements OnInit {
     
     this.productService.getProducts(1, 1000).subscribe(res => {
       this.products = res.data?.items || [];
+      this.cdr.markForCheck();
     });
   }
 
@@ -200,10 +198,12 @@ export class InventoryComponent implements OnInit {
         this.closeActionModal();
         this.loadLogs();
         this.loadProducts(); 
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isSubmitting = false;
         this.actionError = err.error?.message || 'Operation failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

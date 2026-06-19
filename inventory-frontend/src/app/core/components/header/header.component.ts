@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { LayoutService } from '../../services/layout.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-header',
@@ -36,7 +37,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
-    this.translate.onLangChange.subscribe(event => {
+    this.translate.onLangChange.pipe(takeUntilDestroyed()).subscribe(event => {
       this.currentLang = event.lang;
     });
 
@@ -48,7 +49,8 @@ export class HeaderComponent implements OnInit {
     this.loadNotifications();
 
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed()
     ).subscribe(() => {
       this.updateTitle();
       this.showNotifications = false; 

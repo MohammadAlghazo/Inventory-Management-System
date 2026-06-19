@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -11,12 +11,11 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
   selector: 'app-customers',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
-  templateUrl: './customers.component.html'
+  templateUrl: './customers.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomersComponent implements OnInit {
   customers: Customer[] = [];
-  filteredCustomers: Customer[] = [];
-  pagedCustomers: Customer[] = [];
   searchQuery = '';
   selectedStatus = '';
   page = 1;
@@ -45,7 +44,8 @@ export class CustomersComponent implements OnInit {
   constructor(
     private customerService: CustomerService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -54,72 +54,56 @@ export class CustomersComponent implements OnInit {
 
   loadCustomers() {
     this.isLoading = true;
-    this.customerService.getAll().subscribe({
-      next: (res: ApiResponse<Customer[]>) => {
-        this.customers = res.data;
-        this.filterCustomers();
+    this.customerService.getAll(this.page, this.pageSize, this.searchQuery).subscribe({
+      next: (res: any) => {
+        let items = res.data.items || [];
+        
+        if (this.selectedStatus === 'active') {
+          items = items.filter((c: any) => c.isActive === true);
+        } else if (this.selectedStatus === 'inactive') {
+          items = items.filter((c: any) => c.isActive === false);
+        }
+        
+        this.customers = items;
+        this.totalPages = Math.ceil(res.data.totalCount / this.pageSize) || 1;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.error = 'Failed to load customers';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   filterCustomers() {
-    const q = this.searchQuery.trim().toLowerCase();
-
-    this.filteredCustomers = this.customers.filter(c => {
-      const matchesSearch = q ? (
-        String(c.id).includes(q) ||
-        c.name.toLowerCase().includes(q) ||
-        (c.email && c.email.toLowerCase().includes(q)) ||
-        (c.phone && c.phone.toLowerCase().includes(q))
-      ) : true;
-
-      let matchesStatus = true;
-      if (this.selectedStatus === 'active') {
-        matchesStatus = c.isActive === true;
-      } else if (this.selectedStatus === 'inactive') {
-        matchesStatus = c.isActive === false;
-      }
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.totalPages = Math.ceil(this.filteredCustomers.length / this.pageSize) || 1;
-    if (this.page > this.totalPages) this.page = this.totalPages;
-    if (this.page < 1) this.page = 1;
-
-    this.pagedCustomers = this.filteredCustomers.slice(
-      (this.page - 1) * this.pageSize,
-      this.page * this.pageSize
-    );
+    this.page = 1;
+    this.loadCustomers();
   }
 
   prevPage() {
     if (this.page > 1) {
       this.page--;
-      this.filterCustomers();
+      this.loadCustomers();
     }
   }
 
   nextPage() {
     if (this.page < this.totalPages) {
       this.page++;
-      this.filterCustomers();
+      this.loadCustomers();
     }
   }
 
   goToPage(pg: number) {
     this.page = pg;
-    this.filterCustomers();
+    this.loadCustomers();
   }
 
   onPageSizeChange() {
     this.page = 1;
-    this.filterCustomers();
+    this.loadCustomers();
   }
 
   getPagesArray() {
@@ -132,7 +116,7 @@ export class CustomersComponent implements OnInit {
   }
 
   exportToExcel() {
-    const dataToExport = this.filteredCustomers.map(c => ({
+    const dataToExport = this.customers.map(c => ({
       'ID': c.id,
       'Name': c.name,
       'Phone': c.phone || '—',
@@ -168,16 +152,24 @@ export class CustomersComponent implements OnInit {
         next: () => {
           this.loadCustomers();
           this.closeModal();
+          this.cdr.markForCheck();
         },
-        error: (err: any) => this.error = 'Failed to update customer'
+        error: (err: any) => {
+          this.error = 'Failed to update customer';
+          this.cdr.markForCheck();
+        }
       });
     } else {
       this.customerService.create(this.customerForm).subscribe({
         next: () => {
           this.loadCustomers();
           this.closeModal();
+          this.cdr.markForCheck();
         },
-        error: (err: any) => this.error = 'Failed to create customer'
+        error: (err: any) => {
+          this.error = 'Failed to create customer';
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -185,8 +177,14 @@ export class CustomersComponent implements OnInit {
   deleteCustomer(id: number) {
     if (confirm('Are you sure you want to delete this customer?')) {
       this.customerService.delete(id).subscribe({
-        next: () => this.loadCustomers(),
-        error: (err: any) => this.error = 'Failed to delete customer'
+        next: () => {
+          this.loadCustomers();
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          this.error = 'Failed to delete customer';
+          this.cdr.markForCheck();
+        }
       });
     }
   }

@@ -1,12 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './features/login/login.component';
 import { LayoutComponent } from './core/components/layout/layout.component';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { ProductsComponent } from './features/products/products.component';
-import { InventoryComponent } from './features/inventory/inventory.component';
-import { UsersComponent } from './features/users/users.component';
-import { SettingsComponent } from './features/settings/settings.component';
 import { authGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -16,11 +12,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'products', component: ProductsComponent },
-      { path: 'inventory', component: InventoryComponent },
-      { path: 'users', component: UsersComponent },
-      { path: 'settings', component: SettingsComponent },
+      { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
+      { path: 'products', loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent) },
+      { path: 'inventory', loadComponent: () => import('./features/inventory/inventory.component').then(m => m.InventoryComponent) },
+      { path: 'users', loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent), canActivate: [RoleGuard], data: { roles: ['Manager'] } },
+      { path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent), canActivate: [RoleGuard], data: { roles: ['Manager'] } },
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)

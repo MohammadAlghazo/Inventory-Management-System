@@ -8,7 +8,7 @@ namespace Inventory_Management.Services
 {
     public interface ISupplierService
     {
-        Task<ApiResponse<IEnumerable<SupplierDto>>> GetAllSuppliersAsync();
+        Task<ApiResponse<PagedResult<SupplierDto>>> GetAllSuppliersAsync(int page = 1, int pageSize = 10, string? search = null);
         Task<ApiResponse<SupplierDto>> GetSupplierByIdAsync(int id);
         Task<ApiResponse<SupplierDto>> CreateSupplierAsync(CreateSupplierDto dto);
         Task<ApiResponse<SupplierDto>> UpdateSupplierAsync(int id, UpdateSupplierDto dto);
@@ -24,10 +24,24 @@ namespace Inventory_Management.Services
             _context = context;
         }
 
-        public async Task<ApiResponse<IEnumerable<SupplierDto>>> GetAllSuppliersAsync()
+        public async Task<ApiResponse<PagedResult<SupplierDto>>> GetAllSuppliersAsync(int page = 1, int pageSize = 10, string? search = null)
         {
-            var suppliers = await _context.Suppliers
+            var query = _context.Suppliers.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.ToLower();
+                query = query.Where(su => su.Name.ToLower().Contains(s) || 
+                                          su.Phone.ToLower().Contains(s) || 
+                                          su.Email.ToLower().Contains(s));
+            }
+
+            var total = await query.CountAsync();
+
+            var suppliers = await query
                 .OrderByDescending(s => s.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(s => new SupplierDto
                 {
                     Id = s.Id,
@@ -41,7 +55,15 @@ namespace Inventory_Management.Services
                 })
                 .ToListAsync();
 
-            return ApiResponse<IEnumerable<SupplierDto>>.Ok(suppliers);
+            var pagedResult = new PagedResult<SupplierDto>
+            {
+                Items = suppliers,
+                TotalCount = total,
+                Page = page,
+                PageSize = pageSize
+            };
+
+            return ApiResponse<PagedResult<SupplierDto>>.Ok(pagedResult);
         }
 
         public async Task<ApiResponse<SupplierDto>> GetSupplierByIdAsync(int id)
@@ -123,10 +145,10 @@ namespace Inventory_Management.Services
             var supplier = await _context.Suppliers.FindAsync(id);
             if (supplier == null) return ApiResponse<bool>.NotFound("Supplier not found");
 
-            _context.Suppliers.Remove(supplier);
+            supplier.IsActive = false;
             await _context.SaveChangesAsync();
 
-            return ApiResponse<bool>.Ok(true, "Supplier deleted successfully");
+            return ApiResponse<bool>.Ok(true, "Supplier deactivated successfully");
         }
     }
 }

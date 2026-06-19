@@ -30,8 +30,12 @@ export class SupplierService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ApiResponse<Supplier[]>> {
-    return this.http.get<ApiResponse<Supplier[]>>(this.apiUrl);
+  getAll(page: number = 1, pageSize: number = 10, search: string = ''): Observable<ApiResponse<any>> {
+    let url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    return this.http.get<ApiResponse<any>>(url);
   }
 
   getById(id: number): Observable<ApiResponse<Supplier>> {

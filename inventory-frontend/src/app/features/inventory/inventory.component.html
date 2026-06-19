@@ -92,12 +92,12 @@
 
           <ng-container *ngIf="!isLoading && getFilteredLogs().length > 0">
             <tr *ngFor="let log of getFilteredLogs()">
-              <td style="font-weight: bold; color: var(--text-muted);">#{{ log.id }}</td>
-              <td style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
+              <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ log.id }}</td>
+              <td [attr.data-label]="'INVENTORY.DATE' | translate" style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">
                 {{ log.actionDate | date:'medium' }}
               </td>
-              <td class="font-bold">{{ log.productName }}</td>
-              <td>
+              <td [attr.data-label]="'INVENTORY.PRODUCT' | translate" class="font-bold">{{ log.productName }}</td>
+              <td [attr.data-label]="'INVENTORY.ACTION' | translate">
                 <span class="badge" 
                       [ngClass]="{
                         'badge-success': log.action === 'Add',
@@ -108,8 +108,8 @@
                   {{ ('INVENTORY.' + log.action.toUpperCase()) | translate }}
                 </span>
               </td>
-              <td>{{ log.previousQuantity }}</td>
-              <td class="font-bold" 
+              <td [attr.data-label]="'INVENTORY.PREVIOUS' | translate">{{ log.previousQuantity }}</td>
+              <td [attr.data-label]="'INVENTORY.CHANGE' | translate" class="font-bold" 
                   [ngStyle]="{
                     'color': log.action === 'Sell' ? 'var(--danger)' : 
                              (log.action === 'Add' ? 'var(--success)' : 
@@ -117,11 +117,11 @@
                   }">
                 {{ log.action === 'Sell' ? '-' : '+' }}{{ log.quantityChanged }}
               </td>
-              <td class="font-bold">{{ log.newQuantity }}</td>
-              <td>
+              <td [attr.data-label]="'INVENTORY.NEW' | translate" class="font-bold">{{ log.newQuantity }}</td>
+              <td [attr.data-label]="'INVENTORY.CHANGED_BY' | translate">
                 <span class="badge badge-accent">{{ log.performedBy || '—' }}</span>
               </td>
-              <td style="font-size: 12px; color: var(--text-secondary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="log.notes">
+              <td [attr.data-label]="'INVENTORY.NOTES' | translate" style="font-size: 12px; color: var(--text-secondary); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" [title]="log.notes">
                 {{ log.notes || '—' }}
               </td>
             </tr>

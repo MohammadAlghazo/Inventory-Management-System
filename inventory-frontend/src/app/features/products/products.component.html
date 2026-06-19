@@ -94,8 +94,8 @@
 
           <ng-container *ngIf="!isLoading && getFilteredProducts().length > 0">
             <tr *ngFor="let p of getFilteredProducts()">
-              <td style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
-              <td>
+              <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
+              <td [attr.data-label]="'PRODUCTS.PRODUCT_NAME' | translate">
                 <div style="display: flex; align-items: center; gap: 10px;">
                   <div class="product-icon-mini">
                     <lucide-icon [img]="icons.Package" [size]="14"></lucide-icon>
@@ -106,29 +106,29 @@
                   </div>
                 </div>
               </td>
-              <td>
+              <td [attr.data-label]="'PRODUCTS.SKU' | translate">
                 <code class="sku-code">{{ p.sku || '—' }}</code>
               </td>
-              <td>
+              <td [attr.data-label]="'PRODUCTS.CATEGORY' | translate">
                 <span class="badge badge-info">{{ p.category }}</span>
               </td>
-              <td>
+              <td [attr.data-label]="'PRODUCTS.PRICE' | translate">
                 <span style="font-weight: 600; color: var(--success);">
                   {{ p.price | currency }}
                 </span>
               </td>
-              <td>
+              <td [attr.data-label]="'PRODUCTS.QUANTITY' | translate">
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                   <span style="font-weight: 700;">{{ p.quantity }} <span style="font-size: 11px; color: var(--text-muted);">{{ p.unit }}</span></span>
                   <span style="font-size: 11px; color: var(--text-muted);">{{ 'PRODUCTS.MIN' | translate }}: {{ p.minQuantity }}</span>
                 </div>
               </td>
-              <td>
+              <td [attr.data-label]="'COMMON.STATUS' | translate">
                 <span class="badge" [ngClass]="getStockBadgeClass(p.quantity, p.minQuantity)">
                   {{ getStockBadgeText(p.quantity, p.minQuantity) | translate }}
                 </span>
               </td>
-              <td>
+              <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display: flex; gap: 6px;">
                   <button class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
                     <lucide-icon [img]="icons.Edit" [size]="14"></lucide-icon>

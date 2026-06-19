@@ -45,6 +45,9 @@ namespace Inventory_Management.Models
         public bool IsLowStock => Quantity <= MinQuantity;
         public decimal TotalValue => Price * Quantity;
 
+        [System.ComponentModel.DataAnnotations.Timestamp]
+        public byte[]? RowVersion { get; set; }
+
         public ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
     }
 }

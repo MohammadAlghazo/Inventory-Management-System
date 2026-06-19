@@ -61,4 +61,9 @@ namespace Inventory_Management.Dtos
         public int Capacity { get; set; }
         public bool IsActive { get; set; } = true;
     }
+
+    public class UpdateCategoryDto : CreateCategoryDto { }
+    public class UpdateBrandDto : CreateBrandDto { }
+    public class UpdateUnitDto : CreateUnitDto { }
+    public class UpdateWarehouseDto : CreateWarehouseDto { }
 }

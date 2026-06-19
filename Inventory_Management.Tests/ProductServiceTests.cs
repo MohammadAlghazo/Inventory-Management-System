@@ -24,6 +24,11 @@ namespace Inventory_Management.Tests
         {
             
             var context = await GetDbContext();
+            // Seed a category so it exists
+            var category = new Category { Name = "Test Category" };
+            context.Categories.Add(category);
+            await context.SaveChangesAsync();
+
             var service = new ProductService(context);
             var dto = new CreateProductDto
             {
@@ -31,7 +36,7 @@ namespace Inventory_Management.Tests
                 Price = 100,
                 Quantity = 10,
                 MinQuantity = 5,
-                Category = "Test Category"
+                CategoryId = category.Id
             };
 
             var response = await service.CreateAsync(dto);
@@ -42,6 +47,7 @@ namespace Inventory_Management.Tests
             var productInDb = await context.Products.FirstOrDefaultAsync();
             productInDb.Should().NotBeNull();
             productInDb!.Name.Should().Be("Test Product");
+            productInDb.CategoryId.Should().Be(category.Id);
         }
 
         [Fact]
@@ -49,7 +55,11 @@ namespace Inventory_Management.Tests
         {
             
             var context = await GetDbContext();
-            var product = new Product { Name = "Existing", Category = "Cat", Price = 50, Quantity = 10 };
+            var category = new Category { Name = "Cat" };
+            context.Categories.Add(category);
+            await context.SaveChangesAsync();
+
+            var product = new Product { Name = "Existing", CategoryId = category.Id, Price = 50, Quantity = 10 };
             context.Products.Add(product);
             await context.SaveChangesAsync();
 
@@ -67,7 +77,11 @@ namespace Inventory_Management.Tests
         {
             
             var context = await GetDbContext();
-            var product = new Product { Name = "ToDelete", Category = "Cat", Price = 50, Quantity = 10, IsActive = true };
+            var category = new Category { Name = "Cat" };
+            context.Categories.Add(category);
+            await context.SaveChangesAsync();
+
+            var product = new Product { Name = "ToDelete", CategoryId = category.Id, Price = 50, Quantity = 10, IsActive = true };
             context.Products.Add(product);
             await context.SaveChangesAsync();
 

@@ -11,9 +11,10 @@ export class InventoryService {
 
   constructor(private http: HttpClient) {}
 
-  getInventoryLogs(page: number = 1, pageSize: number = 15, action?: string): Observable<any> {
+  getInventoryLogs(page: number = 1, pageSize: number = 15, action?: string, search?: string): Observable<any> {
     let url = `${this.apiUrl}/logs?page=${page}&pageSize=${pageSize}`;
     if (action) url += `&action=${action}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
     return this.http.get<any>(url);
   }
 

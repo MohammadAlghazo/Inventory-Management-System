@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -11,12 +11,11 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
   selector: 'app-suppliers',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
-  templateUrl: './suppliers.component.html'
+  templateUrl: './suppliers.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuppliersComponent implements OnInit {
   suppliers: Supplier[] = [];
-  filteredSuppliers: Supplier[] = [];
-  pagedSuppliers: Supplier[] = [];
   searchQuery = '';
   selectedStatus = '';
   page = 1;
@@ -46,7 +45,8 @@ export class SuppliersComponent implements OnInit {
   constructor(
     private supplierService: SupplierService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -55,73 +55,56 @@ export class SuppliersComponent implements OnInit {
 
   loadSuppliers() {
     this.isLoading = true;
-    this.supplierService.getAll().subscribe({
-      next: (res: ApiResponse<Supplier[]>) => {
-        this.suppliers = res.data;
-        this.filterSuppliers();
+    this.supplierService.getAll(this.page, this.pageSize, this.searchQuery).subscribe({
+      next: (res: any) => {
+        let items = res.data.items || [];
+        
+        if (this.selectedStatus === 'active') {
+          items = items.filter((s: any) => s.isActive === true);
+        } else if (this.selectedStatus === 'inactive') {
+          items = items.filter((s: any) => s.isActive === false);
+        }
+        
+        this.suppliers = items;
+        this.totalPages = Math.ceil(res.data.totalCount / this.pageSize) || 1;
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.error = 'Failed to load suppliers';
         this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
 
   filterSuppliers() {
-    const q = this.searchQuery.trim().toLowerCase();
-
-    this.filteredSuppliers = this.suppliers.filter(s => {
-      const matchesSearch = q ? (
-        String(s.id).includes(q) ||
-        s.name.toLowerCase().includes(q) ||
-        (s.email && s.email.toLowerCase().includes(q)) ||
-        (s.phone && s.phone.toLowerCase().includes(q)) ||
-        (s.taxNumber && s.taxNumber.toLowerCase().includes(q))
-      ) : true;
-
-      let matchesStatus = true;
-      if (this.selectedStatus === 'active') {
-        matchesStatus = s.isActive === true;
-      } else if (this.selectedStatus === 'inactive') {
-        matchesStatus = s.isActive === false;
-      }
-
-      return matchesSearch && matchesStatus;
-    });
-
-    this.totalPages = Math.ceil(this.filteredSuppliers.length / this.pageSize) || 1;
-    if (this.page > this.totalPages) this.page = this.totalPages;
-    if (this.page < 1) this.page = 1;
-    
-    this.pagedSuppliers = this.filteredSuppliers.slice(
-      (this.page - 1) * this.pageSize,
-      this.page * this.pageSize
-    );
+    this.page = 1;
+    this.loadSuppliers();
   }
 
   prevPage() {
     if (this.page > 1) {
       this.page--;
-      this.filterSuppliers();
+      this.loadSuppliers();
     }
   }
 
   nextPage() {
     if (this.page < this.totalPages) {
       this.page++;
-      this.filterSuppliers();
+      this.loadSuppliers();
     }
   }
 
   goToPage(pg: number) {
     this.page = pg;
-    this.filterSuppliers();
+    this.loadSuppliers();
   }
 
   onPageSizeChange() {
     this.page = 1;
-    this.filterSuppliers();
+    this.loadSuppliers();
   }
 
   getPagesArray() {
@@ -134,7 +117,7 @@ export class SuppliersComponent implements OnInit {
   }
 
   exportToExcel() {
-    const dataToExport = this.filteredSuppliers.map(s => ({
+    const dataToExport = this.suppliers.map(s => ({
       'ID': s.id,
       'Name': s.name,
       'Phone': s.phone || '—',
@@ -171,16 +154,24 @@ export class SuppliersComponent implements OnInit {
         next: () => {
           this.loadSuppliers();
           this.closeModal();
+          this.cdr.markForCheck();
         },
-        error: (err: any) => this.error = 'Failed to update supplier'
+        error: (err: any) => {
+          this.error = 'Failed to update supplier';
+          this.cdr.markForCheck();
+        }
       });
     } else {
       this.supplierService.create(this.supplierForm).subscribe({
         next: () => {
           this.loadSuppliers();
           this.closeModal();
+          this.cdr.markForCheck();
         },
-        error: (err: any) => this.error = 'Failed to create supplier'
+        error: (err: any) => {
+          this.error = 'Failed to create supplier';
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -188,8 +179,14 @@ export class SuppliersComponent implements OnInit {
   deleteSupplier(id: number) {
     if (confirm('Are you sure you want to delete this supplier?')) {
       this.supplierService.delete(id).subscribe({
-        next: () => this.loadSuppliers(),
-        error: (err: any) => this.error = 'Failed to delete supplier'
+        next: () => {
+          this.loadSuppliers();
+          this.cdr.markForCheck();
+        },
+        error: (err: any) => {
+          this.error = 'Failed to delete supplier';
+          this.cdr.markForCheck();
+        }
       });
     }
   }

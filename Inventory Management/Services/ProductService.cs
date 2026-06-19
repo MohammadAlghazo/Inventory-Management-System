@@ -44,7 +44,17 @@ namespace Inventory_Management.Services
                 q = q.Where(p => p.Price <= query.MaxPrice.Value);
 
             if (query.IsLowStock.HasValue && query.IsLowStock.Value)
-                q = q.Where(p => p.Quantity <= p.MinQuantity);
+                q = q.Where(p => p.Quantity <= p.MinQuantity && p.Quantity > 0);
+
+            if (!string.IsNullOrWhiteSpace(query.StockStatus))
+            {
+                if (query.StockStatus == "in-stock")
+                    q = q.Where(p => p.Quantity > p.MinQuantity);
+                else if (query.StockStatus == "low-stock")
+                    q = q.Where(p => p.Quantity <= p.MinQuantity && p.Quantity > 0);
+                else if (query.StockStatus == "out-of-stock")
+                    q = q.Where(p => p.Quantity == 0);
+            }
 
             q = (query.SortBy.ToLower(), query.SortOrder.ToLower()) switch
             {
