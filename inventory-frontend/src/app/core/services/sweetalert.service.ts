@@ -64,6 +64,23 @@ export class SweetAlertService {
     });
   }
 
+  confirm(title: string, text: string, confirmButtonText: string = 'Confirm'): Promise<SweetAlertResult<any>> {
+    return Swal.fire({
+      title,
+      text,
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#4338ca',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText,
+      customClass: {
+        confirmButton: 'btn btn-primary me-3 px-4 py-2 rounded-3',
+        cancelButton: 'btn btn-secondary px-4 py-2 rounded-3'
+      },
+      buttonsStyling: false
+    });
+  }
+
   toast(title: string, icon: SweetAlertIcon = 'success') {
     const Toast = Swal.mixin({
       toast: true,

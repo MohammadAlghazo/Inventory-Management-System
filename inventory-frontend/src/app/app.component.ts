@@ -41,7 +41,7 @@ export class AppComponent {
           'New Update Available',
           'A new version of StockMaster is available. Reload now to update?',
           'Update Now'
-        ).then((result) => {
+        ).then((result: any) => {
           if (result.isConfirmed) {
             window.location.reload();
           }

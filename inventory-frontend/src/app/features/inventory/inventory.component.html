@@ -73,7 +73,7 @@
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngIf="isLoading && inventoryItems.length === 0">
+          <ng-container *ngIf="isLoading && logs.length === 0">
             <tr *ngFor="let dummy of [1,2,3,4,5]">
               <td *ngFor="let col of [1,2,3,4,5,6,7,8,9]">
                 <div class="skeleton" style="height: 16px; width: 75%;"></div>
