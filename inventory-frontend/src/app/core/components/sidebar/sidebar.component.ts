@@ -34,6 +34,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings },
   ];
 
+  get filteredMenuItems() {
+    if (this.userRole === 'Manager') return this.menuItems;
+    return this.menuItems.filter(item => !['/users', '/settings'].includes(item.route));
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,

@@ -13,6 +13,7 @@ import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { environment } from '../../../environments/environment';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
 
 @Component({
   selector: 'app-users',
@@ -60,7 +61,8 @@ export class UsersComponent implements OnInit {
     private authService: AuthService,
     private translate: TranslateService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private sweetAlert: SweetAlertService
   ) {
     this.currentUser = this.authService.getCurrentUser();
   }
@@ -152,7 +154,10 @@ export class UsersComponent implements OnInit {
   }
 
   toggleStatus(user: any) {
-    this.userService.toggleStatus(user.id).subscribe(() => this.loadUsers());
+    this.userService.toggleStatus(user.id).subscribe(() => {
+      this.sweetAlert.toast('User status updated successfully');
+      this.loadUsers();
+    });
   }
 
   confirmDelete(user: any) { this.deleteConfirm = user; }
@@ -161,7 +166,12 @@ export class UsersComponent implements OnInit {
     if (!this.deleteConfirm) return;
     this.isDeleting = true;
     this.userService.deleteUser(this.deleteConfirm.id).subscribe({
-      next: () => { this.isDeleting = false; this.deleteConfirm = null; this.loadUsers(); },
+      next: () => { 
+        this.isDeleting = false; 
+        this.deleteConfirm = null; 
+        this.sweetAlert.toast('User deleted successfully');
+        this.loadUsers(); 
+      },
       error: () => this.isDeleting = false
     });
   }
@@ -176,7 +186,12 @@ export class UsersComponent implements OnInit {
     this.isRegistering = true;
     this.registerError = '';
     this.authService.register(this.newUser).subscribe({
-      next: () => { this.isRegistering = false; this.showRegisterModal = false; this.loadUsers(); },
+      next: () => { 
+        this.isRegistering = false; 
+        this.showRegisterModal = false; 
+        this.sweetAlert.toast('User registered successfully');
+        this.loadUsers(); 
+      },
       error: (err) => {
         this.isRegistering = false;
         this.registerError = err.error?.message || 'Failed to register user.';
@@ -237,6 +252,7 @@ export class UsersComponent implements OnInit {
     if (this.selectedUserIdForPicture) {
       this.userService.updateProfilePicture(this.selectedUserIdForPicture, url).subscribe({
         next: () => {
+          this.sweetAlert.toast('Profile picture updated successfully');
           this.loadUsers();
           this.selectedUserIdForPicture = null;
         },
@@ -248,7 +264,10 @@ export class UsersComponent implements OnInit {
   deleteProfilePicture(user: any) {
     if (confirm(this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete this profile picture?')) {
       this.userService.deleteProfilePicture(user.id).subscribe({
-        next: () => this.loadUsers(),
+        next: () => {
+          this.sweetAlert.toast('Profile picture deleted successfully');
+          this.loadUsers();
+        },
         error: (err) => console.error(err)
       });
     }

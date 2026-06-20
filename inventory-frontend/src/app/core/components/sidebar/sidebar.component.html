@@ -16,7 +16,7 @@
   <nav class="sidebar-nav">
     <span class="sidebar-section-label">{{ 'SIDEBAR.NAVIGATION' | translate }}</span>
 
-    <a *ngFor="let item of menuItems"
+    <a *ngFor="let item of filteredMenuItems"
        [routerLink]="item.route"
        routerLinkActive="active"
        [routerLinkActiveOptions]="{exact: item.route === '/'}"

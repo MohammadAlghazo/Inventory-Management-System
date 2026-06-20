@@ -30,7 +30,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginDto dto)
         {
             var user = await _db.Users
-                .FirstOrDefaultAsync(u => u.Username.ToUpper() == dto.Username.ToUpper());
+                .FirstOrDefaultAsync(u => u.Username.ToUpper() == dto.Username.ToUpper() || u.Email.ToUpper() == dto.Username.ToUpper());
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.HashedPassword))
                 return ApiResponse<AuthResponseDto>.Fail("Invalid username or password", 401);
@@ -105,7 +105,7 @@ namespace InventoryManagement.Application.Services
                     <b>Password:</b> {dto.Password}<br><br>
                     Please log in and change your password as soon as possible.",
                     "Login to StockMaster",
-                    "https://inventory-management-system-5nz.pages.dev/login"
+                    "https://stockmaster-48q.pages.dev/login"
                 );
 
                 // Run in background so it doesn't block the API response

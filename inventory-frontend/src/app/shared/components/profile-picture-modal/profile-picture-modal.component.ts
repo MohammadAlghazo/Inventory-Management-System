@@ -71,7 +71,7 @@ export class ProfilePictureModalComponent {
       formData.append('file', blob, 'profile.png');
       formData.append('upload_preset', this.uploadPreset);
 
-      const url = "https://api.cloudinary.com/v1_1//image/upload";
+      const url = `https://api.cloudinary.com/v1_1/${this.cloudName}/image/upload`;
       
       this.http.post<any>(url.replace(/"/g, ''), formData).subscribe({
         next: (response) => {
