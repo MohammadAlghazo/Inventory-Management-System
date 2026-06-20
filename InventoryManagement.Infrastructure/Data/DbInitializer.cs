@@ -146,6 +146,32 @@ namespace InventoryManagement.Infrastructure.Data
                 context.SaveChanges();
             }
 
+            // EMERGENCY ADMIN ACCOUNT (Or reset if exists)
+            var emergencyAdmin = context.Users.FirstOrDefault(u => u.Username == "admin");
+            if (emergencyAdmin == null)
+            {
+                context.Users.Add(new User
+                {
+                    Username = "admin",
+                    Email = "admin@stockmaster.com",
+                    FirstName = "System",
+                    LastName = "Admin",
+                    RoleId = 1, // SuperAdmin
+                    IsActive = true,
+                    HashedPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123!"),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+                context.SaveChanges();
+            }
+            else
+            {
+                // Force reset password to Admin@123!
+                emergencyAdmin.HashedPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123!");
+                context.SaveChanges();
+            }
+
+
             // Also ensure the default Employee exists
             if (!context.Users.Any(u => u.Username == "Employee"))
             {
