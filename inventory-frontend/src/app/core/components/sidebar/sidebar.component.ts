@@ -54,9 +54,24 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ];
 
   get filteredMenuItems() {
-    if (this.userRole === 'SuperAdmin') return this.menuItems;
-    if (this.userRole === 'InventoryManager') return this.menuItems.filter(item => !['/settings'].includes(item.route));
-    return this.menuItems.filter(item => !['/users', '/settings', '/suppliers', '/customers'].includes(item.route));
+    const role = this.userRole;
+    if (role === 'SuperAdmin' || role === 'Manager') return this.menuItems;
+    
+    let allowedRoutes: string[] = ['/dashboard', '/products', '/inventory', '/profile'];
+
+    if (role === 'InventoryManager') {
+      allowedRoutes.push('/suppliers', '/customers', '/purchase-orders', '/sales-orders', '/low-stock', '/reports');
+    } else if (role === 'PurchasingOfficer') {
+      allowedRoutes.push('/suppliers', '/purchase-orders', '/low-stock');
+    } else if (role === 'Sales') {
+      allowedRoutes.push('/customers', '/sales-orders');
+    } else if (role === 'WarehouseStaff' || role === 'Employee') {
+      allowedRoutes.push('/low-stock');
+    } else if (role === 'Accountant' || role === 'Auditor') {
+      allowedRoutes.push('/reports');
+    }
+
+    return this.menuItems.filter(item => allowedRoutes.includes(item.route));
   }
 
   constructor(
