@@ -127,7 +127,7 @@ export class ProfileComponent implements OnInit {
   }
 
   getRoleBadgeClass(): string {
-    return this.profile?.isAdmin ? 'badge-manager' : 'badge-employee';
+    return this.profile?.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info';
   }
   openProfilePictureModal() {
     this.showProfilePictureModal = true;

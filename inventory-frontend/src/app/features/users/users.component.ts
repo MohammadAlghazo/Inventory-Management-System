@@ -44,12 +44,12 @@ export class UsersComponent implements OnInit {
   showRegisterModal = false;
   isRegistering = false;
   registerError = '';
-  newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'Employee' };
+  newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'WarehouseStaff' };
 
   viewUser: any = null;
 
   editUser: any = null;
-  editForm = { firstName: '', lastName: '', email: '', role: 'Employee' };
+  editForm = { firstName: '', lastName: '', email: '', role: 'WarehouseStaff' };
   isSavingEdit = false;
   editError = '';
   editSuccess = '';
@@ -208,7 +208,7 @@ export class UsersComponent implements OnInit {
       firstName: user.firstName || '',
       lastName: user.lastName || '',
       email: user.email || '',
-      role: user.role || 'Employee'
+      role: user.role || 'WarehouseStaff'
     };
     this.editError = '';
     this.editSuccess = '';

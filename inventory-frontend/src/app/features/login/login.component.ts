@@ -57,4 +57,43 @@ export class LoginComponent {
       }
     });
   }
+
+  showForgotPasswordModal = false;
+  forgotPasswordEmail = '';
+  isResetting = false;
+  resetError = '';
+  resetSuccess = '';
+
+  openForgotPassword() {
+    this.showForgotPasswordModal = true;
+    this.forgotPasswordEmail = '';
+    this.resetError = '';
+    this.resetSuccess = '';
+  }
+
+  closeForgotPassword() {
+    this.showForgotPasswordModal = false;
+  }
+
+  submitForgotPassword() {
+    this.resetError = '';
+    this.resetSuccess = '';
+
+    if (!this.forgotPasswordEmail) {
+      this.resetError = 'Please enter your email.';
+      return;
+    }
+
+    this.isResetting = true;
+    this.authService.forgotPassword(this.forgotPasswordEmail).subscribe({
+      next: (res) => {
+        this.isResetting = false;
+        this.resetSuccess = res.message || 'If that email exists in our system, a temporary password has been sent.';
+      },
+      error: (err) => {
+        this.isResetting = false;
+        this.resetError = err.error?.message || 'An error occurred. Please try again.';
+      }
+    });
+  }
 }

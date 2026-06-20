@@ -68,5 +68,12 @@ namespace InventoryManagement.Api.Controllers
             var result = await _authService.UpdateProfileAsync(userId, dto);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var result = await _authService.ForgotPasswordAsync(dto);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

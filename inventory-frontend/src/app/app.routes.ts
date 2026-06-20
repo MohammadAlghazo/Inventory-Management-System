@@ -15,7 +15,7 @@ export const routes: Routes = [
       { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'products', loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent) },
       { path: 'inventory', loadComponent: () => import('./features/inventory/inventory.component').then(m => m.InventoryComponent) },
-      { path: 'users', loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin', 'InventoryManager'] } },
+      { path: 'users', loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin'] } },
       { path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin'] } },
       {
         path: 'profile',
@@ -25,25 +25,37 @@ export const routes: Routes = [
         path: 'suppliers',
         loadComponent: () => import('./features/suppliers/suppliers.component').then(m => m.SuppliersComponent),
         canActivate: [RoleGuard],
-        data: { roles: ['SuperAdmin', 'InventoryManager'] }
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'PurchasingOfficer'] }
       },
       {
         path: 'customers',
         loadComponent: () => import('./features/customers/customers.component').then(m => m.CustomersComponent),
         canActivate: [RoleGuard],
-        data: { roles: ['SuperAdmin', 'InventoryManager'] }
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'Sales'] }
       },
       {
         path: 'purchase-orders',
         loadComponent: () => import('./features/purchase-orders/purchase-orders.component').then(m => m.PurchaseOrdersComponent),
         canActivate: [RoleGuard],
-        data: { roles: ['SuperAdmin', 'InventoryManager'] }
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'PurchasingOfficer'] }
       },
       {
         path: 'sales-orders',
         loadComponent: () => import('./features/sales-orders/sales-orders.component').then(m => m.SalesOrdersComponent),
         canActivate: [RoleGuard],
-        data: { roles: ['SuperAdmin', 'InventoryManager'] }
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'Sales'] }
+      },
+      {
+        path: 'low-stock',
+        loadComponent: () => import('./features/reports/low-stock/low-stock.component').then(m => m.LowStockComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'WarehouseStaff', 'PurchasingOfficer'] }
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/reports/reports.component').then(m => m.ReportsComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['SuperAdmin', 'InventoryManager', 'Accountant', 'Auditor'] }
       }
     ]
   },

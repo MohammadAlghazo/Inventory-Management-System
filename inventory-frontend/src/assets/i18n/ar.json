@@ -1,4 +1,4 @@
-﻿{
+{
     "COMMON":  {
                    "ALL":  "Ø§Ù„ÙƒÙ„",
                    "WELCOME":  "Ù…Ø±Ø­Ø¨Ø§Ù‹",
@@ -38,7 +38,9 @@
                     "PROFILE":  "Ù…Ù„ÙÙŠ Ø§Ù„Ø´Ø®ØµÙŠ",
                     "NAVIGATION":  "Ø§Ù„ØªÙ†Ù‚Ù„",
                     "LOW_STOCK":  "تنبيهات نقص المخزون",
-                    "REPORTS":  "التقارير"
+                    "REPORTS":  "التقارير",
+                    "PURCHASE_ORDERS": "طلبات الشراء",
+                    "SALES_ORDERS": "طلبات البيع"
                 },
     "LANGUAGES":  {
                       "EN":  "English",

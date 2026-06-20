@@ -13,7 +13,12 @@ namespace InventoryManagement.Application.Dtos.Auth_Dto
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string Role { get; set; } = "Employee"; 
+        public string Role { get; set; } = "WarehouseStaff"; 
+    }
+
+    public class ForgotPasswordDto
+    {
+        public string Email { get; set; } = string.Empty;
     }
 
     public class AuthResponseDto

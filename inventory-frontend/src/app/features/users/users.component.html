@@ -28,8 +28,13 @@
         
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedRole" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'USERS.ROLE' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
-          <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
-          <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
+          <option value="SuperAdmin">Super Admin</option>
+          <option value="InventoryManager">Inventory Manager</option>
+          <option value="WarehouseStaff">Warehouse Staff</option>
+          <option value="PurchasingOfficer">Purchasing Officer</option>
+          <option value="Sales">Sales</option>
+          <option value="Accountant">Accountant</option>
+          <option value="Auditor">Auditor</option>
         </select>
 
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
@@ -96,8 +101,8 @@
               </td>
               <td [attr.data-label]="'COMMON.EMAIL' | translate">{{ u.email || '—' }}</td>
               <td [attr.data-label]="'USERS.ROLE' | translate">
-                <span class="badge" [ngClass]="u.role === 'Manager' ? 'badge-accent' : 'badge-info'">
-                  {{ (u.role === 'Manager' ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
+                <span class="badge" [ngClass]="u.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info'">
+                  {{ u.role }}
                 </span>
               </td>
               <td [attr.data-label]="'COMMON.STATUS' | translate">
@@ -172,12 +177,12 @@
       <div class="custom-modal-body" style="padding-top:16px;">
         
         <div class="view-hero">
-          <div class="avatar view-avatar">{{ viewUser.firstName?.charAt(0) || viewUser.username?.charAt(0) || 'U' }}</div>
+          <div class="avatar view-avatar">{{ viewUser?.firstName?.charAt(0) || viewUser?.username?.charAt(0) || 'U' }}</div>
           <div>
-            <div style="font-size:18px;font-weight:700;">{{ viewUser.firstName }} {{ viewUser.lastName }}</div>
-            <div style="font-size:13px;color:var(--text-muted);">&#64;{{ viewUser.username }}</div>
-            <span class="badge" style="margin-top:6px;" [ngClass]="viewUser.role === 'Manager' ? 'badge-accent' : 'badge-info'">
-              {{ (viewUser.role === 'Manager' ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
+            <div style="font-size:18px;font-weight:700;">{{ viewUser?.firstName }} {{ viewUser?.lastName }}</div>
+            <div style="font-size:13px;color:var(--text-muted);">&#64;{{ viewUser?.username }}</div>
+            <span class="badge" style="margin-top:6px;" [ngClass]="viewUser?.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info'">
+              {{ viewUser?.role }}
             </span>
           </div>
         </div>
@@ -185,21 +190,21 @@
         <div class="view-grid">
           <div class="view-field">
             <span class="view-field-label">{{ 'COMMON.EMAIL' | translate }}</span>
-            <span class="view-field-value">{{ viewUser.email || '—' }}</span>
+            <span class="view-field-value">{{ viewUser?.email || '—' }}</span>
           </div>
           <div class="view-field">
             <span class="view-field-label">{{ 'COMMON.STATUS' | translate }}</span>
-            <span class="badge" [ngClass]="viewUser.isActive ? 'badge-success' : 'badge-danger'">
-              {{ (viewUser.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+            <span class="badge" [ngClass]="viewUser?.isActive ? 'badge-success' : 'badge-danger'">
+              {{ (viewUser?.isActive ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
             </span>
           </div>
           <div class="view-field">
             <span class="view-field-label">{{ 'USERS.JOINED' | translate }}</span>
-            <span class="view-field-value">{{ viewUser.createdAt | date:'longDate' }}</span>
+            <span class="view-field-value">{{ viewUser?.createdAt | date:'longDate' }}</span>
           </div>
           <div class="view-field">
             <span class="view-field-label">{{ 'USERS.ROLE' | translate }}</span>
-            <span class="view-field-value">{{ viewUser.role }}</span>
+            <span class="view-field-value">{{ viewUser?.role }}</span>
           </div>
         </div>
       </div>
@@ -218,7 +223,7 @@
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="icons.Pencil" [size]="18" style="color:var(--accent);margin-right:8px;"></lucide-icon>
-          {{ 'COMMON.EDIT' | translate }}: {{ editUser.username }}
+          {{ 'COMMON.EDIT' | translate }}: {{ editUser?.username }}
         </h3>
         <button class="btn btn-ghost btn-sm btn-icon" (click)="closeEdit()">
           <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
@@ -227,14 +232,14 @@
       <div class="custom-modal-body" style="display:flex;flex-direction:column;gap:14px;padding-top:16px;">
           <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 8px;">
             <div class="avatar relative" style="overflow: hidden; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary); border: 2px solid var(--border);">
-              <img *ngIf="editUser.profilePicture" [src]="editUser.profilePicture" style="width: 100%; height: 100%; object-fit: cover;" />
-              <span *ngIf="!editUser.profilePicture" style="font-size: 24px; font-weight: bold; color: var(--text-secondary);">{{ editUser.firstName?.charAt(0) || editUser.username?.charAt(0) || 'U' }}</span>
+              <img *ngIf="editUser?.profilePicture" [src]="editUser?.profilePicture" style="width: 100%; height: 100%; object-fit: cover;" />
+              <span *ngIf="!editUser?.profilePicture" style="font-size: 24px; font-weight: bold; color: var(--text-secondary);">{{ editUser?.firstName?.charAt(0) || editUser?.username?.charAt(0) || 'U' }}</span>
             </div>
             <div style="display: flex; flex-direction: column; gap: 6px;">
               <button class="btn btn-sm btn-secondary" (click)="openProfilePictureModal(editUser)" style="display: flex; align-items: center; gap: 6px;">
                 <lucide-icon [img]="icons.UploadCloud" [size]="14"></lucide-icon> Upload Picture
               </button>
-              <button *ngIf="editUser.profilePicture" class="btn btn-sm btn-ghost text-error" (click)="deleteProfilePicture(editUser)" style="display: flex; align-items: center; gap: 6px; padding: 0 10px;">
+              <button *ngIf="editUser?.profilePicture" class="btn btn-sm btn-ghost text-error" (click)="deleteProfilePicture(editUser)" style="display: flex; align-items: center; gap: 6px; padding: 0 10px;">
                 <lucide-icon [img]="icons.Trash2" [size]="14"></lucide-icon> Remove Picture
               </button>
             </div>
@@ -265,8 +270,13 @@
         <div class="form-group">
           <label class="form-label">{{ 'USERS.ROLE' | translate }}</label>
           <select class="form-select" [(ngModel)]="editForm.role">
-            <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
-            <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
+            <option value="SuperAdmin">Super Admin</option>
+            <option value="InventoryManager">Inventory Manager</option>
+            <option value="WarehouseStaff">Warehouse Staff</option>
+            <option value="PurchasingOfficer">Purchasing Officer</option>
+            <option value="Sales">Sales</option>
+            <option value="Accountant">Accountant</option>
+            <option value="Auditor">Auditor</option>
           </select>
         </div>
       </div>
@@ -339,8 +349,13 @@
         <div class="form-group">
           <label class="form-label">{{ 'USERS.ROLE' | translate }} *</label>
           <select class="form-select" [(ngModel)]="newUser.role">
-            <option value="Employee">{{ 'USERS.ROLE_EMPLOYEE' | translate }}</option>
-            <option value="Manager">{{ 'USERS.ROLE_MANAGER' | translate }}</option>
+            <option value="SuperAdmin">Super Admin</option>
+            <option value="InventoryManager">Inventory Manager</option>
+            <option value="WarehouseStaff">Warehouse Staff</option>
+            <option value="PurchasingOfficer">Purchasing Officer</option>
+            <option value="Sales">Sales</option>
+            <option value="Accountant">Accountant</option>
+            <option value="Auditor">Auditor</option>
           </select>
         </div>
       </div>

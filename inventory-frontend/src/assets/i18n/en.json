@@ -38,7 +38,9 @@
                     "PROFILE":  "My Profile",
                     "NAVIGATION":  "NAVIGATION",
                     "LOW_STOCK":  "Low Stock Alerts",
-                    "REPORTS":  "Reports"
+                    "REPORTS":  "Reports",
+                    "PURCHASE_ORDERS": "Purchase Orders",
+                    "SALES_ORDERS": "Sales Orders"
                 },
     "LANGUAGES":  {
                       "EN":  "English",

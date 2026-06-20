@@ -8,7 +8,7 @@ namespace InventoryManagement.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,InventoryManager")]
+    [Authorize(Roles = "SuperAdmin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -55,15 +55,16 @@ namespace InventoryManagement.Api.Controllers
             var result = await _userService.DeleteUserAsync(id);
             return StatusCode(result.StatusCode, result);
         }
-            [HttpPut("{id}/profile-picture")]
+        
+        [HttpPut("{id}/profile-picture")]
         [Authorize]
         public async Task<IActionResult> UpdateProfilePicture(int id, UpdateProfilePictureDto dto)
         {
-            // Allow if Admin OR if the user is updating their own picture
+            // Allow if SuperAdmin OR if the user is updating their own picture
             var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isManager = User.IsInRole("Manager");
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
 
-            if (!isManager && currentUserIdStr != id.ToString())
+            if (!isSuperAdmin && currentUserIdStr != id.ToString())
             {
                 return Forbid();
             }
@@ -81,9 +82,9 @@ namespace InventoryManagement.Api.Controllers
         public async Task<IActionResult> DeleteProfilePicture(int id)
         {
             var currentUserIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var isManager = User.IsInRole("Manager");
+            var isSuperAdmin = User.IsInRole("SuperAdmin");
 
-            if (!isManager && currentUserIdStr != id.ToString())
+            if (!isSuperAdmin && currentUserIdStr != id.ToString())
             {
                 return Forbid();
             }

@@ -11,6 +11,33 @@ namespace InventoryManagement.Infrastructure.Data
         {
             context.Database.EnsureCreated();
 
+            // Ensure all 7 roles exist in case the DB was already created before we added them
+            if (context.Roles.Count() < 7)
+            {
+                var existingRoleNames = context.Roles.Select(r => r.Name).ToList();
+                var allRoles = new List<Role>
+                {
+                    new Role { Id = 1, Name = "SuperAdmin", Description = "Full system access" },
+                    new Role { Id = 2, Name = "InventoryManager", Description = "Manage inventory and reports" },
+                    new Role { Id = 3, Name = "WarehouseStaff", Description = "Daily warehouse operations" },
+                    new Role { Id = 4, Name = "PurchasingOfficer", Description = "Manage suppliers and purchase orders" },
+                    new Role { Id = 5, Name = "Sales", Description = "Manage customers and sales orders" },
+                    new Role { Id = 6, Name = "Accountant", Description = "Financial reporting and analysis" },
+                    new Role { Id = 7, Name = "Auditor", Description = "Read-only access for auditing" }
+                };
+
+                foreach (var role in allRoles)
+                {
+                    if (!existingRoleNames.Contains(role.Name))
+                    {
+                        // Ensure we don't insert explicit ID if Identity Insert is OFF (usually EF handles it)
+                        // If it fails due to explicit ID, we can remove the ID assignment
+                        context.Roles.Add(new Role { Name = role.Name, Description = role.Description });
+                    }
+                }
+                context.SaveChanges();
+            }
+
             // 1. Seed Users (Managers and Employees)
             var seededUsers = new List<User>();
             if (!context.Users.Any(u => u.Username == "rania"))

@@ -88,6 +88,10 @@ namespace InventoryManagement.Application.Services
                 await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != id))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
 
+            if (!string.IsNullOrWhiteSpace(dto.Email)) user.Email = dto.Email;
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+
             if (!string.IsNullOrWhiteSpace(dto.Role))
             {
                 var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);

@@ -11,6 +11,7 @@ namespace InventoryManagement.Application.Services
         Task<ApiResponse<UserProfileDto>> GetCurrentUserAsync(int userId);
         Task<ApiResponse<object>> ChangePasswordAsync(int userId, ChangePasswordDto dto);
         Task<ApiResponse<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto);
+        Task<ApiResponse<object>> ForgotPasswordAsync(ForgotPasswordDto dto);
     }
 }
 

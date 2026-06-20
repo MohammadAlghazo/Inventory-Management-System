@@ -74,6 +74,9 @@
                       <lucide-icon [img]="showPassword ? icons.EyeOff : icons.Eye" [size]="16"></lucide-icon>
                     </button>
                   </div>
+                  <div class="text-end mt-2">
+                    <a href="javascript:void(0)" class="text-white-50 text-decoration-none small hover-white" (click)="openForgotPassword()">Forgot Password?</a>
+                  </div>
                 </div>
 
                 <div class="col-12 mt-4">
@@ -340,5 +343,39 @@
       </div>
     </div>
   </footer>
+
+  <!-- Forgot Password Modal -->
+  <div class="custom-modal-overlay" *ngIf="showForgotPasswordModal" (click)="closeForgotPassword()">
+    <div class="custom-modal" style="max-width:400px; background: white; border-radius: 12px; padding: 24px; color: var(--text);" (click)="$event.stopPropagation()">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="m-0 fw-bold" style="color: var(--dark-green);">Reset Password</h4>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="closeForgotPassword()">
+          <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div *ngIf="resetError" class="alert alert-danger p-2 small mb-3">{{ resetError }}</div>
+      <div *ngIf="resetSuccess" class="alert alert-success p-2 small mb-3">{{ resetSuccess }}</div>
+
+      <div *ngIf="!resetSuccess">
+        <p class="text-muted small mb-3">Enter your email address and we'll send you a temporary password.</p>
+        <div class="form-group mb-4">
+          <label class="form-label" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block;">Email Address *</label>
+          <input type="email" class="form-control" [(ngModel)]="forgotPasswordEmail" placeholder="e.g. user@example.com" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);" />
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-ghost" (click)="closeForgotPassword()">Cancel</button>
+          <button class="btn" style="background-color: var(--accent); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600;" (click)="submitForgotPassword()" [disabled]="isResetting">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="isResetting"></span>
+            Send Password
+          </button>
+        </div>
+      </div>
+      
+      <div *ngIf="resetSuccess" class="text-center mt-2">
+        <button class="btn w-100" style="background-color: var(--accent); color: white; border: none; border-radius: 8px; padding: 10px; font-weight: 600;" (click)="closeForgotPassword()">Got it</button>
+      </div>
+    </div>
+  </div>
 
 </div>

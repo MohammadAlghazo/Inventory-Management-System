@@ -190,6 +190,52 @@ namespace InventoryManagement.Application.Services
             return ApiResponse<UserProfileDto>.Ok(MapToProfile(user), "Profile updated successfully");
         }
 
+        public async Task<ApiResponse<object>> ForgotPasswordAsync(ForgotPasswordDto dto)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+            if (user == null || !user.IsActive)
+                return ApiResponse<object>.Ok(null!, "If that email exists in our system, a temporary password has been sent."); // Generic response for security
+
+            // Generate a random 8-character password
+            string tempPassword = GenerateRandomPassword(8);
+            
+            user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(tempPassword);
+            user.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            var emailHtml = _emailService.GenerateEmailTemplate(
+                "Password Reset",
+                $@"Hello {user.FirstName},<br><br>
+                A password reset was requested for your account on StockMaster.<br><br>
+                Your temporary password is:<br>
+                <b style='font-size: 18px;'>{tempPassword}</b><br><br>
+                Please log in with this password and navigate to your Profile to change it immediately.",
+                "Login to StockMaster",
+                "https://stockmaster-48q.pages.dev/login"
+            );
+
+            _ = _emailService.SendEmailAsync(user.Email, "StockMaster - Password Reset", emailHtml);
+
+            return ApiResponse<object>.Ok(null!, "If that email exists in our system, a temporary password has been sent.");
+        }
+
+        private string GenerateRandomPassword(int length)
+        {
+            const string validChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$*!";
+            StringBuilder res = new StringBuilder();
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] uintBuffer = new byte[sizeof(uint)];
+                while (length-- > 0)
+                {
+                    rng.GetBytes(uintBuffer);
+                    uint num = BitConverter.ToUInt32(uintBuffer, 0);
+                    res.Append(validChars[(int)(num % (uint)validChars.Length)]);
+                }
+            }
+            return res.ToString();
+        }
+
         private string GenerateJwtToken(User user)
         {
             var key = _config["JwtSettings:SecretKey"]

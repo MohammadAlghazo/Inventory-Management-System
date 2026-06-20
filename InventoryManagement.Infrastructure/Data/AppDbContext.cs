@@ -93,7 +93,11 @@ namespace InventoryManagement.Infrastructure.Data
             modelBuilder.Entity<Role>().HasData(
                 new Role { Id = 1, Name = "SuperAdmin", Description = "Full system access" },
                 new Role { Id = 2, Name = "InventoryManager", Description = "Manage inventory and reports" },
-                new Role { Id = 3, Name = "WarehouseStaff", Description = "Daily warehouse operations" }
+                new Role { Id = 3, Name = "WarehouseStaff", Description = "Daily warehouse operations" },
+                new Role { Id = 4, Name = "PurchasingOfficer", Description = "Manage suppliers and purchase orders" },
+                new Role { Id = 5, Name = "Sales", Description = "Manage customers and sales orders" },
+                new Role { Id = 6, Name = "Accountant", Description = "Financial reporting and analysis" },
+                new Role { Id = 7, Name = "Auditor", Description = "Read-only access for auditing" }
             );
 
             modelBuilder.Entity<ProductStock>(entity =>

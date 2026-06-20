@@ -29,7 +29,7 @@
           <div class="profile-meta">
             <span class="badge" [ngClass]="getRoleBadgeClass()">
               <lucide-icon [img]="icons.ShieldCheck" [size]="12"></lucide-icon>
-              {{ (profile.isAdmin ? 'USERS.ROLE_MANAGER' : 'USERS.ROLE_EMPLOYEE') | translate }}
+              {{ profile.role }}
             </span>
             <span class="profile-meta-item">
               <lucide-icon [img]="icons.Mail" [size]="13"></lucide-icon>
