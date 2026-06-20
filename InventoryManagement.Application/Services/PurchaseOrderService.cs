@@ -122,8 +122,14 @@ namespace InventoryManagement.Application.Services
 
             foreach (var item in order.Items)
             {
-                var productStock = await _db.ProductStocks
-                    .FirstOrDefaultAsync(ps => ps.ProductId == item.ProductId && ps.WarehouseId == order.WarehouseId);
+                var product = await _db.Products
+                    .Include(p => p.ProductStocks)
+                    .FirstOrDefaultAsync(p => p.Id == item.ProductId);
+
+                if (product == null) continue;
+
+                var productStock = product.ProductStocks
+                    .FirstOrDefault(ps => ps.WarehouseId == order.WarehouseId);
 
                 if (productStock == null)
                 {
@@ -135,10 +141,23 @@ namespace InventoryManagement.Application.Services
                         MinQuantity = 10
                     };
                     _db.ProductStocks.Add(productStock);
+                    product.ProductStocks.Add(productStock);
                 }
 
                 int receivedQty = item.QuantityOrdered - item.QuantityReceived;
+
+                // Weighted Average Cost (WAC) Calculation
+                int currentTotalQty = product.ProductStocks.Sum(ps => ps.Quantity);
+                decimal currentTotalValue = currentTotalQty * product.PurchasePrice;
+                decimal receivedValue = receivedQty * item.UnitCost;
                 
+                int newTotalQty = currentTotalQty + receivedQty;
+                
+                if (newTotalQty > 0)
+                {
+                    product.PurchasePrice = (currentTotalValue + receivedValue) / newTotalQty;
+                }
+
                 productStock.Quantity += receivedQty;
                 item.QuantityReceived += receivedQty;
 

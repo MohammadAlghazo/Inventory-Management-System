@@ -15,7 +15,7 @@
           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all"
         >
       </div>
-      <button class="btn btn-primary flex items-center gap-2 whitespace-nowrap">
+      <button (click)="openCreateModal()" class="btn btn-primary flex items-center gap-2 whitespace-nowrap">
         <lucide-icon [img]="PlusIcon" size="20"></lucide-icon>
         Create SO
       </button>
@@ -76,6 +76,91 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Create Modal -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-sm">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+        <h2 class="text-xl font-semibold text-gray-900">Create Sales Order</h2>
+        <button (click)="closeCreateModal()" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6 overflow-y-auto flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
+            <select [(ngModel)]="newOrder.customerId" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+              <option [value]="0" disabled>Select Customer</option>
+              <option *ngFor="let c of customers" [value]="c.id">{{c.name}}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Warehouse *</label>
+            <select [(ngModel)]="newOrder.warehouseId" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+              <option [value]="0" disabled>Select Warehouse</option>
+              <option *ngFor="let w of warehouses" [value]="w.id">{{w.name}}</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Expected Ship Date</label>
+            <input type="date" [(ngModel)]="newOrder.expectedShipDate" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+          </div>
+        </div>
+
+        <div class="mb-4 flex items-center justify-between">
+          <h3 class="text-lg font-medium text-gray-900">Order Items</h3>
+          <button (click)="addItem()" class="btn btn-secondary text-sm flex items-center gap-2">
+            <lucide-icon [img]="PlusIcon" size="16"></lucide-icon>
+            Add Item
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div *ngFor="let item of newOrder.items; let i = index" class="flex flex-wrap md:flex-nowrap gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div class="flex-1 min-w-[200px]">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+              <select [ngModel]="item.productId" (ngModelChange)="onProductSelect(item, $event)" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                <option [value]="0" disabled>Select Product</option>
+                <option *ngFor="let p of products" [value]="p.id">{{p.name}} (SKU: {{p.sku}})</option>
+              </select>
+            </div>
+            <div class="w-24">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+              <input type="number" [(ngModel)]="item.quantity" min="1" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+            </div>
+            <div class="w-32">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Unit Price ($)</label>
+              <input type="number" [(ngModel)]="item.unitPrice" min="0" step="0.01" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+            </div>
+            <div class="w-24">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Discount ($)</label>
+              <input type="number" [(ngModel)]="item.discount" min="0" step="0.01" class="w-full px-4 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+            </div>
+            <button (click)="removeItem(i)" class="p-2.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors border border-transparent">
+              <lucide-icon [img]="Trash2Icon" size="20"></lucide-icon>
+            </button>
+          </div>
+          <div *ngIf="newOrder.items.length === 0" class="text-center py-8 text-gray-500 border-2 border-dashed border-gray-200 rounded-lg">
+            No items added. Click "Add Item" to start.
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+        <button (click)="closeCreateModal()" class="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors">
+          Cancel
+        </button>
+        <button (click)="submitCreateSO()" class="btn btn-primary px-6">
+          Create Order
+        </button>
+      </div>
     </div>
   </div>
 </div>

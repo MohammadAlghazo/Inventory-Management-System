@@ -150,10 +150,26 @@ namespace InventoryManagement.Application.Services
             }
 
             _db.Products.Add(product);
+            await _db.SaveChangesAsync(); // Save to generate Product ID
+
+            if (dto.Quantity > 0 && defaultWarehouse != null)
+            {
+                _db.InventoryLogs.Add(new InventoryLog
+                {
+                    ProductId = product.Id,
+                    WarehouseId = defaultWarehouse.Id,
+                    Action = InventoryAction.Add,
+                    QuantityChanged = dto.Quantity,
+                    PreviousQuantity = 0,
+                    NewQuantity = dto.Quantity,
+                    Notes = "Initial Stock",
+                    UserId = null, // System / anonymous
+                    ActionDate = DateTime.UtcNow
+                });
+                await _db.SaveChangesAsync();
+            }
 
             _db.AddNotification("Product Added", $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.", "Success", "All");
-
-            await _db.SaveChangesAsync();
 
             await _db.Entry(product).Reference(p => p.Category).LoadAsync();
             await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
@@ -207,7 +223,6 @@ namespace InventoryManagement.Application.Services
                 var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == defaultWarehouse.Id);
                 if (stock != null)
                 {
-                    stock.Quantity = dto.Quantity;
                     stock.MinQuantity = dto.MinQuantity;
                 }
                 else

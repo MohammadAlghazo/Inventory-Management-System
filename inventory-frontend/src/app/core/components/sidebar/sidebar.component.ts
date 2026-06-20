@@ -15,7 +15,9 @@ import {
   FileText,
   ChevronLeft, 
   ChevronRight,
-  X
+  X,
+  AlertTriangle,
+  BarChart3
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -29,7 +31,7 @@ import { LayoutService } from '../../services/layout.service';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnInit, OnDestroy {
-  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X };
+  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X, AlertTriangle, BarChart3 };
   user: any = null;
 
   private isResizing = false;
@@ -42,6 +44,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { label: 'SIDEBAR.INVENTORY', route: '/inventory', icon: Boxes },
     { label: 'SIDEBAR.PURCHASE_ORDERS', route: '/purchase-orders', icon: FileText },
     { label: 'SIDEBAR.SALES_ORDERS', route: '/sales-orders', icon: ShoppingCart },
+    { label: 'SIDEBAR.LOW_STOCK', route: '/low-stock', icon: AlertTriangle },
+    { label: 'SIDEBAR.REPORTS', route: '/reports', icon: BarChart3 },
     { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck },
     { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2 },
     { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users },

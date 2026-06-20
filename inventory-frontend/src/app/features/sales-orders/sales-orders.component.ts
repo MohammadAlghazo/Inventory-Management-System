@@ -2,9 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesOrderService } from '../../core/services/sales-order.service';
-import { SalesOrder } from '../../core/models/sales-order.model';
+import { SalesOrder, CreateSalesOrderDto } from '../../core/models/sales-order.model';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
-import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck } from 'lucide-angular';
+import { LookupService } from '../../core/services/lookup.service';
+import { CustomerService } from '../../core/services/customer.service';
+import { ProductService } from '../../core/services/product.service';
+import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-sales-orders',
@@ -19,6 +22,19 @@ export class SalesOrdersComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
+
+  // Create Modal State
+  showCreateModal = false;
+  customers: any[] = [];
+  warehouses: any[] = [];
+  products: any[] = [];
+  
+  newOrder: CreateSalesOrderDto = {
+    customerId: 0,
+    warehouseId: 0,
+    expectedShipDate: '',
+    items: []
+  };
   
   // Icons
   PlusIcon = Plus;
@@ -26,9 +42,14 @@ export class SalesOrdersComponent implements OnInit {
   FileTextIcon = FileText;
   CheckCircleIcon = CheckCircle;
   TruckIcon = Truck;
+  XIcon = X;
+  Trash2Icon = Trash2;
 
   constructor(
     private soService: SalesOrderService,
+    private lookupService: LookupService,
+    private customerService: CustomerService,
+    private productService: ProductService,
     private sweetAlert: SweetAlertService
   ) {}
 
@@ -76,5 +97,67 @@ export class SalesOrdersComponent implements OnInit {
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-blue-100 text-blue-800';
     }
+  }
+
+  // --- Create SO Flow ---
+
+  openCreateModal(): void {
+    this.showCreateModal = true;
+    this.newOrder = { customerId: 0, warehouseId: 0, expectedShipDate: '', items: [] };
+    this.loadDropdowns();
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal = false;
+  }
+
+  loadDropdowns(): void {
+    if (this.customers.length === 0) {
+      this.customerService.getAll(1, 100).subscribe(res => this.customers = res.data?.items || []);
+    }
+    if (this.warehouses.length === 0) {
+      this.lookupService.getWarehouses().subscribe(res => this.warehouses = res.data || []);
+    }
+    if (this.products.length === 0) {
+      this.productService.getProducts(1, 1000).subscribe(res => this.products = res.data?.items || []);
+    }
+  }
+
+  addItem(): void {
+    this.newOrder.items.push({ productId: 0, quantity: 1, unitPrice: 0, discount: 0 });
+  }
+
+  removeItem(index: number): void {
+    this.newOrder.items.splice(index, 1);
+  }
+
+  onProductSelect(item: any, productId: string): void {
+    const pId = Number(productId);
+    item.productId = pId;
+    const product = this.products.find(p => p.id === pId);
+    if (product) {
+      item.unitPrice = product.price;
+    }
+  }
+
+  submitCreateSO(): void {
+    if (!this.newOrder.customerId || !this.newOrder.warehouseId || this.newOrder.items.length === 0) {
+      this.sweetAlert.error('Validation Error', 'Please select customer, warehouse, and add at least one item.');
+      return;
+    }
+
+    // Clean up empty items
+    this.newOrder.items = this.newOrder.items.filter((i: any) => i.productId > 0 && i.quantity > 0);
+
+    this.soService.createSalesOrder(this.newOrder).subscribe({
+      next: () => {
+        this.sweetAlert.success('Success', 'Sales Order created successfully');
+        this.closeCreateModal();
+        this.loadOrders();
+      },
+      error: (err) => {
+        this.sweetAlert.error('Error', err.error?.message || 'Failed to create SO');
+      }
+    });
   }
 }

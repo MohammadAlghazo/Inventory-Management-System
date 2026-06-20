@@ -32,6 +32,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales")]
         public async Task<IActionResult> Create([FromBody] CreateCustomerDto dto)
         {
             var result = await _customerService.CreateCustomerAsync(dto);
@@ -39,6 +40,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCustomerDto dto)
         {
             var result = await _customerService.UpdateCustomerAsync(id, dto);

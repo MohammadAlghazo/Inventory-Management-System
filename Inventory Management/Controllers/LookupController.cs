@@ -21,7 +21,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("categories")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetCategories()
         {
             return Ok(await _lookupService.GetCategoriesAsync());
@@ -49,7 +49,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("brands")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<List<BrandDto>>>> GetBrands()
         {
             return Ok(await _lookupService.GetBrandsAsync());
@@ -77,7 +77,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("units")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<List<UnitDto>>>> GetUnits()
         {
             return Ok(await _lookupService.GetUnitsAsync());
@@ -105,7 +105,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("warehouses")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<ActionResult<ApiResponse<List<WarehouseDto>>>> GetWarehouses()
         {
             return Ok(await _lookupService.GetWarehousesAsync());

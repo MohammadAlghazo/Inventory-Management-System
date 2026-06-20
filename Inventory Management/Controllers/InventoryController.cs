@@ -22,7 +22,7 @@ namespace InventoryManagement.Api.Controllers
             int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpGet("logs")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetAllLogs([FromQuery] InventoryLogQueryParams query)
         {
             var result = await _inventoryService.GetAllLogsAsync(query);
@@ -30,7 +30,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("logs/product/{productId:int}")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetLogsByProduct(int productId)
         {
             var result = await _inventoryService.GetLogsByProductAsync(productId);
@@ -38,7 +38,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager,WarehouseStaff")]
         public async Task<IActionResult> AddItem([FromBody] AddInventoryDto dto)
         {
             var result = await _inventoryService.AddItemAsync(dto, GetCurrentUserId());
@@ -46,7 +46,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("sell")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales,WarehouseStaff")]
         public async Task<IActionResult> Sell([FromBody] SellProductDto dto)
         {
             var result = await _inventoryService.SellProductAsync(dto, GetCurrentUserId());
@@ -62,7 +62,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("return")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales")]
         public async Task<IActionResult> Return([FromBody] ReturnProductDto dto)
         {
             var result = await _inventoryService.ReturnProductAsync(dto, GetCurrentUserId());

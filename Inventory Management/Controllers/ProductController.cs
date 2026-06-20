@@ -18,7 +18,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] ProductQueryParams query)
         {
             var result = await _productService.GetAllAsync(query);
@@ -26,7 +26,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _productService.GetByIdAsync(id);
@@ -34,7 +34,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("categories")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize]
         public async Task<IActionResult> GetCategories()
         {
             var result = await _productService.GetCategoriesAsync();
@@ -42,7 +42,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("low-stock")]
-        [Authorize(Roles = "Manager,Employee")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> GetLowStock()
         {
             var result = await _productService.GetLowStockAsync();

@@ -6,7 +6,7 @@ namespace InventoryManagement.Api.Controllers
 {
     [Route("api/dashboard")]
     [ApiController]
-    [Authorize(Roles = "Manager,Employee")]
+    [Authorize]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
