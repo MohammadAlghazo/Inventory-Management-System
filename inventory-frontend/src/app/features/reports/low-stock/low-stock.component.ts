@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../core/services/report.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, AlertTriangle, AlertCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-low-stock',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   templateUrl: './low-stock.component.html',
   styleUrl: './low-stock.component.css'
 })

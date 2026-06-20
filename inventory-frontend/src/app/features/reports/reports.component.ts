@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../core/services/report.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, DollarSign, TrendingUp, AlertCircle, RefreshCw } from 'lucide-angular';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslatePipe],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.css'
 })

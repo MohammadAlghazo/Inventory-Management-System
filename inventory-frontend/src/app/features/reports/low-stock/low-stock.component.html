@@ -1,76 +1,74 @@
-<div class="space-y-6">
-  <!-- Header -->
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div style="display: flex; flex-direction: column; gap: 20px;">
+  <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Low Stock Alerts</h1>
-      <p class="text-gray-500 mt-1">Items that are below their minimum stock threshold.</p>
+      <h1 class="page-title">{{ 'SIDEBAR.LOW_STOCK' | translate }}</h1>
+      <p class="page-subtitle">{{ 'DASHBOARD.BELOW_MINIMUM' | translate }}</p>
     </div>
-    <button (click)="loadAlerts()" class="btn btn-secondary flex items-center gap-2">
-      Refresh
-    </button>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="btn btn-secondary" (click)="loadAlerts()" style="display: flex; align-items: center; gap: 6px;" [disabled]="loading">
+        <lucide-icon [img]="AlertCircleIcon" [size]="16" *ngIf="!loading"></lucide-icon>
+        <span class="spinner" *ngIf="loading"></span>
+        Refresh
+      </button>
+    </div>
   </div>
 
-  <div *ngIf="loading" class="flex justify-center p-12">
-    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-  </div>
-
-  <div *ngIf="error" class="bg-red-50 text-red-600 p-4 rounded-lg flex items-center gap-3">
-    <lucide-icon [img]="AlertCircleIcon" size="20"></lucide-icon>
+  <div *ngIf="error" class="card" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 16px; display: flex; align-items: center; gap: 10px;">
+    <lucide-icon [img]="AlertCircleIcon" [size]="20"></lucide-icon>
     {{ error }}
   </div>
 
-  <div *ngIf="!loading && !error" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
+  <div class="card" style="padding: 0;" *ngIf="!error">
+    <div class="table-wrapper">
+      <table>
         <thead>
-          <tr class="bg-gray-50/50 border-b border-gray-100">
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Warehouse</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Current Qty</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Min Qty</th>
-            <th class="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Warehouse</th>
+            <th>Current Qty</th>
+            <th>Min Qty</th>
+            <th>Status</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr *ngFor="let alert of alerts" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-6 py-4">
-              <span class="font-medium text-gray-900">{{ alert.productName }}</span>
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              {{ alert.sku }}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              {{ alert.warehouseName }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              <span class="font-medium" [ngClass]="alert.currentQuantity === 0 ? 'text-red-600' : 'text-orange-600'">
-                {{ alert.currentQuantity }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-right text-gray-500">
-              {{ alert.minQuantity }}
-            </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                [ngClass]="alert.currentQuantity === 0 ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'">
-                <lucide-icon [img]="AlertTriangleIcon" size="14"></lucide-icon>
-                {{ alert.currentQuantity === 0 ? 'Out of Stock' : 'Low Stock' }}
-              </span>
-            </td>
-          </tr>
-          
-          <tr *ngIf="alerts.length === 0">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-              <div class="flex flex-col items-center justify-center">
-                <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center mb-3">
-                  <lucide-icon [img]="AlertTriangleIcon" size="24"></lucide-icon>
-                </div>
-                <p class="text-lg font-medium text-gray-900">All Good!</p>
-                <p class="text-sm">No products are currently low on stock.</p>
+        <tbody>
+          <ng-container *ngIf="loading">
+            <tr *ngFor="let dummy of [1,2,3,4,5]">
+              <td *ngFor="let col of [1,2,3,4,5,6]">
+                <div class="skeleton" style="height: 16px; width: 70%;"></div>
+              </td>
+            </tr>
+          </ng-container>
+
+          <tr *ngIf="!loading && alerts.length === 0">
+            <td colspan="6">
+              <div class="empty-state">
+                <lucide-icon [img]="AlertTriangleIcon" [size]="40" style="color: var(--success);"></lucide-icon>
+                <p style="color: var(--success); font-weight: 600; font-size: 16px; margin-bottom: 4px;">{{ 'DASHBOARD.ALL_GOOD' | translate }}</p>
+                <p style="font-size: 13px;">No products are currently low on stock.</p>
               </div>
             </td>
           </tr>
+
+          <ng-container *ngIf="!loading && alerts.length > 0">
+            <tr *ngFor="let alert of alerts">
+              <td style="font-weight: 600;">{{ alert.productName }}</td>
+              <td><code class="sku-code">{{ alert.sku || '—' }}</code></td>
+              <td><span class="badge badge-info">{{ alert.warehouseName }}</span></td>
+              <td>
+                <span style="font-weight: 700;" [ngStyle]="{'color': alert.currentQuantity === 0 ? 'var(--danger)' : 'var(--warning)'}">
+                  {{ alert.currentQuantity }}
+                </span>
+              </td>
+              <td style="color: var(--text-muted);">{{ alert.minQuantity }}</td>
+              <td>
+                <span class="badge" [ngStyle]="{'background-color': alert.currentQuantity === 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)', 'color': alert.currentQuantity === 0 ? 'var(--danger)' : 'var(--warning)'}">
+                  <lucide-icon [img]="AlertTriangleIcon" [size]="12" style="margin-right: 4px; display: inline-block; vertical-align: middle;"></lucide-icon>
+                  {{ alert.currentQuantity === 0 ? ('PRODUCTS.OUT_OF_STOCK' | translate) : ('PRODUCTS.LOW_STOCK' | translate) }}
+                </span>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>

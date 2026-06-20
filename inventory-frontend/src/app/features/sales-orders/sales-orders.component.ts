@@ -8,11 +8,12 @@ import { LookupService } from '../../core/services/lookup.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
 import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2 } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-sales-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './sales-orders.component.html',
   styleUrls: ['./sales-orders.component.css']
 })
