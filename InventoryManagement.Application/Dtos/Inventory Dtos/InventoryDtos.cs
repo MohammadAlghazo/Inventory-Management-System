@@ -19,6 +19,7 @@ namespace InventoryManagement.Application.Dtos.Inventory_Dtos
     public class AddInventoryDto
     {
         public int ProductId { get; set; }
+        public int? WarehouseId { get; set; }
         public int QuantityToAdd { get; set; }
         public string? Notes { get; set; }
     }
@@ -26,6 +27,7 @@ namespace InventoryManagement.Application.Dtos.Inventory_Dtos
     public class SellProductDto
     {
         public int ProductId { get; set; }
+        public int? WarehouseId { get; set; }
         public int QuantityToSell { get; set; }
         public string? Notes { get; set; }
     }
@@ -33,6 +35,7 @@ namespace InventoryManagement.Application.Dtos.Inventory_Dtos
     public class AdjustStockDto
     {
         public int ProductId { get; set; }
+        public int? WarehouseId { get; set; }
         public int NewQuantity { get; set; }  
         public string? Notes { get; set; }
     }
@@ -40,6 +43,7 @@ namespace InventoryManagement.Application.Dtos.Inventory_Dtos
     public class ReturnProductDto
     {
         public int ProductId { get; set; }
+        public int? WarehouseId { get; set; }
         public int QuantityToReturn { get; set; }
         public string? Notes { get; set; }
     }

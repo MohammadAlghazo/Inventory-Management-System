@@ -1,8 +1,21 @@
 import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import {
-  LucideAngularModule, LogOut, Boxes, ChevronLeft, ChevronRight,
-  LayoutDashboard, Package, Truck, Users, Archive, Settings, User, X
+  LucideAngularModule,
+  LayoutDashboard, 
+  Package, 
+  Settings, 
+  Users, 
+  LogOut,
+  Boxes,
+  User,
+  Truck,
+  Users2,
+  ShoppingCart,
+  FileText,
+  ChevronLeft, 
+  ChevronRight,
+  X
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -26,17 +39,20 @@ export class SidebarComponent implements OnInit, OnDestroy {
   menuItems = [
     { label: 'SIDEBAR.DASHBOARD', route: '/dashboard', icon: LayoutDashboard },
     { label: 'SIDEBAR.PRODUCTS',  route: '/products',  icon: Package },
+    { label: 'SIDEBAR.INVENTORY', route: '/inventory', icon: Boxes },
+    { label: 'SIDEBAR.PURCHASE_ORDERS', route: '/purchase-orders', icon: FileText },
+    { label: 'SIDEBAR.SALES_ORDERS', route: '/sales-orders', icon: ShoppingCart },
     { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck },
-    { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users },
-    { label: 'SIDEBAR.INVENTORY', route: '/inventory',  icon: Archive },
+    { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2 },
     { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users },
     { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User },
     { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings },
   ];
 
   get filteredMenuItems() {
-    if (this.userRole === 'Manager') return this.menuItems;
-    return this.menuItems.filter(item => !['/users', '/settings'].includes(item.route));
+    if (this.userRole === 'SuperAdmin') return this.menuItems;
+    if (this.userRole === 'InventoryManager') return this.menuItems.filter(item => !['/settings'].includes(item.route));
+    return this.menuItems.filter(item => !['/users', '/settings', '/suppliers', '/customers'].includes(item.route));
   }
 
   constructor(

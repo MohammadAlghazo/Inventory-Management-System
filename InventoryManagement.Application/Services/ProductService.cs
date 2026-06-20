@@ -24,6 +24,8 @@ namespace InventoryManagement.Application.Services
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
                 .Include(p => p.Supplier)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
                 .AsQueryable();
 
             if (!query.IncludeInactive)
@@ -46,24 +48,24 @@ namespace InventoryManagement.Application.Services
                 q = q.Where(p => p.Price <= query.MaxPrice.Value);
 
             if (query.IsLowStock.HasValue && query.IsLowStock.Value)
-                q = q.Where(p => p.Quantity <= p.MinQuantity && p.Quantity > 0);
+                q = q.Where(p => p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0);
 
             if (!string.IsNullOrWhiteSpace(query.StockStatus))
             {
                 if (query.StockStatus == "in-stock")
-                    q = q.Where(p => p.Quantity > p.MinQuantity);
+                    q = q.Where(p => p.ProductStocks.Sum(s => s.Quantity) > p.ProductStocks.Sum(s => s.MinQuantity));
                 else if (query.StockStatus == "low-stock")
-                    q = q.Where(p => p.Quantity <= p.MinQuantity && p.Quantity > 0);
+                    q = q.Where(p => p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0);
                 else if (query.StockStatus == "out-of-stock")
-                    q = q.Where(p => p.Quantity == 0);
+                    q = q.Where(p => p.ProductStocks.Sum(s => s.Quantity) == 0);
             }
 
             q = (query.SortBy.ToLower(), query.SortOrder.ToLower()) switch
             {
                 ("price", "asc") => q.OrderBy(p => p.Price),
                 ("price", "desc") => q.OrderByDescending(p => p.Price),
-                ("quantity", "asc") => q.OrderBy(p => p.Quantity),
-                ("quantity", "desc") => q.OrderByDescending(p => p.Quantity),
+                ("quantity", "asc") => q.OrderBy(p => p.ProductStocks.Sum(s => s.Quantity)),
+                ("quantity", "desc") => q.OrderByDescending(p => p.ProductStocks.Sum(s => s.Quantity)),
                 ("createdat", "desc") => q.OrderByDescending(p => p.CreatedAt),
                 ("createdat", "asc") => q.OrderBy(p => p.CreatedAt),
                 (_, "desc") => q.OrderByDescending(p => p.Name),
@@ -94,6 +96,8 @@ namespace InventoryManagement.Application.Services
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
                 .Include(p => p.Supplier)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null || !product.IsActive)
@@ -117,8 +121,6 @@ namespace InventoryManagement.Application.Services
                 PurchasePrice = dto.PurchasePrice,
                 Price = dto.Price,
                 Tax = dto.Tax,
-                Quantity = dto.Quantity,
-                MinQuantity = dto.MinQuantity,
                 Weight = dto.Weight,
                 Color = dto.Color,
                 Size = dto.Size,
@@ -135,6 +137,17 @@ namespace InventoryManagement.Application.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
+
+            var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+            if (defaultWarehouse != null)
+            {
+                product.ProductStocks.Add(new ProductStock
+                {
+                    WarehouseId = defaultWarehouse.Id,
+                    Quantity = dto.Quantity,
+                    MinQuantity = dto.MinQuantity
+                });
+            }
 
             _db.Products.Add(product);
 
@@ -156,7 +169,8 @@ namespace InventoryManagement.Application.Services
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
-                .Include(p => p.Supplier)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null || !product.IsActive)
@@ -173,8 +187,6 @@ namespace InventoryManagement.Application.Services
             product.PurchasePrice = dto.PurchasePrice;
             product.Price = dto.Price;
             product.Tax = dto.Tax;
-            product.Quantity = dto.Quantity;
-            product.MinQuantity = dto.MinQuantity;
             product.Weight = dto.Weight;
             product.Color = dto.Color;
             product.Size = dto.Size;
@@ -189,9 +201,29 @@ namespace InventoryManagement.Application.Services
             product.BatchNumber = dto.BatchNumber;
             product.UpdatedAt = DateTime.UtcNow;
 
-            if (product.Quantity <= product.MinQuantity)
+            var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+            if (defaultWarehouse != null)
             {
-                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {product.Quantity}.", "Warning", "All");
+                var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == defaultWarehouse.Id);
+                if (stock != null)
+                {
+                    stock.Quantity = dto.Quantity;
+                    stock.MinQuantity = dto.MinQuantity;
+                }
+                else
+                {
+                    product.ProductStocks.Add(new ProductStock
+                    {
+                        WarehouseId = defaultWarehouse.Id,
+                        Quantity = dto.Quantity,
+                        MinQuantity = dto.MinQuantity
+                    });
+                }
+            }
+
+            if (product.ProductStocks.Sum(s => s.Quantity) <= product.ProductStocks.Sum(s => s.MinQuantity))
+            {
+                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {product.ProductStocks.Sum(s => s.Quantity)}.", "Warning", "All");
             }
 
             await _db.SaveChangesAsync();
@@ -223,9 +255,10 @@ namespace InventoryManagement.Application.Services
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
-                .Include(p => p.Supplier)
-                .Where(p => p.IsActive && p.Quantity <= p.MinQuantity)
-                .OrderBy(p => p.Quantity)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
+                .Where(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity))
+                .OrderBy(p => p.ProductStocks.Sum(s => s.Quantity))
                 .Select(p => MapToDto(p))
                 .ToListAsync();
 
@@ -250,9 +283,9 @@ namespace InventoryManagement.Application.Services
             var stats = new DashboardStatsDto
             {
                 TotalProducts = await _db.Products.CountAsync(p => p.IsActive),
-                LowStockCount = await _db.Products.CountAsync(p => p.IsActive && p.Quantity <= p.MinQuantity && p.Quantity > 0),
-                OutOfStockCount = await _db.Products.CountAsync(p => p.IsActive && p.Quantity == 0),
-                TotalInventoryValue = await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.Quantity),
+                LowStockCount = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
+                OutOfStockCount = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
+                TotalInventoryValue = await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
                 TodayMovements = await _db.InventoryLogs.CountAsync(l => l.ActionDate.Date == today),
                 TotalCategories = await _db.Categories.CountAsync()
             };
@@ -270,8 +303,8 @@ namespace InventoryManagement.Application.Services
             PurchasePrice = p.PurchasePrice,
             Price = p.Price,
             Tax = p.Tax,
-            Quantity = p.Quantity,
-            MinQuantity = p.MinQuantity,
+            Quantity = p.ProductStocks != null ? p.ProductStocks.Sum(s => s.Quantity) : 0,
+            MinQuantity = p.ProductStocks != null ? p.ProductStocks.Sum(s => s.MinQuantity) : 0,
             Weight = p.Weight,
             Color = p.Color,
             Size = p.Size,
@@ -288,11 +321,17 @@ namespace InventoryManagement.Application.Services
             BrandName = p.Brand?.Name,
             ExpiryDate = p.ExpiryDate,
             BatchNumber = p.BatchNumber,
-            IsLowStock = p.Quantity <= p.MinQuantity,
-            TotalValue = p.Price * p.Quantity,
+            IsLowStock = p.ProductStocks != null && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0,
+            TotalValue = p.Price * (p.ProductStocks != null ? p.ProductStocks.Sum(s => s.Quantity) : 0),
             CreatedAt = p.CreatedAt,
-            UpdatedAt = p.UpdatedAt
+            UpdatedAt = p.UpdatedAt,
+            ProductStocks = p.ProductStocks != null ? p.ProductStocks.Select(s => new ProductStockDto
+            {
+                WarehouseId = s.WarehouseId,
+                WarehouseName = s.Warehouse?.Name ?? string.Empty,
+                Quantity = s.Quantity,
+                MinQuantity = s.MinQuantity
+            }).ToList() : new List<ProductStockDto>()
         };
     }
 }
-

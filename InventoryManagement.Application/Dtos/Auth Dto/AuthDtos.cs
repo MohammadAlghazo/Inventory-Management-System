@@ -36,6 +36,7 @@ namespace InventoryManagement.Application.Dtos.Auth_Dto
         public bool IsActive { get; set; }
         public string? ProfilePicture { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<string> Permissions { get; set; } = new();
     }
 
     public class UpdateUserDto

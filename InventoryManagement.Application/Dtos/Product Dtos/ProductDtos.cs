@@ -43,6 +43,8 @@ namespace InventoryManagement.Application.Dtos.Product_Dtos
         public decimal TotalValue { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        public List<ProductStockDto> ProductStocks { get; set; } = new();
     }
 
     public class CreateProductDto
@@ -128,5 +130,13 @@ namespace InventoryManagement.Application.Dtos.Product_Dtos
         public decimal TotalInventoryValue { get; set; }
         public int TodayMovements { get; set; }
         public int TotalCategories { get; set; }
+    }
+
+    public class ProductStockDto
+    {
+        public int WarehouseId { get; set; }
+        public string WarehouseName { get; set; } = string.Empty;
+        public int Quantity { get; set; }
+        public int MinQuantity { get; set; }
     }
 }

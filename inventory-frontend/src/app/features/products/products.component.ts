@@ -10,6 +10,7 @@ import { ProfilePictureModalComponent } from '../../shared/components/profile-pi
 import { environment } from '../../../environments/environment';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
 
 @Component({
   selector: 'app-products',
@@ -49,6 +50,7 @@ export class ProductsComponent implements OnInit {
     private http: HttpClient,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
+    private sweetAlert: SweetAlertService,
     private cdr: ChangeDetectorRef
   ) {
     this.user = this.authService.getCurrentUser();
@@ -206,6 +208,7 @@ export class ProductsComponent implements OnInit {
       next: () => {
         this.isDeleting = false;
         this.deleteConfirm = null;
+        this.sweetAlert.success('Success', 'Product deleted successfully');
         this.loadProducts();
         this.cdr.markForCheck();
       },
@@ -266,6 +269,7 @@ export class ProductsComponent implements OnInit {
       next: () => {
         this.isSavingProduct = false;
         this.showProductModal = false;
+        this.sweetAlert.success('Success', 'Product saved successfully');
         this.loadProducts();
         this.cdr.markForCheck();
       },

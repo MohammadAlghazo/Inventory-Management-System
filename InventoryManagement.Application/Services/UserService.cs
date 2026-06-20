@@ -40,8 +40,8 @@ namespace InventoryManagement.Application.Services
                     Email          = u.Email,
                     FirstName      = u.FirstName,
                     LastName       = u.LastName,
-                    Role           = u.Role,
-                    IsAdmin        = u.Role == "Manager",
+                    Role           = u.Role != null ? u.Role.Name : "Employee",
+                    IsAdmin        = u.RoleId == 1 || u.RoleId == 2,
                     IsActive       = u.IsActive,
                     ProfilePicture = u.ProfilePicture,
                     CreatedAt      = u.CreatedAt
@@ -70,8 +70,8 @@ namespace InventoryManagement.Application.Services
                 Email          = user.Email,
                 FirstName      = user.FirstName,
                 LastName       = user.LastName,
-                Role           = user.Role,
-                IsAdmin        = user.IsAdmin,
+                Role           = user.Role != null ? user.Role.Name : "Employee",
+                IsAdmin        = user.RoleId == 1 || user.RoleId == 2,
                 IsActive       = user.IsActive,
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt      = user.CreatedAt
@@ -80,7 +80,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UserProfileDto>> UpdateUserAsync(int id, UpdateUserDto dto)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return ApiResponse<UserProfileDto>.NotFound("User not found");
 
@@ -88,14 +88,11 @@ namespace InventoryManagement.Application.Services
                 await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != id))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
 
-            var validRoles = new[] { "Manager", "Employee" };
-            if (!string.IsNullOrWhiteSpace(dto.Role) && !validRoles.Contains(dto.Role))
-                return ApiResponse<UserProfileDto>.Fail("Invalid role. Must be 'Manager' or 'Employee'");
-
-            user.Email     = dto.Email ?? user.Email;
-            user.FirstName = dto.FirstName ?? user.FirstName;
-            user.LastName  = dto.LastName ?? user.LastName;
-            user.Role      = dto.Role ?? user.Role;
+            if (!string.IsNullOrWhiteSpace(dto.Role))
+            {
+                var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
+                if (role != null) user.RoleId = role.Id;
+            }
             user.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
@@ -107,8 +104,8 @@ namespace InventoryManagement.Application.Services
                 Email          = user.Email,
                 FirstName      = user.FirstName,
                 LastName       = user.LastName,
-                Role           = user.Role,
-                IsAdmin        = user.IsAdmin,
+                Role           = user.Role != null ? user.Role.Name : "Employee",
+                IsAdmin        = user.RoleId == 1 || user.RoleId == 2,
                 IsActive       = user.IsActive,
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt      = user.CreatedAt

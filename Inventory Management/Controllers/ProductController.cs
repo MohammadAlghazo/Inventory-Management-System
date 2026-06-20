@@ -50,7 +50,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
             var result = await _productService.CreateAsync(dto);
@@ -58,7 +58,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
             var result = await _productService.UpdateAsync(id, dto);
@@ -66,7 +66,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _productService.DeleteAsync(id);

@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace InventoryManagement.Domain.Entities
 {
     public class Product
@@ -12,8 +14,6 @@ namespace InventoryManagement.Domain.Entities
         public decimal Price { get; set; } 
         public decimal Tax { get; set; } 
 
-        public int Quantity { get; set; }
-        public int MinQuantity { get; set; }
 
         public decimal? Weight { get; set; }
         public string? Color { get; set; }
@@ -42,12 +42,13 @@ namespace InventoryManagement.Domain.Entities
         public int? SupplierId { get; set; }
         public Supplier? Supplier { get; set; }
 
-        public bool IsLowStock => Quantity <= MinQuantity;
-        public decimal TotalValue => Price * Quantity;
+        public bool IsLowStock => ProductStocks?.Sum(s => s.Quantity) <= ProductStocks?.Sum(s => s.MinQuantity);
+        public decimal TotalValue => Price * (ProductStocks?.Sum(s => s.Quantity) ?? 0);
 
         [System.ComponentModel.DataAnnotations.Timestamp]
         public byte[]? RowVersion { get; set; }
 
         public ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
+        public ICollection<ProductStock> ProductStocks { get; set; } = new List<ProductStock>();
     }
 }

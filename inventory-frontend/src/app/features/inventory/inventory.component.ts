@@ -8,6 +8,9 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
 
 @Component({
   selector: 'app-inventory',
@@ -36,8 +39,11 @@ export class InventoryComponent implements OnInit {
   actionError = '';
 
   selectedProductId: number | '' = '';
+  selectedWarehouseId: number | '' = '';
   quantity: number = 1;
   notes: string = '';
+
+  warehouses: any[] = [];
 
   constructor(
     private inventoryService: InventoryService,
@@ -45,6 +51,8 @@ export class InventoryComponent implements OnInit {
     private authService: AuthService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
+    private http: HttpClient,
+    private sweetAlert: SweetAlertService,
     private cdr: ChangeDetectorRef
   ) {
     this.user = this.authService.getCurrentUser();
@@ -53,10 +61,20 @@ export class InventoryComponent implements OnInit {
   ngOnInit() {
     this.loadLogs();
     this.loadProducts();
+    this.loadWarehouses();
   }
 
   get isAdmin() {
     return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] === 'Manager';
+  }
+
+  loadWarehouses() {
+    this.http.get<any>(`${environment.apiUrl}/lookup/warehouses`).subscribe({
+      next: (res) => {
+        this.warehouses = res.data || [];
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   loadLogs() {
@@ -135,6 +153,7 @@ export class InventoryComponent implements OnInit {
   openActionModal(action: 'add' | 'sell' | 'adjust' | 'return') {
     this.actionModal = action;
     this.selectedProductId = '';
+    this.selectedWarehouseId = '';
     this.quantity = action === 'adjust' ? 0 : 1;
     this.notes = '';
     this.actionError = '';
@@ -172,6 +191,7 @@ export class InventoryComponent implements OnInit {
 
     const payload = {
       productId: Number(this.selectedProductId),
+      warehouseId: this.selectedWarehouseId ? Number(this.selectedWarehouseId) : null,
       quantity: this.quantity,
       notes: this.notes
     };
@@ -183,6 +203,7 @@ export class InventoryComponent implements OnInit {
       case 'adjust': 
         actionObs = this.inventoryService.adjustStock({
           productId: payload.productId, 
+          warehouseId: payload.warehouseId,
           newQuantity: payload.quantity, 
           notes: payload.notes
         }); 
@@ -196,6 +217,7 @@ export class InventoryComponent implements OnInit {
       next: () => {
         this.isSubmitting = false;
         this.closeActionModal();
+        this.sweetAlert.success('Success', 'Inventory action completed successfully');
         this.loadLogs();
         this.loadProducts(); 
         this.cdr.markForCheck();

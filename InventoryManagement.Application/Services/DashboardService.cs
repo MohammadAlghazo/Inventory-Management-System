@@ -22,9 +22,9 @@ namespace InventoryManagement.Application.Services
             var stats = new DashboardStatsDto
             {
                 TotalProducts      = await _db.Products.CountAsync(p => p.IsActive),
-                LowStockCount      = await _db.Products.CountAsync(p => p.IsActive && p.Quantity <= p.MinQuantity && p.Quantity > 0),
-                OutOfStockCount    = await _db.Products.CountAsync(p => p.IsActive && p.Quantity == 0),
-                TotalInventoryValue= await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.Quantity),
+                LowStockCount      = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
+                OutOfStockCount    = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
+                TotalInventoryValue= await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
                 TodayMovements     = await _db.InventoryLogs.CountAsync(l => l.ActionDate.Date == today),
                 TotalUsers         = await _db.Users.CountAsync(u => u.IsActive),
                 TotalCategories    = await _db.Products.Where(p => p.IsActive).Select(p => p.Category).Distinct().CountAsync()
@@ -88,8 +88,8 @@ namespace InventoryManagement.Application.Services
                 {
                     Category     = g.Key,
                     ProductCount = g.Count(),
-                    TotalValue   = g.Sum(p => p.Price * p.Quantity),
-                    TotalQuantity= g.Sum(p => p.Quantity)
+                    TotalValue   = g.Sum(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
+                    TotalQuantity= g.Sum(p => p.ProductStocks.Sum(s => s.Quantity))
                 })
                 .OrderByDescending(x => x.TotalValue)
                 .ToListAsync();
@@ -102,15 +102,17 @@ namespace InventoryManagement.Application.Services
             var topProducts = await _db.InventoryLogs
                 .Include(l => l.Product)
                 .ThenInclude(p => p.Category)
+                .Include(l => l.Product.ProductStocks)
                 .Where(l => l.Product.IsActive)
-                .GroupBy(l => new { l.ProductId, l.Product.Name, CategoryName = l.Product.Category != null ? l.Product.Category.Name : "Uncategorized", l.Product.Quantity })
+                .Select(l => new { l.ProductId, l.Product.Name, CategoryName = l.Product.Category != null ? l.Product.Category.Name : "Uncategorized", TotalQuantity = l.Product.ProductStocks.Sum(s => s.Quantity) })
+                .GroupBy(x => new { x.ProductId, x.Name, x.CategoryName, x.TotalQuantity })
                 .Select(g => new TopProductDto
                 {
                     ProductId      = g.Key.ProductId,
                     ProductName    = g.Key.Name,
                     Category       = g.Key.CategoryName,
                     TotalMovements = g.Count(),
-                    CurrentQuantity= g.Key.Quantity
+                    CurrentQuantity= g.Key.TotalQuantity
                 })
                 .OrderByDescending(x => x.TotalMovements)
                 .Take(limit)

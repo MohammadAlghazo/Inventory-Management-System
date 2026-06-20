@@ -6,7 +6,9 @@ namespace InventoryManagement.Domain.Entities
         Sell,
         Adjust,
         Return,
-        Transfer
+        Transfer,
+        ReceivePO,
+        ShipSO
     }
 
     public class InventoryLog

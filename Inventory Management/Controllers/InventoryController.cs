@@ -54,7 +54,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("adjust")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> Adjust([FromBody] AdjustStockDto dto)
         {
             var result = await _inventoryService.AdjustStockAsync(dto, GetCurrentUserId());

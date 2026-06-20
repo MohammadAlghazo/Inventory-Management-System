@@ -14,5 +14,6 @@ namespace InventoryManagement.Domain.Entities
         public Branch? Branch { get; set; }
 
         public ICollection<InventoryLog> InventoryLogs { get; set; } = new List<InventoryLog>();
+        public ICollection<ProductStock> ProductStocks { get; set; } = new List<ProductStock>();
     }
 }

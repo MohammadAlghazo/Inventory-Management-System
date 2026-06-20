@@ -8,7 +8,7 @@ namespace InventoryManagement.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = "Manager")]
+    [Authorize(Roles = "SuperAdmin,InventoryManager")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

@@ -23,7 +23,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "rania.kamal@stockmaster.com",
                         FirstName = "Rania",
                         LastName = "Kamal",
-                        Role = "Manager",
+                        RoleId = 2,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -35,7 +35,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "ahmad.masri@stockmaster.com",
                         FirstName = "Ahmad",
                         LastName = "Masri",
-                        Role = "Manager",
+                        RoleId = 2,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -47,7 +47,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "youssef.mansour@stockmaster.com",
                         FirstName = "Youssef",
                         LastName = "Mansour",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -59,7 +59,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "fatima.hariri@stockmaster.com",
                         FirstName = "Fatima",
                         LastName = "Al-Hariri",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -71,7 +71,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "layla.haddad@stockmaster.com",
                         FirstName = "Layla",
                         LastName = "Haddad",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -83,7 +83,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "tareq.othman@stockmaster.com",
                         FirstName = "Tareq",
                         LastName = "Othman",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -95,7 +95,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "ziad.nabulsi@stockmaster.com",
                         FirstName = "Ziad",
                         LastName = "Nabulsi",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -107,7 +107,7 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "mona.sabah@stockmaster.com",
                         FirstName = "Mona",
                         LastName = "Sabah",
-                        Role = "Employee",
+                        RoleId = 3,
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
                         CreatedAt = DateTime.UtcNow,
@@ -128,7 +128,7 @@ namespace InventoryManagement.Infrastructure.Data
                     Email = "employee@inventory.com",
                     FirstName = "Staff",
                     LastName = "Member",
-                    Role = "Employee",
+                    RoleId = 3,
                     IsActive = true,
                     HashedPassword = BCrypt.Net.BCrypt.HashPassword("Employee@1234"),
                     CreatedAt = DateTime.UtcNow,
@@ -313,23 +313,25 @@ namespace InventoryManagement.Infrastructure.Data
                 int supAmman = suppliers.FirstOrDefault(s => s.Name == "Amman Clothes Wholesalers")?.Id ?? suppliers[0].Id;
                 int supQuds = suppliers.FirstOrDefault(s => s.Name == "Al-Quds Paper & Stationery")?.Id ?? suppliers[0].Id;
 
+                int defaultWarehouseId = warehouses.First().Id;
+
                 var productsToSeed = new List<Product>
                 {
-                    new Product { Name = "Smart LED TV 55 Inch", SKU = "ELE-TV55", CategoryId = catElectronics, BrandId = brandSamsung, UnitId = unitPieces, SupplierId = supHuda, Price = 450.00m, PurchasePrice = 320.00m, MinQuantity = 5, Quantity = 25, Description = "Samsung 55 Inch Ultra HD Smart TV", IsActive = true },
-                    new Product { Name = "Laptop Stand Aluminum", SKU = "ELE-STAND", CategoryId = catElectronics, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supHuda, Price = 25.00m, PurchasePrice = 15.00m, MinQuantity = 10, Quantity = 40, Description = "Adjustable ergonomic laptop stand", IsActive = true },
-                    new Product { Name = "Coffee Table Walnut", SKU = "FUR-CTABLE", CategoryId = catFurniture, BrandId = brandIkea, UnitId = unitPieces, SupplierId = supModern, Price = 120.00m, PurchasePrice = 75.00m, MinQuantity = 3, Quantity = 12, Description = "Solid walnut wood coffee table", IsActive = true },
-                    new Product { Name = "Leather Office Chair", SKU = "FUR-LCHAIR", CategoryId = catFurniture, BrandId = brandIkea, UnitId = unitPieces, SupplierId = supModern, Price = 180.00m, PurchasePrice = 110.00m, MinQuantity = 5, Quantity = 18, Description = "High back executive office chair", IsActive = true },
-                    new Product { Name = "Jordanian Olive Oil 5L", SKU = "FOD-OIV5L", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supPetra, Price = 35.00m, PurchasePrice = 22.00m, MinQuantity = 10, Quantity = 60, Description = "Extra virgin cold-pressed olive oil", IsActive = true },
-                    new Product { Name = "Halva Plain 1kg", SKU = "FOD-HLV1K", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supPetra, Price = 8.00m, PurchasePrice = 5.00m, MinQuantity = 15, Quantity = 80, Description = "Premium quality traditional plain sesame halva", IsActive = true },
-                    new Product { Name = "Classic Polo T-Shirt", SKU = "CLO-POLO", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 15.00m, PurchasePrice = 8.00m, MinQuantity = 20, Quantity = 100, Description = "Cotton blend comfortable polo shirt", IsActive = true },
-                    new Product { Name = "Casual Denim Jeans", SKU = "CLO-JEANS", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 25.00m, PurchasePrice = 12.00m, MinQuantity = 15, Quantity = 75, Description = "Straight-fit durable blue jeans", IsActive = true },
-                    new Product { Name = "Ergonomic Keyboard", SKU = "ELE-KEYBD", CategoryId = catElectronics, BrandId = brandDell, UnitId = unitPieces, SupplierId = supHuda, Price = 45.00m, PurchasePrice = 30.00m, MinQuantity = 5, Quantity = 30, Description = "Wireless split ergonomic comfort keyboard", IsActive = true },
-                    new Product { Name = "Noise Cancelling Headphones", SKU = "ELE-HEADPH", CategoryId = catElectronics, BrandId = brandSamsung, UnitId = unitPieces, SupplierId = supHuda, Price = 130.00m, PurchasePrice = 90.00m, MinQuantity = 8, Quantity = 15, Description = "Over-ear active noise cancelling bluetooth headphones", IsActive = true },
-                    new Product { Name = "Standing Desk Mat", SKU = "OFF-MAT", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supWaha, Price = 30.00m, PurchasePrice = 18.00m, MinQuantity = 5, Quantity = 22, Description = "Anti-fatigue comfort floor mat", IsActive = true },
-                    new Product { Name = "Gel Pen Box Blue (50 pcs)", SKU = "OFF-PENS", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitBoxes, SupplierId = supQuds, Price = 12.00m, PurchasePrice = 7.00m, MinQuantity = 10, Quantity = 50, Description = "Smooth writing blue gel pens", IsActive = true },
-                    new Product { Name = "Thermal Paper Roll (10 pcs)", SKU = "OFF-TROLL", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitPacks, SupplierId = supQuds, Price = 10.00m, PurchasePrice = 6.00m, MinQuantity = 12, Quantity = 70, Description = "57mm POS printer thermal rolls", IsActive = true },
-                    new Product { Name = "Spicy Arabic Falafel Mix", SKU = "FOD-FLFL", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPacks, SupplierId = supPetra, Price = 4.00m, PurchasePrice = 2.00m, MinQuantity = 25, Quantity = 120, Description = "Instant ready-to-fry falafel mix with spices", IsActive = true },
-                    new Product { Name = "Woolen Winter Scarf", SKU = "CLO-SCARF", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 12.00m, PurchasePrice = 6.00m, MinQuantity = 10, Quantity = 45, Description = "Warm premium knit woolen winter scarf", IsActive = true }
+                    new Product { Name = "Smart LED TV 55 Inch", SKU = "ELE-TV55", CategoryId = catElectronics, BrandId = brandSamsung, UnitId = unitPieces, SupplierId = supHuda, Price = 450.00m, PurchasePrice = 320.00m, Description = "Samsung 55 Inch Ultra HD Smart TV", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 25, MinQuantity = 5 } } },
+                    new Product { Name = "Laptop Stand Aluminum", SKU = "ELE-STAND", CategoryId = catElectronics, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supHuda, Price = 25.00m, PurchasePrice = 15.00m, Description = "Adjustable ergonomic laptop stand", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 40, MinQuantity = 10 } } },
+                    new Product { Name = "Coffee Table Walnut", SKU = "FUR-CTABLE", CategoryId = catFurniture, BrandId = brandIkea, UnitId = unitPieces, SupplierId = supModern, Price = 120.00m, PurchasePrice = 75.00m, Description = "Solid walnut wood coffee table", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 12, MinQuantity = 3 } } },
+                    new Product { Name = "Leather Office Chair", SKU = "FUR-LCHAIR", CategoryId = catFurniture, BrandId = brandIkea, UnitId = unitPieces, SupplierId = supModern, Price = 180.00m, PurchasePrice = 110.00m, Description = "High back executive office chair", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 18, MinQuantity = 5 } } },
+                    new Product { Name = "Jordanian Olive Oil 5L", SKU = "FOD-OIV5L", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supPetra, Price = 35.00m, PurchasePrice = 22.00m, Description = "Extra virgin cold-pressed olive oil", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 60, MinQuantity = 10 } } },
+                    new Product { Name = "Halva Plain 1kg", SKU = "FOD-HLV1K", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supPetra, Price = 8.00m, PurchasePrice = 5.00m, Description = "Premium quality traditional plain sesame halva", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 80, MinQuantity = 15 } } },
+                    new Product { Name = "Classic Polo T-Shirt", SKU = "CLO-POLO", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 15.00m, PurchasePrice = 8.00m, Description = "Cotton blend comfortable polo shirt", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 100, MinQuantity = 20 } } },
+                    new Product { Name = "Casual Denim Jeans", SKU = "CLO-JEANS", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 25.00m, PurchasePrice = 12.00m, Description = "Straight-fit durable blue jeans", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 75, MinQuantity = 15 } } },
+                    new Product { Name = "Ergonomic Keyboard", SKU = "ELE-KEYBD", CategoryId = catElectronics, BrandId = brandDell, UnitId = unitPieces, SupplierId = supHuda, Price = 45.00m, PurchasePrice = 30.00m, Description = "Wireless split ergonomic comfort keyboard", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 30, MinQuantity = 5 } } },
+                    new Product { Name = "Noise Cancelling Headphones", SKU = "ELE-HEADPH", CategoryId = catElectronics, BrandId = brandSamsung, UnitId = unitPieces, SupplierId = supHuda, Price = 130.00m, PurchasePrice = 90.00m, Description = "Over-ear active noise cancelling bluetooth headphones", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 15, MinQuantity = 8 } } },
+                    new Product { Name = "Standing Desk Mat", SKU = "OFF-MAT", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supWaha, Price = 30.00m, PurchasePrice = 18.00m, Description = "Anti-fatigue comfort floor mat", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 22, MinQuantity = 5 } } },
+                    new Product { Name = "Gel Pen Box Blue (50 pcs)", SKU = "OFF-PENS", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitBoxes, SupplierId = supQuds, Price = 12.00m, PurchasePrice = 7.00m, Description = "Smooth writing blue gel pens", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 50, MinQuantity = 10 } } },
+                    new Product { Name = "Thermal Paper Roll (10 pcs)", SKU = "OFF-TROLL", CategoryId = catOffice, BrandId = brandGeneric, UnitId = unitPacks, SupplierId = supQuds, Price = 10.00m, PurchasePrice = 6.00m, Description = "57mm POS printer thermal rolls", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 70, MinQuantity = 12 } } },
+                    new Product { Name = "Spicy Arabic Falafel Mix", SKU = "FOD-FLFL", CategoryId = catFood, BrandId = brandGeneric, UnitId = unitPacks, SupplierId = supPetra, Price = 4.00m, PurchasePrice = 2.00m, Description = "Instant ready-to-fry falafel mix with spices", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 120, MinQuantity = 25 } } },
+                    new Product { Name = "Woolen Winter Scarf", SKU = "CLO-SCARF", CategoryId = catClothing, BrandId = brandGeneric, UnitId = unitPieces, SupplierId = supAmman, Price = 12.00m, PurchasePrice = 6.00m, Description = "Warm premium knit woolen winter scarf", IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 45, MinQuantity = 10 } } }
                 };
 
                 context.Products.AddRange(productsToSeed);
@@ -339,16 +341,17 @@ namespace InventoryManagement.Infrastructure.Data
             // Load original products if missing
             if (!context.Products.Any(p => p.SKU == "APP-IP15P"))
             {
-                var p1 = new Product { Name = "iPhone 15 Pro", SKU = "APP-IP15P", Description = "Apple iPhone 15 Pro 256GB", PurchasePrice = 899.00m, Price = 1099.00m, Quantity = 45, MinQuantity = 10, CategoryId = categories[0].Id, BrandId = brands[0].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
-                var p2 = new Product { Name = "Samsung Galaxy S24", SKU = "SAM-S24", Description = "Samsung Galaxy S24 Ultra", PurchasePrice = 950.00m, Price = 1199.00m, Quantity = 3, MinQuantity = 5, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; 
-                var p3 = new Product { Name = "Dell Latitude 5440", SKU = "DEL-LAT5440", Description = "Dell Latitude Laptop 16GB RAM", PurchasePrice = 700.00m, Price = 899.00m, Quantity = 12, MinQuantity = 3, CategoryId = categories[0].Id, BrandId = brands[2].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
-                var p4 = new Product { Name = "Office Standing Desk", SKU = "IKE-STDESK", Description = "Adjustable height standing desk", PurchasePrice = 180.00m, Price = 299.00m, Quantity = 15, MinQuantity = 5, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true };
-                var p5 = new Product { Name = "Ergonomic Office Chair", SKU = "IKE-ERGCHAIR", Description = "Mesh back ergonomic chair", PurchasePrice = 90.00m, Price = 150.00m, Quantity = 2, MinQuantity = 5, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true }; 
-                var p6 = new Product { Name = "Premium Arabica Coffee", SKU = "FOOD-COFFEE", Description = "1kg bag of roasted coffee beans", PurchasePrice = 12.00m, Price = 24.99m, Quantity = 120, MinQuantity = 20, CategoryId = categories[2 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[1 % units.Count].Id, SupplierId = suppliers[2 % suppliers.Count].Id, IsActive = true };
-                var p7 = new Product { Name = "Leather Jacket", SKU = "CLO-LTHJCKT", Description = "Genuine brown leather jacket", PurchasePrice = 60.00m, Price = 120.00m, Quantity = 0, MinQuantity = 5, CategoryId = categories[3 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[4 % suppliers.Count].Id, IsActive = true }; 
-                var p8 = new Product { Name = "A4 Printer Paper", SKU = "OFF-PAPER", Description = "Ream of A4 printing paper 500 sheets", PurchasePrice = 3.00m, Price = 6.99m, Quantity = 250, MinQuantity = 50, CategoryId = categories[4 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[2 % units.Count].Id, SupplierId = suppliers[3 % suppliers.Count].Id, IsActive = true };
-                var p9 = new Product { Name = "Wireless Earbuds", SKU = "SAM-WIREAR", Description = "Samsung Galaxy Buds Pro", PurchasePrice = 80.00m, Price = 149.00m, Quantity = 4, MinQuantity = 10, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true }; 
-                var p10 = new Product { Name = "Wireless Mouse", SKU = "GEN-MOUSE", Description = "Ergonomic 2.4G wireless mouse", PurchasePrice = 8.00m, Price = 19.99m, Quantity = 80, MinQuantity = 15, CategoryId = categories[0].Id, BrandId = brands[4].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true };
+                int defaultWarehouseId = warehouses.First().Id;
+                var p1 = new Product { Name = "iPhone 15 Pro", SKU = "APP-IP15P", Description = "Apple iPhone 15 Pro 256GB", PurchasePrice = 899.00m, Price = 1099.00m, CategoryId = categories[0].Id, BrandId = brands[0].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 45, MinQuantity = 10 } } };
+                var p2 = new Product { Name = "Samsung Galaxy S24", SKU = "SAM-S24", Description = "Samsung Galaxy S24 Ultra", PurchasePrice = 950.00m, Price = 1199.00m, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 3, MinQuantity = 5 } } }; 
+                var p3 = new Product { Name = "Dell Latitude 5440", SKU = "DEL-LAT5440", Description = "Dell Latitude Laptop 16GB RAM", PurchasePrice = 700.00m, Price = 899.00m, CategoryId = categories[0].Id, BrandId = brands[2].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 12, MinQuantity = 3 } } };
+                var p4 = new Product { Name = "Office Standing Desk", SKU = "IKE-STDESK", Description = "Adjustable height standing desk", PurchasePrice = 180.00m, Price = 299.00m, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 15, MinQuantity = 5 } } };
+                var p5 = new Product { Name = "Ergonomic Office Chair", SKU = "IKE-ERGCHAIR", Description = "Mesh back ergonomic chair", PurchasePrice = 90.00m, Price = 150.00m, CategoryId = categories[1 % categories.Count].Id, BrandId = brands[3 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[1 % suppliers.Count].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 2, MinQuantity = 5 } } }; 
+                var p6 = new Product { Name = "Premium Arabica Coffee", SKU = "FOOD-COFFEE", Description = "1kg bag of roasted coffee beans", PurchasePrice = 12.00m, Price = 24.99m, CategoryId = categories[2 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[1 % units.Count].Id, SupplierId = suppliers[2 % suppliers.Count].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 120, MinQuantity = 20 } } };
+                var p7 = new Product { Name = "Leather Jacket", SKU = "CLO-LTHJCKT", Description = "Genuine brown leather jacket", PurchasePrice = 60.00m, Price = 120.00m, CategoryId = categories[3 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[0].Id, SupplierId = suppliers[4 % suppliers.Count].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 0, MinQuantity = 5 } } }; 
+                var p8 = new Product { Name = "A4 Printer Paper", SKU = "OFF-PAPER", Description = "Ream of A4 printing paper 500 sheets", PurchasePrice = 3.00m, Price = 6.99m, CategoryId = categories[4 % categories.Count].Id, BrandId = brands[4 % brands.Count].Id, UnitId = units[2 % units.Count].Id, SupplierId = suppliers[3 % suppliers.Count].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 250, MinQuantity = 50 } } };
+                var p9 = new Product { Name = "Wireless Earbuds", SKU = "SAM-WIREAR", Description = "Samsung Galaxy Buds Pro", PurchasePrice = 80.00m, Price = 149.00m, CategoryId = categories[0].Id, BrandId = brands[1].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 4, MinQuantity = 10 } } }; 
+                var p10 = new Product { Name = "Wireless Mouse", SKU = "GEN-MOUSE", Description = "Ergonomic 2.4G wireless mouse", PurchasePrice = 8.00m, Price = 19.99m, CategoryId = categories[0].Id, BrandId = brands[4].Id, UnitId = units[0].Id, SupplierId = suppliers[0].Id, IsActive = true, ProductStocks = new List<ProductStock> { new ProductStock { WarehouseId = defaultWarehouseId, Quantity = 80, MinQuantity = 15 } } };
 
                 context.Products.AddRange(new List<Product> { p1, p2, p3, p4, p5, p6, p7, p8, p9, p10 });
                 context.SaveChanges();
@@ -380,7 +383,7 @@ namespace InventoryManagement.Infrastructure.Data
 
                 foreach (var product in newProducts)
                 {
-                    int qFinal = product.Quantity;
+                    int qFinal = product.ProductStocks.Sum(s => s.Quantity);
                     if (qFinal < 5) continue; // Safety check for math
 
                     // Log 1: Day -28 (Add)

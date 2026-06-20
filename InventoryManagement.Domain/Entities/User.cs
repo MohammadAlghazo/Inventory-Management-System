@@ -8,8 +8,8 @@ namespace InventoryManagement.Domain.Entities
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string HashedPassword { get; set; } = string.Empty;
-        public string Role { get; set; } = "Employee"; 
-        public bool IsAdmin => Role.Equals("Manager", StringComparison.OrdinalIgnoreCase);
+        public int? RoleId { get; set; }
+        public Role? Role { get; set; }
         public bool IsActive { get; set; } = true;
         public string? ProfilePicture { get; set; }
         public string? RefreshToken { get; set; }

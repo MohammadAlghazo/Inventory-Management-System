@@ -30,6 +30,9 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginDto dto)
         {
             var user = await _db.Users
+                .Include(u => u.Role)
+                .ThenInclude(r => r.RolePermissions)
+                .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(u => u.Username.ToUpper() == dto.Username.ToUpper() || u.Email.ToUpper() == dto.Username.ToUpper());
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.HashedPassword))
@@ -61,7 +64,7 @@ namespace InventoryManagement.Application.Services
         {
             
             var requestingUser = await _db.Users.FindAsync(requestingUserId);
-            if (requestingUser == null || !requestingUser.IsAdmin)
+            if (requestingUser == null || (requestingUser.RoleId != 1 && requestingUser.RoleId != 2))
                 return ApiResponse<object>.Forbidden("Only managers can register new users");
 
             if (await _db.Users.AnyAsync(u => u.Username.ToLower() == dto.Username.ToLower()))
@@ -70,9 +73,9 @@ namespace InventoryManagement.Application.Services
             if (await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
                 return ApiResponse<object>.Fail("Email is already registered");
 
-            var validRoles = new[] { "Manager", "Employee" };
-            if (!validRoles.Contains(dto.Role))
-                return ApiResponse<object>.Fail("Invalid role. Must be 'Manager' or 'Employee'");
+            var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
+            if (role == null)
+                return ApiResponse<object>.Fail("Invalid role");
 
             var newUser = new User
             {
@@ -81,7 +84,7 @@ namespace InventoryManagement.Application.Services
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = dto.Role,
+                RoleId = role.Id,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -89,7 +92,7 @@ namespace InventoryManagement.Application.Services
 
             _db.Users.Add(newUser);
 
-            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{newUser.Role}'.", "Info", "Manager");
+            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{role.Name}'.", "Info", "Manager");
 
             await _db.SaveChangesAsync();
 
@@ -99,7 +102,7 @@ namespace InventoryManagement.Application.Services
                 var emailHtml = _emailService.GenerateEmailTemplate(
                     "Welcome to StockMaster!",
                     $@"Hello {newUser.FirstName},<br><br>
-                    An account has been created for you on the StockMaster platform as a <b>{newUser.Role}</b>.<br><br>
+                    An account has been created for you on the StockMaster platform as a <b>{role.Name}</b>.<br><br>
                     Your login details are:<br>
                     <b>Username:</b> {newUser.Username}<br>
                     <b>Password:</b> {dto.Password}<br><br>
@@ -117,7 +120,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 return ApiResponse<AuthResponseDto>.Unauthorized("Invalid or expired refresh token");
@@ -143,7 +146,11 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UserProfileDto>> GetCurrentUserAsync(int userId)
         {
-            var user = await _db.Users.FindAsync(userId);
+            var user = await _db.Users
+                .Include(u => u.Role)
+                .ThenInclude(r => r.RolePermissions)
+                .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return ApiResponse<UserProfileDto>.NotFound("User not found");
 
             return ApiResponse<UserProfileDto>.Ok(MapToProfile(user));
@@ -193,7 +200,7 @@ namespace InventoryManagement.Application.Services
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Role, user.Role)
+                new(ClaimTypes.Role, user.Role != null ? user.Role.Name : "Employee")
             };
 
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
@@ -225,11 +232,12 @@ namespace InventoryManagement.Application.Services
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Role = user.Role,
-            IsAdmin = user.IsAdmin,
+            Role = user.Role != null ? user.Role.Name : "Employee",
+            IsAdmin = user.RoleId == 1 || user.RoleId == 2,
             IsActive = user.IsActive,
             ProfilePicture = user.ProfilePicture,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            Permissions = user.Role?.RolePermissions?.Select(rp => rp.Permission.SystemName).ToList() ?? new List<string>()
         };
     }
 }

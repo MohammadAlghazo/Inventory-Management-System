@@ -24,12 +24,18 @@ export class AuthService {
     
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('permissions');
     return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
       tap((response: any) => {
         if (response.data && response.data.token) {
           localStorage.setItem('token', response.data.token);
           if (response.data.refreshToken) {
             localStorage.setItem('refreshToken', response.data.refreshToken);
+          }
+          if (response.data.user && response.data.user.permissions) {
+            localStorage.setItem('permissions', JSON.stringify(response.data.user.permissions));
+          } else if (response.data.user && response.data.user.role === 'SuperAdmin') {
+            localStorage.setItem('permissions', JSON.stringify(['*']));
           }
           this.isAuthenticatedSubject.next(true);
         }
@@ -44,6 +50,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('permissions');
     this.isAuthenticatedSubject.next(false);
   }
 
@@ -55,6 +62,11 @@ export class AuthService {
           localStorage.setItem('token', response.data.token);
           if (response.data.refreshToken) {
             localStorage.setItem('refreshToken', response.data.refreshToken);
+          }
+          if (response.data.user && response.data.user.permissions) {
+            localStorage.setItem('permissions', JSON.stringify(response.data.user.permissions));
+          } else if (response.data.user && response.data.user.role === 'SuperAdmin') {
+            localStorage.setItem('permissions', JSON.stringify(['*']));
           }
           this.isAuthenticatedSubject.next(true);
         }
@@ -90,6 +102,18 @@ export class AuthService {
       return jwtDecode(token);
     } catch {
       return null;
+    }
+  }
+
+  hasPermission(permission: string): boolean {
+    const permissionsStr = localStorage.getItem('permissions');
+    if (!permissionsStr) return false;
+    try {
+      const permissions: string[] = JSON.parse(permissionsStr);
+      if (permissions.includes('*')) return true; // SuperAdmin
+      return permissions.includes(permission);
+    } catch {
+      return false;
     }
   }
 }

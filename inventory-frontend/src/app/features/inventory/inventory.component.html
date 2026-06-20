@@ -176,6 +176,16 @@
             </option>
           </select>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'INVENTORY.WAREHOUSE' | translate }} (Optional)</label>
+          <select class="form-select" [(ngModel)]="selectedWarehouseId">
+            <option value="">{{ 'INVENTORY.DEFAULT_WAREHOUSE' | translate }}</option>
+            <option *ngFor="let w of warehouses" [value]="w.id">
+              {{ w.name }}
+            </option>
+          </select>
+        </div>
         
         <div class="form-group">
           <label class="form-label">{{ getQtyLabel() | translate }} *</label>

@@ -17,7 +17,7 @@ namespace InventoryManagement.Infrastructure.Data
                 entity.HasIndex(u => u.Username).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
 
-                entity.Property(u => u.Role).HasDefaultValue("Employee");
+                entity.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId).OnDelete(DeleteBehavior.SetNull);
                 entity.Property(u => u.IsActive).HasDefaultValue(true);
                 entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(u => u.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -31,7 +31,7 @@ namespace InventoryManagement.Infrastructure.Data
                     LastName = "User",
                     IsActive = true,
                     HashedPassword = "$2a$11$FodwrXysOiJ9lFlf1PZGZOQZH1fvBzBivVnSewumv5QTqlDIXh1/e",
-                    Role = "Manager",
+                    RoleId = 1,
                     CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
                     UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                 });
@@ -82,6 +82,61 @@ namespace InventoryManagement.Infrastructure.Data
                       .HasForeignKey(c => c.ParentCategoryId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });
+                entity.HasOne(rp => rp.Role).WithMany(r => r.RolePermissions).HasForeignKey(rp => rp.RoleId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(rp => rp.Permission).WithMany(p => p.RolePermissions).HasForeignKey(rp => rp.PermissionId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "SuperAdmin", Description = "Full system access" },
+                new Role { Id = 2, Name = "InventoryManager", Description = "Manage inventory and reports" },
+                new Role { Id = 3, Name = "WarehouseStaff", Description = "Daily warehouse operations" }
+            );
+
+            modelBuilder.Entity<ProductStock>(entity =>
+            {
+                entity.HasKey(ps => new { ps.ProductId, ps.WarehouseId });
+                entity.HasOne(ps => ps.Product).WithMany(p => p.ProductStocks).HasForeignKey(ps => ps.ProductId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(ps => ps.Warehouse).WithMany(w => w.ProductStocks).HasForeignKey(ps => ps.WarehouseId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PurchaseOrder>(entity =>
+            {
+                entity.HasIndex(p => p.OrderNumber).IsUnique();
+                entity.Property(p => p.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.HasOne(p => p.Supplier).WithMany().HasForeignKey(p => p.SupplierId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(p => p.Warehouse).WithMany().HasForeignKey(p => p.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(p => p.CreatedBy).WithMany().HasForeignKey(p => p.CreatedById).OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<PurchaseOrderItem>(entity =>
+            {
+                entity.Property(p => p.UnitCost).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.TotalCost).HasColumnType("decimal(18,2)");
+                entity.HasOne(p => p.PurchaseOrder).WithMany(po => po.Items).HasForeignKey(p => p.PurchaseOrderId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(p => p.Product).WithMany().HasForeignKey(p => p.ProductId).OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<SalesOrder>(entity =>
+            {
+                entity.HasIndex(s => s.OrderNumber).IsUnique();
+                entity.Property(s => s.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.HasOne(s => s.Customer).WithMany().HasForeignKey(s => s.CustomerId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(s => s.Warehouse).WithMany().HasForeignKey(s => s.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(s => s.CreatedBy).WithMany().HasForeignKey(s => s.CreatedById).OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<SalesOrderItem>(entity =>
+            {
+                entity.Property(s => s.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.Discount).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.Total).HasColumnType("decimal(18,2)");
+                entity.HasOne(s => s.SalesOrder).WithMany(so => so.Items).HasForeignKey(s => s.SalesOrderId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(s => s.Product).WithMany().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         public DbSet<Product> Products { get; set; }
@@ -95,5 +150,14 @@ namespace InventoryManagement.Infrastructure.Data
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
+        public DbSet<ProductStock> ProductStocks { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
+        public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
+        public DbSet<SalesOrder> SalesOrders { get; set; }
+        public DbSet<SalesOrderItem> SalesOrderItems { get; set; }
     }
 }

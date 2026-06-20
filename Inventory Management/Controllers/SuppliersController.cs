@@ -46,7 +46,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Manager")] 
+        [Authorize(Roles = "SuperAdmin,InventoryManager")] 
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _supplierService.DeleteSupplierAsync(id);

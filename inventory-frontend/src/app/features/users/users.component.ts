@@ -17,7 +17,7 @@ import { SweetAlertService } from '../../core/services/sweetalert.service';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })

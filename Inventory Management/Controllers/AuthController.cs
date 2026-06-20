@@ -27,7 +27,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("register")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
