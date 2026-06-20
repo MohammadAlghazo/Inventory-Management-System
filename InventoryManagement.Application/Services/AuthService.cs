@@ -241,12 +241,16 @@ namespace InventoryManagement.Application.Services
             var key = _config["JwtSettings:SecretKey"]
                 ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
+            var roleName = user.Role != null ? user.Role.Name : "Employee";
+            if (roleName == "Manager") roleName = "SuperAdmin";
+            if (roleName == "Employee") roleName = "WarehouseStaff";
+
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new(ClaimTypes.Name, user.Username),
                 new(ClaimTypes.Email, user.Email),
-                new(ClaimTypes.Role, user.Role != null ? user.Role.Name : "Employee")
+                new(ClaimTypes.Role, roleName)
             };
 
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
@@ -271,20 +275,27 @@ namespace InventoryManagement.Application.Services
             return Convert.ToBase64String(bytes);
         }
 
-        private static UserProfileDto MapToProfile(User user) => new()
+        private static UserProfileDto MapToProfile(User user)
         {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Role = user.Role != null ? user.Role.Name : "Employee",
-            IsAdmin = user.RoleId == 1 || user.RoleId == 2,
-            IsActive = user.IsActive,
-            ProfilePicture = user.ProfilePicture,
-            CreatedAt = user.CreatedAt,
-            Permissions = user.Role?.RolePermissions?.Select(rp => rp.Permission.SystemName).ToList() ?? new List<string>()
-        };
+            var roleName = user.Role != null ? user.Role.Name : "Employee";
+            if (roleName == "Manager") roleName = "SuperAdmin";
+            if (roleName == "Employee") roleName = "WarehouseStaff";
+
+            return new UserProfileDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Role = roleName,
+                IsAdmin = user.RoleId == 1 || user.RoleId == 2,
+                IsActive = user.IsActive,
+                ProfilePicture = user.ProfilePicture,
+                CreatedAt = user.CreatedAt,
+                Permissions = user.Role?.RolePermissions?.Select(rp => rp.Permission.SystemName).ToList() ?? new List<string>()
+            };
+        }
     }
 }
 
