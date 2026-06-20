@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { LucideAngularModule, User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users } from 'lucide-angular';
+import { LucideAngularModule, User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users, X } from 'lucide-angular';
 import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -13,7 +13,7 @@ import { TranslateService, TranslatePipe } from '@ngx-translate/core';
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
-  icons = { User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users };
+  icons = { User, Lock, Eye, EyeOff, AlertCircle, TrendingUp, Boxes, Users, X };
   
   credentials = {
     username: '',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReportService } from '../../../core/services/report.service';
+import { ReportService } from '../../core/services/report.service';
 import { LucideAngularModule, DollarSign, TrendingUp, AlertCircle, RefreshCw } from 'lucide-angular';
 
 @Component({
@@ -41,22 +41,22 @@ export class ReportsComponent implements OnInit {
 
     if (this.activeTab === 'valuation') {
       this.reportService.getValuation().subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.valuations = res.data || [];
           this.loading = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.error = 'Failed to load valuation report.';
           this.loading = false;
         }
       });
     } else {
       this.reportService.getAbcAnalysis().subscribe({
-        next: (res) => {
+        next: (res: any) => {
           this.abcData = res.data || [];
           this.loading = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.error = 'Failed to load ABC analysis.';
           this.loading = false;
         }
