@@ -15,7 +15,7 @@
           <lucide-icon [img]="icons.LayoutGrid" [size]="16"></lucide-icon>
         </button>
       </div>
-      <button class="btn btn-primary" (click)="openAddProduct()" style="display: flex; align-items: center; gap: 6px;">
+      <button *ngIf="isAdmin" class="btn btn-primary" (click)="openAddProduct()" style="display: flex; align-items: center; gap: 6px;">
         <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon> {{ 'PRODUCTS.ADD_PRODUCT' | translate }}
       </button>
     </div>
@@ -134,7 +134,7 @@
                                     <button *ngIf="isAdmin" class="btn btn-ghost btn-icon btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
                     <lucide-icon [img]="icons.ImagePlus" [size]="14"></lucide-icon>
                   </button>
-                  <button class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
+                  <button *ngIf="isAdmin" class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
                     <lucide-icon [img]="icons.Edit" [size]="14"></lucide-icon>
                   </button>
                   <button *ngIf="isAdmin" class="btn btn-danger btn-icon btn-sm" (click)="confirmDelete(p)" [title]="'COMMON.DELETE' | translate">
@@ -208,7 +208,7 @@
             <button *ngIf="isAdmin" class="btn btn-ghost btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
               <lucide-icon [img]="icons.ImagePlus" [size]="13"></lucide-icon>
             </button>
-            <button class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
+            <button *ngIf="isAdmin" class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
               <lucide-icon [img]="icons.Edit" [size]="13"></lucide-icon> {{ 'COMMON.EDIT' | translate }}
             </button>
           <button *ngIf="isAdmin" class="btn btn-danger btn-sm" (click)="confirmDelete(p)">

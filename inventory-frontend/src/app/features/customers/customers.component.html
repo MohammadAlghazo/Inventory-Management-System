@@ -5,7 +5,7 @@
       <h1 class="page-title">{{ 'SIDEBAR.CUSTOMERS' | translate }}</h1>
       <p class="page-subtitle">{{ 'CUSTOMERS.SUBTITLE' | translate }}</p>
     </div>
-    <button (click)="openModal()" class="btn btn-primary">
+    <button *ngIf="isAdmin" (click)="openModal()" class="btn btn-primary">
       <lucide-icon [img]="iconPlus" [size]="16"></lucide-icon>
       {{ 'COMMON.ADD' | translate }}
     </button>
@@ -82,10 +82,10 @@
             </td>
             <td [attr.data-label]="'COMMON.ACTIONS' | translate">
               <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                <button (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
+                <button *ngIf="isAdmin" (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
                   <lucide-icon [img]="iconEdit" [size]="14"></lucide-icon>
                 </button>
-                <button (click)="deleteCustomer(customer.id!)" class="btn btn-danger btn-icon btn-sm" [title]="'COMMON.DELETE' | translate">
+                <button *ngIf="isAdmin" (click)="deleteCustomer(customer.id!)" class="btn btn-danger btn-icon btn-sm" [title]="'COMMON.DELETE' | translate">
                   <lucide-icon [img]="iconTrash" [size]="14"></lucide-icon>
                 </button>
               </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { SupplierService, Supplier, ApiResponse } from '../../core/services/supplier.service';
+import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
@@ -46,8 +47,17 @@ export class SuppliersComponent implements OnInit {
     private supplierService: SupplierService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService
+  ) {
+    this.user = this.authService.getCurrentUser();
+  }
+
+  user: any;
+
+  get isAdmin() {
+    return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] === 'Manager';
+  }
 
   ngOnInit() {
     this.loadSuppliers();
