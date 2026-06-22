@@ -23,6 +23,8 @@ export class SalesOrdersComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
+  submitting: boolean = false;
+  loading: boolean = false;
 
   // Create Modal State
   showCreateModal = false;
@@ -59,15 +61,18 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   loadOrders(): void {
+    this.loading = true;
     this.soService.getSalesOrders(this.currentPage, this.pageSize, this.searchTerm)
       .subscribe({
         next: (res: any) => {
           this.orders = res.items || [];
           this.totalCount = res.totalCount || 0;
+          this.loading = false;
         },
         error: (err) => {
           this.sweetAlert.error('Error loading sales orders');
           console.error(err);
+          this.loading = false;
         }
       });
   }
@@ -142,7 +147,10 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   submitCreateSO(): void {
-    if (!this.newOrder.customerId || !this.newOrder.warehouseId || this.newOrder.items.length === 0) {
+    const cId = Number(this.newOrder.customerId);
+    const wId = Number(this.newOrder.warehouseId);
+
+    if (!cId || !wId || this.newOrder.items.length === 0) {
       this.sweetAlert.error('Validation Error', 'Please select customer, warehouse, and add at least one item.');
       return;
     }
@@ -150,13 +158,23 @@ export class SalesOrdersComponent implements OnInit {
     // Clean up empty items
     this.newOrder.items = this.newOrder.items.filter((i: any) => i.productId > 0 && i.quantity > 0);
 
+    this.newOrder.customerId = cId;
+    this.newOrder.warehouseId = wId;
+
+    if (!this.newOrder.expectedShipDate) {
+      this.newOrder.expectedShipDate = undefined;
+    }
+
+    this.submitting = true;
     this.soService.createSalesOrder(this.newOrder).subscribe({
       next: () => {
+        this.submitting = false;
         this.sweetAlert.success('Success', 'Sales Order created successfully');
         this.closeCreateModal();
         this.loadOrders();
       },
       error: (err) => {
+        this.submitting = false;
         this.sweetAlert.error('Error', err.error?.message || 'Failed to create SO');
       }
     });

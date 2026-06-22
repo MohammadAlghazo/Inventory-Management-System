@@ -13,6 +13,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using InventoryManagement.Application.Validators;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -125,6 +126,9 @@ builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
 builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
 builder.Services.AddScoped<IReportService, ReportService>();
+builder.Services.AddScoped<IAiService, InventoryAiService>();
+builder.Services.Configure<InventoryManagement.Application.Common.GroqSettings>(builder.Configuration.GetSection("GroqSettings"));
+builder.Services.AddHttpClient();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();

@@ -198,17 +198,26 @@ export class InventoryComponent implements OnInit {
 
     let actionObs;
     switch (this.actionModal) {
-      case 'add': actionObs = this.inventoryService.addStock(payload); break;
-      case 'sell': actionObs = this.inventoryService.sellStock(payload); break;
-      case 'adjust': 
-        actionObs = this.inventoryService.adjustStock({
-          productId: payload.productId, 
-          warehouseId: payload.warehouseId,
-          newQuantity: payload.quantity, 
-          notes: payload.notes
+      case 'add': 
+        actionObs = this.inventoryService.addStock({
+          productId: payload.productId, warehouseId: payload.warehouseId, quantityToAdd: payload.quantity, notes: payload.notes
         }); 
         break;
-      case 'return': actionObs = this.inventoryService.returnStock(payload); break;
+      case 'sell': 
+        actionObs = this.inventoryService.sellStock({
+          productId: payload.productId, warehouseId: payload.warehouseId, quantityToSell: payload.quantity, notes: payload.notes
+        }); 
+        break;
+      case 'adjust': 
+        actionObs = this.inventoryService.adjustStock({
+          productId: payload.productId, warehouseId: payload.warehouseId, newQuantity: payload.quantity, notes: payload.notes
+        }); 
+        break;
+      case 'return': 
+        actionObs = this.inventoryService.returnStock({
+          productId: payload.productId, warehouseId: payload.warehouseId, quantityToReturn: payload.quantity, notes: payload.notes
+        }); 
+        break;
     }
 
     if (!actionObs) return;

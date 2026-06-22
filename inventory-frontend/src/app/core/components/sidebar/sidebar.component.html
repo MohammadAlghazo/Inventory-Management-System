@@ -21,7 +21,7 @@
        routerLinkActive="active"
        [routerLinkActiveOptions]="{exact: item.route === '/'}"
        class="sidebar-link">
-      <span class="sidebar-link-icon">
+      <span class="sidebar-link-icon" [style.color]="item.color">
         <lucide-icon [img]="item.icon" [size]="18"></lucide-icon>
       </span>
       <span class="sidebar-link-label">{{ item.label | translate }}</span>

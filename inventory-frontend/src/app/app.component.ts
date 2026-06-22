@@ -5,10 +5,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { SweetAlertService } from './core/services/sweetalert.service';
 import { filter } from 'rxjs/operators';
+import { AiAssistantComponent } from './features/ai-assistant/ai-assistant.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, AiAssistantComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

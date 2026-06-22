@@ -8,6 +8,7 @@ import { ReportService } from '../../core/services/report.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -65,7 +66,8 @@ export class DashboardComponent implements OnInit {
   constructor(
     private dashboardService: DashboardService,
     private productService: ProductService,
-    private reportService: ReportService
+    private reportService: ReportService,
+    private themeService: ThemeService
   ) {}
 
   get kpis() {
@@ -78,6 +80,29 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.themeService.isDarkMode$.subscribe((isDark: boolean) => {
+      const textColor = isDark ? '#f3f4f6' : '#1f2937';
+      const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+      
+      this.activityChartOptions = {
+        ...this.activityChartOptions,
+        scales: {
+          x: { grid: { color: gridColor }, ticks: { color: textColor } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor } }
+        },
+        plugins: {
+          legend: { labels: { color: textColor } }
+        }
+      };
+
+      this.pieChartOptions = {
+        ...this.pieChartOptions,
+        plugins: {
+          legend: { position: 'right', labels: { color: textColor } }
+        }
+      };
+    });
+
     this.dashboardService.getStats().subscribe({
       next: (res) => {
         this.statsObj = res.data;

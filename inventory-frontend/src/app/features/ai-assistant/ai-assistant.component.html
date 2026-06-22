@@ -1,0 +1,130 @@
+<!-- Floating Chat Button -->
+<button
+  class="btn btn-circle btn-primary shadow-lg"
+  style="position: fixed; bottom: 2rem; right: 2rem; z-index: 50; width: 4rem; height: 4rem;"
+  (click)="toggleChat()"
+  *ngIf="!isOpen"
+>
+  <i class="fa-solid fa-robot text-2xl"></i>
+</button>
+
+<!-- Chat Window -->
+<div
+  *ngIf="isOpen"
+  class="card bg-base-100 shadow-2xl border border-base-content/10"
+  style="position: fixed; bottom: 2rem; right: 2rem; z-index: 50; width: 400px; height: 600px; max-height: calc(100vh - 4rem); display: flex; flex-direction: column;"
+>
+  <!-- Header -->
+  <div class="bg-primary text-primary-content p-4 flex justify-between items-center rounded-t-2xl">
+    <div class="flex items-center gap-3">
+      <div class="avatar placeholder">
+        <div class="bg-primary-focus text-primary-content rounded-full w-10">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+      </div>
+      <div>
+        <h3 class="font-bold text-lg leading-tight">Inventory-AI</h3>
+        <p class="text-xs opacity-80">Online & Ready</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="btn btn-ghost btn-sm btn-circle" (click)="clearChat()" title="Clear Chat">
+        <i class="fa-solid fa-trash text-sm opacity-70"></i>
+      </button>
+      <button class="btn btn-ghost btn-sm btn-circle" (click)="toggleChat()">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mode Selector -->
+  <div class="bg-base-200 p-2 flex justify-center border-b border-base-content/10">
+    <div class="join w-full">
+      <button
+        class="btn join-item btn-sm flex-1"
+        [class.btn-active]="aiMode === 0"
+        (click)="setAiMode(0)"
+      >
+        <i class="fa-solid fa-bolt text-warning"></i> Fast
+      </button>
+      <button
+        class="btn join-item btn-sm flex-1"
+        [class.btn-active]="aiMode === 1"
+        (click)="setAiMode(1)"
+        title="Database Access & Advanced Analysis"
+      >
+        <i class="fa-solid fa-brain text-secondary"></i> Deep Think
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat Messages Container -->
+  <div
+    class="flex-1 overflow-y-auto p-4 space-y-4"
+    #messagesContainer
+    style="background-color: var(--fallback-b2,oklch(var(--b2)/1));"
+  >
+    <div
+      *ngFor="let msg of messages; let i = index"
+      class="chat"
+      [ngClass]="msg.role === 'user' ? 'chat-end' : 'chat-start'"
+    >
+      <div class="chat-image avatar">
+        <div class="w-8 rounded-full" [ngClass]="msg.role === 'user' ? 'bg-secondary' : 'bg-primary'">
+          <div class="w-full h-full flex items-center justify-center text-white text-xs">
+            <i [class]="msg.role === 'user' ? 'fa-solid fa-user' : 'fa-solid fa-robot'"></i>
+          </div>
+        </div>
+      </div>
+      
+      <div class="chat-header opacity-50 text-xs mb-1">
+        {{ msg.role === 'user' ? 'You' : 'Inventory-AI' }}
+        <time class="text-xs opacity-50 ml-1">{{ msg.timestamp | date:'shortTime' }}</time>
+      </div>
+
+      <div
+        class="chat-bubble shadow-sm text-sm"
+        [ngClass]="{
+          'chat-bubble-primary text-primary-content': msg.role === 'assistant',
+          'chat-bubble-secondary text-secondary-content': msg.role === 'user'
+        }"
+      >
+        <ng-container *ngIf="!msg.loading; else loadingTpl">
+          <div [innerHTML]="formatContent(msg.content)"></div>
+        </ng-container>
+        <ng-template #loadingTpl>
+          <span class="loading loading-dots loading-sm"></span>
+        </ng-template>
+      </div>
+      
+      <div class="chat-footer opacity-50 flex gap-2 mt-1" *ngIf="msg.tokens && msg.role === 'assistant'">
+        <span class="text-[10px]"><i class="fa-solid fa-coins mr-1"></i>{{ msg.tokens }} tokens</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="p-3 bg-base-100 border-t border-base-content/10">
+    <div class="join w-full">
+      <input
+        type="text"
+        [(ngModel)]="userInput"
+        (keydown)="onKeydown($event)"
+        [disabled]="isLoading"
+        placeholder="Ask me anything..."
+        class="input input-bordered join-item w-full focus:outline-none"
+      />
+      <button
+        class="btn btn-primary join-item"
+        (click)="sendMessage()"
+        [disabled]="!canSend"
+      >
+        <i class="fa-solid fa-paper-plane" *ngIf="!isLoading"></i>
+        <span class="loading loading-spinner loading-xs" *ngIf="isLoading"></span>
+      </button>
+    </div>
+    <div class="text-center mt-2 opacity-50" style="font-size: 10px;">
+      Inventory-AI can make mistakes. Check important info.
+    </div>
+  </div>
+</div>

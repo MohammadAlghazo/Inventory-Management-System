@@ -23,6 +23,8 @@ export class PurchaseOrdersComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
+  submitting: boolean = false;
+  loading: boolean = false;
 
   // Create Modal State
   showCreateModal = false;
@@ -59,15 +61,18 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   loadOrders(): void {
+    this.loading = true;
     this.poService.getPurchaseOrders(this.currentPage, this.pageSize, this.searchTerm)
       .subscribe({
         next: (res: any) => {
           this.orders = res.items || [];
           this.totalCount = res.totalCount || 0;
+          this.loading = false;
         },
         error: (err) => {
           this.sweetAlert.error('Error loading purchase orders');
           console.error(err);
+          this.loading = false;
         }
       });
   }
@@ -142,21 +147,34 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   submitCreatePO(): void {
-    if (!this.newOrder.supplierId || !this.newOrder.warehouseId || this.newOrder.items.length === 0) {
+    const sId = Number(this.newOrder.supplierId);
+    const wId = Number(this.newOrder.warehouseId);
+    
+    if (!sId || !wId || this.newOrder.items.length === 0) {
       this.sweetAlert.error('Validation Error', 'Please select supplier, warehouse, and add at least one item.');
       return;
     }
 
     // Clean up empty items
     this.newOrder.items = this.newOrder.items.filter((i: any) => i.productId > 0 && i.quantity > 0);
+    
+    this.newOrder.supplierId = sId;
+    this.newOrder.warehouseId = wId;
 
+    if (!this.newOrder.expectedDate) {
+      this.newOrder.expectedDate = undefined;
+    }
+
+    this.submitting = true;
     this.poService.createPurchaseOrder(this.newOrder).subscribe({
       next: () => {
+        this.submitting = false;
         this.sweetAlert.success('Success', 'Purchase Order created successfully');
         this.closeCreateModal();
         this.loadOrders();
       },
       error: (err) => {
+        this.submitting = false;
         this.sweetAlert.error('Error', err.error?.message || 'Failed to create PO');
       }
     });

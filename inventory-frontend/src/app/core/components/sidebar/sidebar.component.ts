@@ -38,19 +38,19 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private startX = 0;
   private startWidth = 0;
 
-  menuItems = [
-    { label: 'SIDEBAR.DASHBOARD', route: '/dashboard', icon: LayoutDashboard },
-    { label: 'SIDEBAR.PRODUCTS',  route: '/products',  icon: Package },
-    { label: 'SIDEBAR.INVENTORY', route: '/inventory', icon: Boxes },
-    { label: 'SIDEBAR.PURCHASE_ORDERS', route: '/purchase-orders', icon: FileText },
-    { label: 'SIDEBAR.SALES_ORDERS', route: '/sales-orders', icon: ShoppingCart },
-    { label: 'SIDEBAR.LOW_STOCK', route: '/low-stock', icon: AlertTriangle },
-    { label: 'SIDEBAR.REPORTS', route: '/reports', icon: BarChart3 },
-    { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck },
-    { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2 },
-    { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users },
-    { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User },
-    { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings },
+  menuItems: any[] = [
+    { label: 'SIDEBAR.DASHBOARD', route: '/dashboard', icon: LayoutDashboard, color: '#3b82f6' }, // blue
+    { label: 'SIDEBAR.PRODUCTS',  route: '/products',  icon: Package, color: '#f59e0b' }, // amber
+    { label: 'SIDEBAR.INVENTORY', route: '/inventory', icon: Boxes, color: '#10b981' }, // emerald
+    { label: 'SIDEBAR.PURCHASE_ORDERS', route: '/purchase-orders', icon: FileText, color: '#8b5cf6' }, // purple
+    { label: 'SIDEBAR.SALES_ORDERS', route: '/sales-orders', icon: ShoppingCart, color: '#ec4899' }, // pink
+    { label: 'SIDEBAR.LOW_STOCK', route: '/low-stock', icon: AlertTriangle, color: '#ef4444' }, // red
+    { label: 'SIDEBAR.REPORTS', route: '/reports', icon: BarChart3, color: '#0ea5e9' }, // sky blue
+    { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck, color: '#14b8a6' }, // teal
+    { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2, color: '#f97316' }, // orange
+    { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users, color: '#6366f1' }, // indigo
+    { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User, color: '#a855f7' }, // violet
+    { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings, color: '#64748b' }, // slate
   ];
 
   get filteredMenuItems() {

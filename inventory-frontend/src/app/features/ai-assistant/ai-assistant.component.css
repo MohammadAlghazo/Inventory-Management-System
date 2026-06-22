@@ -1,0 +1,21 @@
+/* Scoped styles for AI Assistant */
+.chat-bubble {
+  word-break: break-word;
+}
+
+:host ::ng-deep .bullet {
+  display: block;
+  margin-left: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep .numbered {
+  display: block;
+  margin-left: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+:host ::ng-deep strong {
+  font-weight: 700;
+  color: inherit;
+}

@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://inventory-management-system-omkq.onrender.com/api'
+  apiUrl: 'https://localhost:7093/api'
 ,
   cloudinary: { cloudName: 'drkzghomg', uploadPreset: 'inventory_profiles' }
 };

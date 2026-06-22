@@ -23,7 +23,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 };
 
 function addTokenHeader(request: HttpRequest<any>, token: string | null) {
-  if (token) {
+  if (token && !request.url.includes('cloudinary.com')) {
     return request.clone({ setHeaders: { Authorization: `Bearer ${token}` } });
   }
   return request;

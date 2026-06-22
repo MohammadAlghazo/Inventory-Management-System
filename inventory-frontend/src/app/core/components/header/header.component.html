@@ -10,17 +10,17 @@
   <div class="header-right">
     
     <button class="header-icon-btn" [title]="'LANGUAGES.' + currentLang.toUpperCase() | translate" (click)="switchLang()">
-      <lucide-icon [img]="icons.Globe" [size]="18"></lucide-icon>
+      <lucide-icon [img]="icons.Globe" [size]="18" style="color: #3b82f6;"></lucide-icon>
       <span class="header-lang-label">{{ currentLang === 'en' ? 'AR' : 'EN' }}</span>
     </button>
 
     <button class="header-icon-btn" [title]="isDarkMode ? ('COMMON.LIGHT_MODE' | translate) : ('COMMON.DARK_MODE' | translate)" (click)="toggleTheme()">
-      <lucide-icon [img]="isDarkMode ? icons.Sun : icons.Moon" [size]="18"></lucide-icon>
+      <lucide-icon [img]="isDarkMode ? icons.Sun : icons.Moon" [size]="18" style="color: #f59e0b;"></lucide-icon>
     </button>
 
         <div class="position-relative">
       <button class="header-icon-btn theme-btn" title="Themes" (click)="toggleThemesMenu()">
-        <lucide-icon [img]="icons.Palette" [size]="18"></lucide-icon>
+        <lucide-icon [img]="icons.Palette" [size]="18" style="color: #ec4899;"></lucide-icon>
       </button>
 
       <div *ngIf="showThemes" class="themes-dropdown shadow-lg">
@@ -42,7 +42,7 @@
 
     <div class="position-relative">
       <button class="header-icon-btn header-notif-btn" [title]="'COMMON.NOTIFICATIONS' | translate" (click)="toggleNotifications()">
-        <lucide-icon [img]="icons.Bell" [size]="18"></lucide-icon>
+        <lucide-icon [img]="icons.Bell" [size]="18" style="color: #10b981;"></lucide-icon>
         <span *ngIf="unreadNotificationsCount > 0" class="header-badge">{{ unreadNotificationsCount }}</span>
       </button>
 
