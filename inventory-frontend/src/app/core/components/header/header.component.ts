@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, DestroyRef, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterLink } from '@angular/router';
 import { filter } from 'rxjs/operators';

@@ -30,7 +30,11 @@
   right: 72px;
 }
 
-:host-context(.sidebar-hidden) .ai-page-container,
+:host-context(.sidebar-hidden) .ai-page-container {
+  left: 0 !important;
+  right: 0 !important;
+}
+
 @media (max-width: 900px) {
   .ai-page-container {
     left: 0 !important;

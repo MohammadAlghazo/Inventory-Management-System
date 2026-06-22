@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ProfileService } from '../../services/profile.service';
+import { LayoutService } from '../../services/layout.service';
 import { Subscription } from 'rxjs';
 
 @Component({
