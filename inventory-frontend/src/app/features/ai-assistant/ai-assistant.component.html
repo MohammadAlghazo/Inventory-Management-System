@@ -1,9 +1,9 @@
-<div class="ai-page-container">
+<div class="ai-page-container" [class.deep-think-mode]="aiMode === 1">
   <!-- Header -->
   <header class="ai-header">
     <div class="header-left">
       <div class="ai-avatar">
-        I
+        <img src="assets/logo.jpg" alt="Logo">
         <div class="online-dot"></div>
       </div>
       <div class="header-titles">
@@ -13,7 +13,7 @@
     </div>
     <div class="header-right">
       <button class="clear-btn" (click)="clearChat()" title="Clear Chat">
-        <i class="fa-solid fa-trash"></i>
+        <lucide-icon name="trash-2" [size]="16"></lucide-icon>
       </button>
     </div>
   </header>
@@ -27,7 +27,7 @@
         
         <!-- Assistant Avatar -->
         <div *ngIf="msg.role === 'assistant'" class="ai-avatar-small">
-          I
+          <img src="assets/logo.jpg" alt="AI">
         </div>
 
         <div class="message-content">
@@ -45,7 +45,7 @@
           <div class="message-meta" [ngClass]="msg.role">
             <span class="time">{{ msg.timestamp | date:'hh:mm a' }}</span>
             <span *ngIf="msg.tokens && msg.role === 'assistant'" class="tokens">
-              <i class="fa-solid fa-bolt"></i> {{ msg.tokens }} tokens
+              <lucide-icon name="zap" [size]="12"></lucide-icon> {{ msg.tokens }} tokens
             </span>
           </div>
         </div>
@@ -64,13 +64,13 @@
           class="mode-btn" 
           [class.active]="aiMode === 0" 
           (click)="setAiMode(0)">
-          <i class="fa-solid fa-bolt"></i> Normal
+          <lucide-icon name="zap" [size]="14"></lucide-icon> Normal
         </button>
         <button 
           class="mode-btn" 
           [class.active]="aiMode === 1" 
           (click)="setAiMode(1)">
-          <i class="fa-solid fa-brain"></i> Deep Think
+          <lucide-icon name="brain" [size]="14"></lucide-icon> Deep Think
         </button>
       </div>
 
@@ -93,8 +93,10 @@
             (click)="sendMessage()"
             [disabled]="!canSend"
           >
-            <i class="fa-solid fa-paper-plane" *ngIf="!isLoading"></i>
-            <span class="loading-spinner" *ngIf="isLoading"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+            <lucide-icon name="send" [size]="16" *ngIf="!isLoading"></lucide-icon>
+            <span class="loading-spinner" *ngIf="isLoading">
+              <lucide-icon name="loader" [size]="16" class="spin"></lucide-icon>
+            </span>
           </button>
         </div>
       </div>

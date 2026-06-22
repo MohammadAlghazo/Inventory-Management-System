@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Trash2, Zap, Brain, Send, Loader } from 'lucide-angular';
 import { AiService, AiResponseDto } from '../../core/services/ai.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
@@ -24,11 +25,17 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-assistant',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './ai-assistant.component.html',
   styleUrls: ['./ai-assistant.component.css'],
 })
 export class AiAssistantComponent implements OnInit, OnDestroy {
+  readonly Trash2Icon = Trash2;
+  readonly ZapIcon = Zap;
+  readonly BrainIcon = Brain;
+  readonly SendIcon = Send;
+  readonly LoaderIcon = Loader;
+
   private aiService = inject(AiService);
   private authService = inject(AuthService);
 
