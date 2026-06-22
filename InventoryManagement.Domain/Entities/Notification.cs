@@ -13,6 +13,6 @@ namespace InventoryManagement.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation property
-        public User User { get; set; }
+        public User? User { get; set; }
     }
 }

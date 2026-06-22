@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { ProfileService } from '../../core/services/profile.service';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { environment } from '../../../environments/environment';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
@@ -62,7 +63,8 @@ export class UsersComponent implements OnInit {
     private translate: TranslateService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
-    private sweetAlert: SweetAlertService
+    private sweetAlert: SweetAlertService,
+    private profileService: ProfileService
   ) {
     this.currentUser = this.authService.getCurrentUser();
   }
@@ -253,6 +255,9 @@ export class UsersComponent implements OnInit {
       this.userService.updateProfilePicture(this.selectedUserIdForPicture, url).subscribe({
         next: () => {
           this.sweetAlert.toast('Profile picture updated successfully');
+          if (String(this.selectedUserIdForPicture) === String(this.currentUserId)) {
+            this.profileService.updateProfilePictureInState(url);
+          }
           this.loadUsers();
           this.selectedUserIdForPicture = null;
         },
@@ -266,6 +271,9 @@ export class UsersComponent implements OnInit {
       this.userService.deleteProfilePicture(user.id).subscribe({
         next: () => {
           this.sweetAlert.toast('Profile picture deleted successfully');
+          if (String(user.id) === String(this.currentUserId)) {
+            this.profileService.updateProfilePictureInState(null);
+          }
           this.loadUsers();
         },
         error: (err) => console.error(err)

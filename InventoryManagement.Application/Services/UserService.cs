@@ -1,4 +1,5 @@
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Auth_Dto;
 using Microsoft.EntityFrameworkCore;
@@ -7,16 +8,16 @@ namespace InventoryManagement.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public UserService(IAppDbContext db)
+        public UserService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<PagedResult<UserProfileDto>>> GetAllUsersAsync(int page, int pageSize, string? search)
         {
-            var q = _db.Users.AsQueryable();
+            var q = _uow.Users.Query();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -59,7 +60,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UserProfileDto>> GetUserByIdAsync(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _uow.Users.GetByIdAsync(id);
             if (user == null)
                 return ApiResponse<UserProfileDto>.NotFound("User not found");
 
@@ -80,12 +81,12 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UserProfileDto>> UpdateUserAsync(int id, UpdateUserDto dto)
         {
-            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
+            var user = await _uow.Users.Query().Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == id);
             if (user == null)
                 return ApiResponse<UserProfileDto>.NotFound("User not found");
 
             if (!string.IsNullOrWhiteSpace(dto.Email) &&
-                await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != id))
+                await _uow.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != id))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
 
             if (!string.IsNullOrWhiteSpace(dto.Email)) user.Email = dto.Email;
@@ -94,12 +95,12 @@ namespace InventoryManagement.Application.Services
 
             if (!string.IsNullOrWhiteSpace(dto.Role))
             {
-                var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
+                var role = await _uow.Roles.Query().FirstOrDefaultAsync(r => r.Name == dto.Role);
                 if (role != null) user.RoleId = role.Id;
             }
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<UserProfileDto>.Ok(new UserProfileDto
             {
@@ -118,7 +119,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> ToggleUserStatusAsync(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _uow.Users.GetByIdAsync(id);
             if (user == null)
                 return ApiResponse<object>.NotFound("User not found");
 
@@ -127,7 +128,7 @@ namespace InventoryManagement.Application.Services
 
             user.IsActive  = !user.IsActive;
             user.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             var status = user.IsActive ? "activated" : "deactivated";
             return ApiResponse<object>.Ok(new { isActive = user.IsActive }, $"User {status} successfully");
@@ -135,7 +136,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> DeleteUserAsync(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _uow.Users.GetByIdAsync(id);
             if (user == null)
                 return ApiResponse<object>.NotFound("User not found");
 
@@ -143,13 +144,13 @@ namespace InventoryManagement.Application.Services
                 return ApiResponse<object>.Fail("Cannot delete the primary admin account");
 
             user.IsActive = false;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null!, "User deactivated successfully");
         }
                     public async Task<ApiResponse<object>> UpdateProfilePictureAsync(int id, UpdateProfilePictureDto dto)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _uow.Users.GetByIdAsync(id);
             if (user == null)
             {
                 return ApiResponse<object>.NotFound("User not found.");
@@ -158,13 +159,13 @@ namespace InventoryManagement.Application.Services
             user.ProfilePicture = dto.ProfilePictureUrl;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
             return ApiResponse<object>.Ok(new { ProfilePicture = user.ProfilePicture }, "Profile picture updated successfully.");
         }
 
         public async Task<ApiResponse<object>> DeleteProfilePictureAsync(int id)
         {
-            var user = await _db.Users.FindAsync(id);
+            var user = await _uow.Users.GetByIdAsync(id);
             if (user == null)
             {
                 return ApiResponse<object>.NotFound("User not found.");
@@ -173,7 +174,7 @@ namespace InventoryManagement.Application.Services
             user.ProfilePicture = null;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
             return ApiResponse<object>.Ok(null!, "Profile picture deleted successfully.");
         }
     }

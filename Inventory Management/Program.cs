@@ -2,6 +2,8 @@ using InventoryManagement.Infrastructure.Services;
 using InventoryManagement.Infrastructure.Data;
 using InventoryManagement.Api.Middleware;
 using InventoryManagement.Application.Services;
+using InventoryManagement.Domain.Interfaces;
+using InventoryManagement.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -122,6 +124,8 @@ builder.Services.AddResponseCompression(options => { options.EnableForHttps = tr
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IEmailService, GoogleAppsScriptEmailService>();
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();

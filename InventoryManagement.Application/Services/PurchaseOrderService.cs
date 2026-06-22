@@ -1,4 +1,5 @@
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
@@ -9,16 +10,16 @@ namespace InventoryManagement.Application.Services
 {
     public class PurchaseOrderService : IPurchaseOrderService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public PurchaseOrderService(IAppDbContext db)
+        public PurchaseOrderService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<PagedResult<PurchaseOrderDto>>> GetPurchaseOrdersAsync(int page, int pageSize, string? search)
         {
-            var query = _db.PurchaseOrders
+            var query = _uow.PurchaseOrders.Query()
                 .Include(p => p.Supplier)
                 .Include(p => p.Warehouse)
                 .Include(p => p.CreatedBy)
@@ -53,7 +54,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<PurchaseOrderDto>> GetPurchaseOrderByIdAsync(int id)
         {
-            var order = await _db.PurchaseOrders
+            var order = await _uow.PurchaseOrders.Query()
                 .Include(p => p.Supplier)
                 .Include(p => p.Warehouse)
                 .Include(p => p.CreatedBy)
@@ -103,15 +104,15 @@ namespace InventoryManagement.Application.Services
 
             order.TotalAmount = totalAmount;
 
-            _db.PurchaseOrders.Add(order);
-            await _db.SaveChangesAsync();
+            _uow.PurchaseOrders.Add(order);
+            await _uow.SaveChangesAsync();
 
             return await GetPurchaseOrderByIdAsync(order.Id);
         }
 
         public async Task<ApiResponse<object>> ReceivePurchaseOrderAsync(int id, ReceivePurchaseOrderDto dto, int userId)
         {
-            var order = await _db.PurchaseOrders
+            var order = await _uow.PurchaseOrders.Query()
                 .Include(p => p.Items)
                     .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -136,7 +137,7 @@ namespace InventoryManagement.Application.Services
                 if (item.QuantityReceived + receivedItem.QuantityReceived > item.QuantityOrdered)
                     return ApiResponse<object>.Fail($"Cannot receive more than ordered for Product '{item.Product?.Name}'. Ordered: {item.QuantityOrdered}, Already Received: {item.QuantityReceived}, New Receipt: {receivedItem.QuantityReceived}");
 
-                var product = await _db.Products
+                var product = await _uow.Products.Query()
                     .Include(p => p.ProductStocks)
                     .FirstOrDefaultAsync(p => p.Id == item.ProductId);
 
@@ -150,11 +151,10 @@ namespace InventoryManagement.Application.Services
                     productStock = new ProductStock
                     {
                         ProductId = item.ProductId,
-                        WarehouseId = order.WarehouseId,
-                        Quantity = 0,
-                        MinQuantity = 10
+                        WarehouseId = order.WarehouseId
                     };
-                    _db.ProductStocks.Add(productStock);
+                    productStock.InitializeStock(0, 10);
+                    _uow.ProductStocks.Add(productStock);
                     product.ProductStocks.Add(productStock);
                 }
 
@@ -172,10 +172,10 @@ namespace InventoryManagement.Application.Services
                     product.PurchasePrice = (currentTotalValue + receivedValue) / newTotalQty;
                 }
 
-                productStock.Quantity += receivedQty;
+                productStock.ReceiveStock(receivedQty);
                 item.QuantityReceived += receivedQty;
 
-                _db.InventoryLogs.Add(new InventoryLog
+                _uow.InventoryLogs.Add(new InventoryLog
                 {
                     ProductId = item.ProductId,
                     WarehouseId = order.WarehouseId,
@@ -202,7 +202,7 @@ namespace InventoryManagement.Application.Services
                 order.Status = OrderStatus.Partial;
             }
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null, "Purchase order received successfully and inventory updated.");
         }

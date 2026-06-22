@@ -1,4 +1,5 @@
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
 using InventoryManagement.Domain.Common;
@@ -17,18 +18,18 @@ namespace InventoryManagement.Application.Services
 
     public class CustomerService : ICustomerService
     {
-        private readonly IAppDbContext _context;
+        private readonly IUnitOfWork _uow;
         private readonly IEmailService _emailService;
 
-        public CustomerService(IAppDbContext context, IEmailService emailService)
+        public CustomerService(IUnitOfWork uow, IEmailService emailService)
         {
-            _context = context;
+            _uow = uow;
             _emailService = emailService;
         }
 
         public async Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
         {
-            var query = _context.Customers.AsQueryable();
+            var query = _uow.Customers.Query();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -69,7 +70,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<CustomerDto>> GetCustomerByIdAsync(int id)
         {
-            var c = await _context.Customers.FindAsync(id);
+            var c = await _uow.Customers.GetByIdAsync(id);
             if (c == null) return ApiResponse<CustomerDto>.NotFound("Customer not found");
 
             return ApiResponse<CustomerDto>.Ok(new CustomerDto
@@ -96,8 +97,8 @@ namespace InventoryManagement.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            _uow.Customers.Add(customer);
+            await _uow.SaveChangesAsync();
 
             // Send Welcome Email
             if (!string.IsNullOrEmpty(customer.Email))
@@ -127,7 +128,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<CustomerDto>> UpdateCustomerAsync(int id, UpdateCustomerDto dto)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _uow.Customers.GetByIdAsync(id);
             if (customer == null) return ApiResponse<CustomerDto>.NotFound("Customer not found");
 
             customer.Name = dto.Name;
@@ -136,7 +137,7 @@ namespace InventoryManagement.Application.Services
             customer.Address = dto.Address;
             customer.IsActive = dto.IsActive;
 
-            await _context.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<CustomerDto>.Ok(new CustomerDto
             {
@@ -152,11 +153,11 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteCustomerAsync(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _uow.Customers.GetByIdAsync(id);
             if (customer == null) return ApiResponse<bool>.NotFound("Customer not found");
 
             customer.IsActive = false;
-            await _context.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Customer deactivated successfully");
         }

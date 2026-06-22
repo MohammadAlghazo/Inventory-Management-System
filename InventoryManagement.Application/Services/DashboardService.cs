@@ -1,5 +1,6 @@
 using InventoryManagement.Domain.Entities;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Dashboard_Dtos;
 using Microsoft.EntityFrameworkCore;
@@ -8,11 +9,11 @@ namespace InventoryManagement.Application.Services
 {
     public class DashboardService : IDashboardService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public DashboardService(IAppDbContext db)
+        public DashboardService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<DashboardStatsDto>> GetStatsAsync()
@@ -21,13 +22,13 @@ namespace InventoryManagement.Application.Services
 
             var stats = new DashboardStatsDto
             {
-                TotalProducts      = await _db.Products.CountAsync(p => p.IsActive),
-                LowStockCount      = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
-                OutOfStockCount    = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
-                TotalInventoryValue= await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
-                TodayMovements     = await _db.InventoryLogs.CountAsync(l => l.ActionDate.Date == today),
-                TotalUsers         = await _db.Users.CountAsync(u => u.IsActive),
-                TotalCategories    = await _db.Products.Where(p => p.IsActive).Select(p => p.Category).Distinct().CountAsync()
+                TotalProducts      = await _uow.Products.Query().CountAsync(p => p.IsActive),
+                LowStockCount      = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
+                OutOfStockCount    = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
+                TotalInventoryValue= await _uow.Products.Query().Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
+                TodayMovements     = await _uow.InventoryLogs.Query().CountAsync(l => l.ActionDate.Date == today),
+                TotalUsers         = await _uow.Users.Query().CountAsync(u => u.IsActive),
+                TotalCategories    = await _uow.Products.Query().Where(p => p.IsActive).Select(p => p.Category).Distinct().CountAsync()
             };
 
             return ApiResponse<DashboardStatsDto>.Ok(stats);
@@ -37,7 +38,7 @@ namespace InventoryManagement.Application.Services
         {
             var from = DateTime.UtcNow.Date.AddDays(-days + 1);
 
-            var logs = await _db.InventoryLogs
+            var logs = await _uow.InventoryLogs.Query()
                 .Where(l => l.ActionDate >= from)
                 .GroupBy(l => l.ActionDate.Date)
                 .Select(g => new
@@ -80,7 +81,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<List<CategoryBreakdownDto>>> GetCategoryBreakdownAsync()
         {
-            var breakdown = await _db.Products
+            var breakdown = await _uow.Products.Query()
                 .Include(p => p.Category)
                 .Where(p => p.IsActive)
                 .GroupBy(p => p.Category != null ? p.Category.Name : "Uncategorized")
@@ -99,7 +100,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<List<TopProductDto>>> GetTopProductsAsync(int limit = 5)
         {
-            var topProducts = await _db.InventoryLogs
+            var topProducts = await _uow.InventoryLogs.Query()
                 .Include(l => l.Product)
                 .ThenInclude(p => p.Category)
                 .Include(l => l.Product.ProductStocks)

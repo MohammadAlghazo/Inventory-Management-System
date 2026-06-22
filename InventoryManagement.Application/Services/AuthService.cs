@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Extensions;
 using Microsoft.Extensions.Configuration;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Auth_Dto;
 using InventoryManagement.Domain.Entities;
@@ -16,20 +17,20 @@ namespace InventoryManagement.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
         private readonly IConfiguration _config;
         private readonly IEmailService _emailService;
 
-        public AuthService(IAppDbContext db, IConfiguration config, IEmailService emailService)
+        public AuthService(IUnitOfWork uow, IConfiguration config, IEmailService emailService)
         {
-            _db = db;
+            _uow = uow;
             _config = config;
             _emailService = emailService;
         }
 
         public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginDto dto)
         {
-            var user = await _db.Users
+            var user = await _uow.Users.Query()
                 .Include(u => u.Role)
                 .ThenInclude(r => r.RolePermissions)
                 .ThenInclude(rp => rp.Permission)
@@ -49,7 +50,7 @@ namespace InventoryManagement.Application.Services
                 _config.GetValue<int>("JwtSettings:RefreshTokenExpirationDays", 7));
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<AuthResponseDto>.Ok(new AuthResponseDto
             {
@@ -64,17 +65,17 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<object>> RegisterAsync(RegisterDto dto, int requestingUserId)
         {
             
-            var requestingUser = await _db.Users.FindAsync(requestingUserId);
+            var requestingUser = await _uow.Users.GetByIdAsync(requestingUserId);
             if (requestingUser == null || (requestingUser.RoleId != 1 && requestingUser.RoleId != 2))
                 return ApiResponse<object>.Forbidden("Only managers can register new users");
 
-            if (await _db.Users.AnyAsync(u => u.Username.ToLower() == dto.Username.ToLower()))
+            if (await _uow.Users.AnyAsync(u => u.Username.ToLower() == dto.Username.ToLower()))
                 return ApiResponse<object>.Fail("Username is already taken");
 
-            if (await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
+            if (await _uow.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower()))
                 return ApiResponse<object>.Fail("Email is already registered");
 
-            var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
+            var role = await _uow.Roles.Query().FirstOrDefaultAsync(r => r.Name == dto.Role);
             if (role == null)
                 return ApiResponse<object>.Fail("Invalid role");
 
@@ -94,11 +95,11 @@ namespace InventoryManagement.Application.Services
                 UpdatedAt = DateTime.UtcNow
             };
 
-            _db.Users.Add(newUser);
+            _uow.Users.Add(newUser);
 
-            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{role.Name}'.", "Info", "SuperAdmin");
+            _uow.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{role.Name}'.", "Info", "SuperAdmin");
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             // Send Welcome Email
             if (!string.IsNullOrEmpty(newUser.Email))
@@ -125,7 +126,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken)
         {
             string hashedToken = ComputeSha256Hash(refreshToken);
-            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.RefreshToken == hashedToken);
+            var user = await _uow.Users.Query().Include(u => u.Role).FirstOrDefaultAsync(u => u.RefreshToken == hashedToken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 return ApiResponse<AuthResponseDto>.Unauthorized("Invalid or expired refresh token");
@@ -138,7 +139,7 @@ namespace InventoryManagement.Application.Services
                 _config.GetValue<int>("JwtSettings:RefreshTokenExpirationDays", 7));
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<AuthResponseDto>.Ok(new AuthResponseDto
             {
@@ -152,7 +153,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UserProfileDto>> GetCurrentUserAsync(int userId)
         {
-            var user = await _db.Users
+            var user = await _uow.Users.Query()
                 .Include(u => u.Role)
                 .ThenInclude(r => r.RolePermissions)
                 .ThenInclude(rp => rp.Permission)
@@ -164,7 +165,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> ChangePasswordAsync(int userId, ChangePasswordDto dto)
         {
-            var user = await _db.Users.FindAsync(userId);
+            var user = await _uow.Users.GetByIdAsync(userId);
             if (user == null) return ApiResponse<object>.NotFound("User not found");
 
             if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.HashedPassword))
@@ -173,18 +174,18 @@ namespace InventoryManagement.Application.Services
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
             user.MustChangePassword = false;
             user.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null!, "Password changed successfully");
         }
 
         public async Task<ApiResponse<UserProfileDto>> UpdateProfileAsync(int userId, UpdateProfileDto dto)
         {
-            var user = await _db.Users.FindAsync(userId);
+            var user = await _uow.Users.GetByIdAsync(userId);
             if (user == null) return ApiResponse<UserProfileDto>.NotFound("User not found");
 
             if (!string.IsNullOrWhiteSpace(dto.Email) &&
-                await _db.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != userId))
+                await _uow.Users.AnyAsync(u => u.Email.ToLower() == dto.Email.ToLower() && u.Id != userId))
                 return ApiResponse<UserProfileDto>.Fail("Email is already in use by another account");
 
             if (!string.IsNullOrWhiteSpace(dto.Email))     user.Email     = dto.Email;
@@ -192,14 +193,14 @@ namespace InventoryManagement.Application.Services
             if (!string.IsNullOrWhiteSpace(dto.LastName))  user.LastName  = dto.LastName;
             user.UpdatedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<UserProfileDto>.Ok(MapToProfile(user), "Profile updated successfully");
         }
 
         public async Task<ApiResponse<object>> ForgotPasswordAsync(ForgotPasswordDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
+            var user = await _uow.Users.Query().FirstOrDefaultAsync(u => u.Email.ToLower() == dto.Email.ToLower());
             if (user == null || !user.IsActive)
                 return ApiResponse<object>.Ok(null!, "If that email exists in our system, a temporary password has been sent."); // Generic response for security
 
@@ -209,7 +210,7 @@ namespace InventoryManagement.Application.Services
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(tempPassword);
             user.MustChangePassword = true;
             user.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             var emailHtml = _emailService.GenerateEmailTemplate(
                 "Password Reset",

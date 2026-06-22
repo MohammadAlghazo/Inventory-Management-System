@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
 using InventoryManagement.Domain.Common;
@@ -12,16 +13,16 @@ namespace InventoryManagement.Application.Services
 {
     public class LookupService : ILookupService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public LookupService(IAppDbContext db)
+        public LookupService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()
         {
-            var categories = await _db.Categories
+            var categories = await _uow.Categories.Query()
                 .Select(c => new CategoryDto
                 {
                     Id = c.Id,
@@ -41,8 +42,8 @@ namespace InventoryManagement.Application.Services
                 ParentCategoryId = dto.ParentCategoryId,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Categories.Add(category);
-            await _db.SaveChangesAsync();
+            _uow.Categories.Add(category);
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<CategoryDto>.Ok(new CategoryDto
             {
@@ -55,14 +56,14 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<CategoryDto>> UpdateCategoryAsync(int id, UpdateCategoryDto dto)
         {
-            var category = await _db.Categories.FindAsync(id);
+            var category = await _uow.Categories.GetByIdAsync(id);
             if (category == null) return ApiResponse<CategoryDto>.NotFound("Category not found");
 
             category.Name = dto.Name;
             category.Description = dto.Description;
             category.ParentCategoryId = dto.ParentCategoryId;
             
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<CategoryDto>.Ok(new CategoryDto
             {
@@ -75,18 +76,18 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteCategoryAsync(int id)
         {
-            var category = await _db.Categories.FindAsync(id);
+            var category = await _uow.Categories.GetByIdAsync(id);
             if (category == null) return ApiResponse<bool>.NotFound("Category not found");
 
             category.IsActive = false;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Category deleted successfully");
         }
 
         public async Task<ApiResponse<List<BrandDto>>> GetBrandsAsync()
         {
-            var brands = await _db.Brands
+            var brands = await _uow.Brands.Query()
                 .Select(b => new BrandDto
                 {
                     Id = b.Id,
@@ -104,8 +105,8 @@ namespace InventoryManagement.Application.Services
                 Description = dto.Description,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Brands.Add(brand);
-            await _db.SaveChangesAsync();
+            _uow.Brands.Add(brand);
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<BrandDto>.Ok(new BrandDto
             {
@@ -117,13 +118,13 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<BrandDto>> UpdateBrandAsync(int id, UpdateBrandDto dto)
         {
-            var brand = await _db.Brands.FindAsync(id);
+            var brand = await _uow.Brands.GetByIdAsync(id);
             if (brand == null) return ApiResponse<BrandDto>.NotFound("Brand not found");
 
             brand.Name = dto.Name;
             brand.Description = dto.Description;
             
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<BrandDto>.Ok(new BrandDto
             {
@@ -135,18 +136,18 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteBrandAsync(int id)
         {
-            var brand = await _db.Brands.FindAsync(id);
+            var brand = await _uow.Brands.GetByIdAsync(id);
             if (brand == null) return ApiResponse<bool>.NotFound("Brand not found");
 
             brand.IsActive = false;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Brand deleted successfully");
         }
 
         public async Task<ApiResponse<List<UnitDto>>> GetUnitsAsync()
         {
-            var units = await _db.Units
+            var units = await _uow.Units.Query()
                 .Select(u => new UnitDto
                 {
                     Id = u.Id,
@@ -164,8 +165,8 @@ namespace InventoryManagement.Application.Services
                 Abbreviation = dto.Abbreviation,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Units.Add(unit);
-            await _db.SaveChangesAsync();
+            _uow.Units.Add(unit);
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<UnitDto>.Ok(new UnitDto
             {
@@ -177,13 +178,13 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<UnitDto>> UpdateUnitAsync(int id, UpdateUnitDto dto)
         {
-            var unit = await _db.Units.FindAsync(id);
+            var unit = await _uow.Units.GetByIdAsync(id);
             if (unit == null) return ApiResponse<UnitDto>.NotFound("Unit not found");
 
             unit.Name = dto.Name;
             unit.Abbreviation = dto.Abbreviation;
             
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<UnitDto>.Ok(new UnitDto
             {
@@ -195,18 +196,18 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteUnitAsync(int id)
         {
-            var unit = await _db.Units.FindAsync(id);
+            var unit = await _uow.Units.GetByIdAsync(id);
             if (unit == null) return ApiResponse<bool>.NotFound("Unit not found");
 
             unit.IsActive = false;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Unit deleted successfully");
         }
 
         public async Task<ApiResponse<List<WarehouseDto>>> GetWarehousesAsync()
         {
-            var warehouses = await _db.Warehouses
+            var warehouses = await _uow.Warehouses.Query()
                 .Select(w => new WarehouseDto
                 {
                     Id = w.Id,
@@ -224,7 +225,7 @@ namespace InventoryManagement.Application.Services
         {
             if (dto.IsDefault)
             {
-                var otherDefaults = await _db.Warehouses.Where(w => w.IsDefault).ToListAsync();
+                var otherDefaults = await _uow.Warehouses.Query().Where(w => w.IsDefault).ToListAsync();
                 foreach (var w in otherDefaults)
                 {
                     w.IsDefault = false;
@@ -241,8 +242,8 @@ namespace InventoryManagement.Application.Services
                 IsDefault = dto.IsDefault,
                 CreatedAt = DateTime.UtcNow
             };
-            _db.Warehouses.Add(warehouse);
-            await _db.SaveChangesAsync();
+            _uow.Warehouses.Add(warehouse);
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<WarehouseDto>.Ok(new WarehouseDto
             {
@@ -258,12 +259,12 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<WarehouseDto>> UpdateWarehouseAsync(int id, UpdateWarehouseDto dto)
         {
-            var warehouse = await _db.Warehouses.FindAsync(id);
+            var warehouse = await _uow.Warehouses.GetByIdAsync(id);
             if (warehouse == null) return ApiResponse<WarehouseDto>.NotFound("Warehouse not found");
 
             if (dto.IsDefault && !warehouse.IsDefault)
             {
-                var otherDefaults = await _db.Warehouses.Where(w => w.IsDefault && w.Id != id).ToListAsync();
+                var otherDefaults = await _uow.Warehouses.Query().Where(w => w.IsDefault && w.Id != id).ToListAsync();
                 foreach (var w in otherDefaults)
                 {
                     w.IsDefault = false;
@@ -277,7 +278,7 @@ namespace InventoryManagement.Application.Services
             warehouse.IsActive = dto.IsActive;
             warehouse.IsDefault = dto.IsDefault;
             
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<WarehouseDto>.Ok(new WarehouseDto
             {
@@ -293,11 +294,11 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteWarehouseAsync(int id)
         {
-            var warehouse = await _db.Warehouses.FindAsync(id);
+            var warehouse = await _uow.Warehouses.GetByIdAsync(id);
             if (warehouse == null) return ApiResponse<bool>.NotFound("Warehouse not found");
 
             warehouse.IsActive = false;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Warehouse deleted successfully");
         }

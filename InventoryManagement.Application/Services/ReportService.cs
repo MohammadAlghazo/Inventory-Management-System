@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Application.Dtos;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,16 +11,16 @@ namespace InventoryManagement.Application.Services
 {
     public class ReportService : IReportService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public ReportService(IAppDbContext db)
+        public ReportService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<List<LowStockAlertDto>> GetLowStockAlertsAsync()
         {
-            var lowStocks = await _db.ProductStocks
+            var lowStocks = await _uow.ProductStocks.Query()
                 .Include(ps => ps.Product)
                 .Include(ps => ps.Warehouse)
                 .Where(ps => ps.Quantity <= ps.MinQuantity)
@@ -40,7 +41,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<List<ValuationReportDto>> GetInventoryValuationAsync()
         {
-            var valuations = await _db.ProductStocks
+            var valuations = await _uow.ProductStocks.Query()
                 .Include(ps => ps.Product)
                 .Include(ps => ps.Warehouse)
                 .GroupBy(ps => new { ps.WarehouseId, ps.Warehouse.Name })
@@ -59,7 +60,7 @@ namespace InventoryManagement.Application.Services
         public async Task<List<AbcAnalysisDto>> GetAbcAnalysisAsync()
         {
             // Group by product globally
-            var productTotals = await _db.ProductStocks
+            var productTotals = await _uow.ProductStocks.Query()
                 .Include(ps => ps.Product)
                 .GroupBy(ps => new { ps.ProductId, ps.Product.Name, ps.Product.SKU, ps.Product.PurchasePrice })
                 .Select(g => new

@@ -1,4 +1,5 @@
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
 using InventoryManagement.Domain.Common;
@@ -17,18 +18,18 @@ namespace InventoryManagement.Application.Services
 
     public class SupplierService : ISupplierService
     {
-        private readonly IAppDbContext _context;
+        private readonly IUnitOfWork _uow;
         private readonly IEmailService _emailService;
 
-        public SupplierService(IAppDbContext context, IEmailService emailService)
+        public SupplierService(IUnitOfWork uow, IEmailService emailService)
         {
-            _context = context;
+            _uow = uow;
             _emailService = emailService;
         }
 
         public async Task<ApiResponse<PagedResult<SupplierDto>>> GetAllSuppliersAsync(int page = 1, int pageSize = 10, string? search = null)
         {
-            var query = _context.Suppliers.AsQueryable();
+            var query = _uow.Suppliers.Query();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -70,7 +71,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<SupplierDto>> GetSupplierByIdAsync(int id)
         {
-            var s = await _context.Suppliers.FindAsync(id);
+            var s = await _uow.Suppliers.GetByIdAsync(id);
             if (s == null) return ApiResponse<SupplierDto>.NotFound("Supplier not found");
 
             return ApiResponse<SupplierDto>.Ok(new SupplierDto
@@ -99,8 +100,8 @@ namespace InventoryManagement.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Suppliers.Add(supplier);
-            await _context.SaveChangesAsync();
+            _uow.Suppliers.Add(supplier);
+            await _uow.SaveChangesAsync();
 
             // Send Welcome Email
             if (!string.IsNullOrEmpty(supplier.Email))
@@ -131,7 +132,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<SupplierDto>> UpdateSupplierAsync(int id, UpdateSupplierDto dto)
         {
-            var supplier = await _context.Suppliers.FindAsync(id);
+            var supplier = await _uow.Suppliers.GetByIdAsync(id);
             if (supplier == null) return ApiResponse<SupplierDto>.NotFound("Supplier not found");
 
             supplier.Name = dto.Name;
@@ -141,7 +142,7 @@ namespace InventoryManagement.Application.Services
             supplier.TaxNumber = dto.TaxNumber;
             supplier.IsActive = dto.IsActive;
 
-            await _context.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<SupplierDto>.Ok(new SupplierDto
             {
@@ -158,11 +159,11 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<bool>> DeleteSupplierAsync(int id)
         {
-            var supplier = await _context.Suppliers.FindAsync(id);
+            var supplier = await _uow.Suppliers.GetByIdAsync(id);
             if (supplier == null) return ApiResponse<bool>.NotFound("Supplier not found");
 
             supplier.IsActive = false;
-            await _context.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Supplier deactivated successfully");
         }

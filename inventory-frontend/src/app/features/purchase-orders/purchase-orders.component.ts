@@ -72,8 +72,8 @@ export class PurchaseOrdersComponent implements OnInit {
     this.poService.getPurchaseOrders(this.currentPage, this.pageSize, this.searchTerm)
       .subscribe({
         next: (res: any) => {
-          this.orders = res.items || [];
-          this.totalCount = res.totalCount || 0;
+          this.orders = res.data?.items || [];
+          this.totalCount = res.data?.totalCount || 0;
           this.loading = false;
         },
         error: (err) => {

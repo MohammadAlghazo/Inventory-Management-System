@@ -1,4 +1,5 @@
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
@@ -9,16 +10,16 @@ namespace InventoryManagement.Application.Services
 {
     public class SalesOrderService : ISalesOrderService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public SalesOrderService(IAppDbContext db)
+        public SalesOrderService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<PagedResult<SalesOrderDto>>> GetSalesOrdersAsync(int page, int pageSize, string? search)
         {
-            var query = _db.SalesOrders
+            var query = _uow.SalesOrders.Query()
                 .Include(s => s.Customer)
                 .Include(s => s.Warehouse)
                 .Include(s => s.CreatedBy)
@@ -53,7 +54,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<SalesOrderDto>> GetSalesOrderByIdAsync(int id)
         {
-            var order = await _db.SalesOrders
+            var order = await _uow.SalesOrders.Query()
                 .Include(s => s.Customer)
                 .Include(s => s.Warehouse)
                 .Include(s => s.CreatedBy)
@@ -89,7 +90,7 @@ namespace InventoryManagement.Application.Services
 
             foreach (var item in dto.Items)
             {
-                var productStock = await _db.ProductStocks
+                var productStock = await _uow.ProductStocks.Query()
                     .FirstOrDefaultAsync(ps => ps.ProductId == item.ProductId && ps.WarehouseId == dto.WarehouseId);
 
                 if (productStock == null)
@@ -97,13 +98,13 @@ namespace InventoryManagement.Application.Services
                     return ApiResponse<SalesOrderDto>.Fail($"Stock record not found for product ID {item.ProductId} in selected warehouse.");
                 }
 
-                int availableQuantity = productStock.Quantity - productStock.ReservedQuantity;
+                int availableQuantity = productStock.AvailableQuantity;
                 if (availableQuantity < item.Quantity)
                 {
                     return ApiResponse<SalesOrderDto>.Fail($"Insufficient available stock for product ID {item.ProductId} in selected warehouse. Available: {availableQuantity}, Requested: {item.Quantity}");
                 }
 
-                productStock.ReservedQuantity += item.Quantity;
+                productStock.ReserveStock(item.Quantity);
 
                 var total = (item.Quantity * item.UnitPrice) - item.Discount;
                 totalAmount += total;
@@ -120,15 +121,15 @@ namespace InventoryManagement.Application.Services
 
             order.TotalAmount = totalAmount;
 
-            _db.SalesOrders.Add(order);
-            await _db.SaveChangesAsync();
+            _uow.SalesOrders.Add(order);
+            await _uow.SaveChangesAsync();
 
             return await GetSalesOrderByIdAsync(order.Id);
         }
 
         public async Task<ApiResponse<object>> ShipSalesOrderAsync(ShipSalesOrderDto dto, int userId)
         {
-            var order = await _db.SalesOrders
+            var order = await _uow.SalesOrders.Query()
                 .Include(s => s.Items)
                 .FirstOrDefaultAsync(s => s.Id == dto.SalesOrderId);
 
@@ -140,7 +141,7 @@ namespace InventoryManagement.Application.Services
 
             foreach (var item in order.Items)
             {
-                var productStock = await _db.ProductStocks
+                var productStock = await _uow.ProductStocks.Query()
                     .FirstOrDefaultAsync(ps => ps.ProductId == item.ProductId && ps.WarehouseId == order.WarehouseId);
 
                 if (productStock == null || productStock.Quantity < item.Quantity)
@@ -149,10 +150,9 @@ namespace InventoryManagement.Application.Services
                 }
 
                 int oldQuantity = productStock.Quantity;
-                productStock.Quantity -= item.Quantity;
-                productStock.ReservedQuantity = Math.Max(0, productStock.ReservedQuantity - item.Quantity);
+                productStock.ShipStock(item.Quantity);
 
-                _db.InventoryLogs.Add(new InventoryLog
+                _uow.InventoryLogs.Add(new InventoryLog
                 {
                     ProductId = item.ProductId,
                     WarehouseId = order.WarehouseId,
@@ -167,7 +167,7 @@ namespace InventoryManagement.Application.Services
             }
 
             order.Status = OrderStatus.Shipped;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null, "Sales order shipped successfully and inventory updated.");
         }

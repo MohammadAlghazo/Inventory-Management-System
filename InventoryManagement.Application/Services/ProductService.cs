@@ -1,5 +1,6 @@
 using InventoryManagement.Application.Extensions;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Product_Dtos;
 using InventoryManagement.Domain.Entities;
@@ -12,16 +13,16 @@ namespace InventoryManagement.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public ProductService(IAppDbContext db)
+        public ProductService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<PagedResult<ProductDto>>> GetAllAsync(ProductQueryParams query)
         {
-            var q = _db.Products
+            var q = _uow.Products.Query()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -94,7 +95,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<ProductDto>> GetByIdAsync(int id)
         {
-            var product = await _db.Products
+            var product = await _uow.Products.Query()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -112,7 +113,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<ProductDto>> CreateAsync(CreateProductDto dto)
         {
             if (!string.IsNullOrWhiteSpace(dto.SKU) &&
-                await _db.Products.AnyAsync(p => p.SKU == dto.SKU && p.IsActive))
+                await _uow.Products.AnyAsync(p => p.SKU == dto.SKU && p.IsActive))
                 return ApiResponse<ProductDto>.Fail($"A product with SKU '{dto.SKU}' already exists");
 
             var product = new Product
@@ -141,23 +142,20 @@ namespace InventoryManagement.Application.Services
                 UpdatedAt = DateTime.UtcNow
             };
 
-            var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+            var defaultWarehouse = await _uow.Warehouses.Query().FirstOrDefaultAsync();
             if (defaultWarehouse != null)
             {
-                product.ProductStocks.Add(new ProductStock
-                {
-                    WarehouseId = defaultWarehouse.Id,
-                    Quantity = dto.Quantity,
-                    MinQuantity = dto.MinQuantity
-                });
+                var newStock = new ProductStock { WarehouseId = defaultWarehouse.Id };
+                newStock.InitializeStock(dto.Quantity, dto.MinQuantity);
+                product.ProductStocks.Add(newStock);
             }
 
-            _db.Products.Add(product);
-            await _db.SaveChangesAsync(); // Save to generate Product ID
+            _uow.Products.Add(product);
+            await _uow.SaveChangesAsync(); // Save to generate Product ID
 
             if (dto.Quantity > 0 && defaultWarehouse != null)
             {
-                _db.InventoryLogs.Add(new InventoryLog
+                _uow.InventoryLogs.Add(new InventoryLog
                 {
                     ProductId = product.Id,
                     WarehouseId = defaultWarehouse.Id,
@@ -169,22 +167,26 @@ namespace InventoryManagement.Application.Services
                     UserId = null, // System / anonymous
                     ActionDate = DateTime.UtcNow
                 });
-                await _db.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
             }
 
-            _db.AddNotification("Product Added", $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.", "Success", "All");
+            _uow.AddNotification("Product Added", $"Product '{product.Name}' (SKU: {product.SKU}) has been registered.", "Success", "All");
 
-            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Brand).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Supplier).LoadAsync();
+            product = await _uow.Products.Query()
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
+                .FirstOrDefaultAsync(p => p.Id == product.Id);
 
             return ApiResponse<ProductDto>.Created(MapToDto(product), "Product created successfully");
         }
 
         public async Task<ApiResponse<ProductDto>> UpdateAsync(int id, UpdateProductDto dto)
         {
-            var product = await _db.Products
+            var product = await _uow.Products.Query()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -196,7 +198,7 @@ namespace InventoryManagement.Application.Services
                 return ApiResponse<ProductDto>.NotFound($"Product with ID {id} not found");
 
             if (!string.IsNullOrWhiteSpace(dto.SKU) &&
-                await _db.Products.AnyAsync(p => p.SKU == dto.SKU && p.Id != id && p.IsActive))
+                await _uow.Products.AnyAsync(p => p.SKU == dto.SKU && p.Id != id && p.IsActive))
                 return ApiResponse<ProductDto>.Fail($"A product with SKU '{dto.SKU}' already exists");
 
             product.Name = dto.Name;
@@ -223,7 +225,7 @@ namespace InventoryManagement.Application.Services
             var previousTotalQuantity = product.ProductStocks.Sum(s => s.Quantity);
             var previousMinQuantity = product.ProductStocks.Sum(s => s.MinQuantity);
 
-            var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+            var defaultWarehouse = await _uow.Warehouses.Query().FirstOrDefaultAsync();
             if (defaultWarehouse != null)
             {
                 var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == defaultWarehouse.Id);
@@ -233,12 +235,9 @@ namespace InventoryManagement.Application.Services
                 }
                 else
                 {
-                    product.ProductStocks.Add(new ProductStock
-                    {
-                        WarehouseId = defaultWarehouse.Id,
-                        Quantity = dto.Quantity,
-                        MinQuantity = dto.MinQuantity
-                    });
+                        var newStock = new ProductStock { WarehouseId = defaultWarehouse.Id };
+                        newStock.InitializeStock(dto.Quantity, dto.MinQuantity);
+                        product.ProductStocks.Add(newStock);
                 }
             }
 
@@ -247,35 +246,39 @@ namespace InventoryManagement.Application.Services
 
             if (previousTotalQuantity > previousMinQuantity && currentTotalQuantity <= currentMinQuantity && currentTotalQuantity > 0)
             {
-                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {currentTotalQuantity}.", "Warning", "All");
+                _uow.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {currentTotalQuantity}.", "Warning", "All");
             }
 
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
-            await _db.Entry(product).Reference(p => p.Category).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Unit).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Brand).LoadAsync();
-            await _db.Entry(product).Reference(p => p.Supplier).LoadAsync();
+            product = await _uow.Products.Query()
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Brand)
+                .Include(p => p.Supplier)
+                .Include(p => p.ProductStocks)
+                .ThenInclude(s => s.Warehouse)
+                .FirstOrDefaultAsync(p => p.Id == product.Id);
 
             return ApiResponse<ProductDto>.Ok(MapToDto(product), "Product updated successfully");
         }
 
         public async Task<ApiResponse<object>> DeleteAsync(int id)
         {
-            var product = await _db.Products.FindAsync(id);
+            var product = await _uow.Products.GetByIdAsync(id);
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound($"Product with ID {id} not found");
 
             product.IsActive = false;
             product.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            await _uow.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null!, "Product deleted successfully");
         }
 
         public async Task<ApiResponse<List<ProductDto>>> GetLowStockAsync()
         {
-            var products = await _db.Products
+            var products = await _uow.Products.Query()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -291,7 +294,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<List<string>>> GetCategoriesAsync()
         {
-            var categories = await _db.Categories
+            var categories = await _uow.Categories.Query()
                 .Select(c => c.Name)
                 .Distinct()
                 .OrderBy(c => c)
@@ -306,12 +309,12 @@ namespace InventoryManagement.Application.Services
 
             var stats = new DashboardStatsDto
             {
-                TotalProducts = await _db.Products.CountAsync(p => p.IsActive),
-                LowStockCount = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
-                OutOfStockCount = await _db.Products.CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
-                TotalInventoryValue = await _db.Products.Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
-                TodayMovements = await _db.InventoryLogs.CountAsync(l => l.ActionDate.Date == today),
-                TotalCategories = await _db.Categories.CountAsync()
+                TotalProducts = await _uow.Products.Query().CountAsync(p => p.IsActive),
+                LowStockCount = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
+                OutOfStockCount = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
+                TotalInventoryValue = await _uow.Products.Query().Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
+                TodayMovements = await _uow.InventoryLogs.Query().CountAsync(l => l.ActionDate.Date == today),
+                TotalCategories = await _uow.Categories.Query().CountAsync()
             };
 
             return ApiResponse<DashboardStatsDto>.Ok(stats);
@@ -327,15 +330,15 @@ namespace InventoryManagement.Application.Services
                     return ApiResponse<object>.Fail("The Excel file contains no data.");
                 }
 
-                var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+                var defaultWarehouse = await _uow.Warehouses.Query().FirstOrDefaultAsync();
                 if (defaultWarehouse == null)
                 {
                     return ApiResponse<object>.Fail("No warehouse exists in the database. Please create a warehouse before importing.");
                 }
 
-                var categories = await _db.Categories.Where(c => c.IsActive).ToListAsync();
-                var brands = await _db.Brands.Where(b => b.IsActive).ToListAsync();
-                var units = await _db.Units.Where(u => u.IsActive).ToListAsync();
+                var categories = await _uow.Categories.Query().Where(c => c.IsActive).ToListAsync();
+                var brands = await _uow.Brands.Query().Where(b => b.IsActive).ToListAsync();
+                var units = await _uow.Units.Query().Where(u => u.IsActive).ToListAsync();
 
                 int importedCount = 0;
                 int skippedCount = 0;
@@ -353,7 +356,7 @@ namespace InventoryManagement.Application.Services
                         continue;
                     }
 
-                    if (await _db.Products.AnyAsync(p => p.SKU == sku && p.IsActive))
+                    if (await _uow.Products.AnyAsync(p => p.SKU == sku && p.IsActive))
                     {
                         skippedCount++;
                         continue;
@@ -391,8 +394,8 @@ namespace InventoryManagement.Application.Services
                         if (cat == null)
                         {
                             cat = new Category { Name = categoryName, IsActive = true };
-                            _db.Categories.Add(cat);
-                            await _db.SaveChangesAsync();
+                            _uow.Categories.Add(cat);
+                            await _uow.SaveChangesAsync();
                             categories.Add(cat);
                         }
                         categoryId = cat.Id;
@@ -406,8 +409,8 @@ namespace InventoryManagement.Application.Services
                         if (brd == null)
                         {
                             brd = new Brand { Name = brandName, IsActive = true };
-                            _db.Brands.Add(brd);
-                            await _db.SaveChangesAsync();
+                            _uow.Brands.Add(brd);
+                            await _uow.SaveChangesAsync();
                             brands.Add(brd);
                         }
                         brandId = brd.Id;
@@ -421,8 +424,8 @@ namespace InventoryManagement.Application.Services
                         if (un == null)
                         {
                             un = new Unit { Name = unitName, IsActive = true };
-                            _db.Units.Add(un);
-                            await _db.SaveChangesAsync();
+                            _uow.Units.Add(un);
+                            await _uow.SaveChangesAsync();
                             units.Add(un);
                         }
                         unitId = un.Id;
@@ -447,19 +450,16 @@ namespace InventoryManagement.Application.Services
                         UpdatedAt = DateTime.UtcNow
                     };
 
-                    product.ProductStocks.Add(new ProductStock
-                    {
-                        WarehouseId = defaultWarehouse.Id,
-                        Quantity = quantity,
-                        MinQuantity = minQuantity
-                    });
+                    var newStock = new ProductStock { WarehouseId = defaultWarehouse.Id };
+                    newStock.InitializeStock(quantity, minQuantity);
+                    product.ProductStocks.Add(newStock);
 
-                    _db.Products.Add(product);
-                    await _db.SaveChangesAsync();
+                    _uow.Products.Add(product);
+                    await _uow.SaveChangesAsync();
 
                     if (quantity > 0)
                     {
-                        _db.InventoryLogs.Add(new InventoryLog
+                        _uow.InventoryLogs.Add(new InventoryLog
                         {
                             ProductId = product.Id,
                             WarehouseId = defaultWarehouse.Id,
@@ -470,13 +470,13 @@ namespace InventoryManagement.Application.Services
                             Notes = "Bulk Import Stock",
                             ActionDate = DateTime.UtcNow
                         });
-                        await _db.SaveChangesAsync();
+                        await _uow.SaveChangesAsync();
                     }
 
                     importedCount++;
                 }
 
-                _db.AddNotification("Bulk Import Success", $"Imported {importedCount} products. Skipped {skippedCount} duplicates.", "Success", "All");
+                _uow.AddNotification("Bulk Import Success", $"Imported {importedCount} products. Skipped {skippedCount} duplicates.", "Success", "All");
                 return ApiResponse<object>.Ok(new { ImportedCount = importedCount, SkippedCount = skippedCount }, $"Successfully imported {importedCount} products. Skipped {skippedCount} duplicate/invalid rows.");
             }
             catch (Exception ex)

@@ -1,5 +1,6 @@
 using InventoryManagement.Application.Extensions;
 using InventoryManagement.Application.Common.Interfaces;
+using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Inventory_Dtos;
 using InventoryManagement.Domain.Entities;
@@ -10,37 +11,38 @@ namespace InventoryManagement.Application.Services
 {
     public class InventoryService : IInventoryService
     {
-        private readonly IAppDbContext _db;
+        private readonly IUnitOfWork _uow;
 
-        public InventoryService(IAppDbContext db)
+        public InventoryService(IUnitOfWork uow)
         {
-            _db = db;
+            _uow = uow;
         }
 
         public async Task<ApiResponse<object>> AddItemAsync(AddInventoryDto dto, int userId)
         {
-            var product = await _db.Products.Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+            var product = await _uow.Products.Query().Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound("Product not found");
 
             if (dto.QuantityToAdd <= 0)
                 return ApiResponse<object>.Fail("Quantity to add must be greater than zero");
 
-            var warehouseId = dto.WarehouseId ?? (await _db.Warehouses.FirstOrDefaultAsync())?.Id ?? 0;
+            var warehouseId = dto.WarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
             if (warehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
 
             var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == warehouseId);
             if (stock == null)
             {
-                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id, Quantity = 0, MinQuantity = 0 };
+                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id };
+                stock.InitializeStock(0, 0);
                 product.ProductStocks.Add(stock);
             }
 
             var previous = stock.Quantity;
-            stock.Quantity += dto.QuantityToAdd;
+            stock.ReceiveStock(dto.QuantityToAdd);
             product.UpdatedAt = DateTime.UtcNow;
 
-            _db.InventoryLogs.Add(new InventoryLog
+            _uow.InventoryLogs.Add(new InventoryLog
             {
                 ProductId = product.Id,
                 UserId = userId,
@@ -52,11 +54,11 @@ namespace InventoryManagement.Application.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.AddNotification("Stock Added", $"{dto.QuantityToAdd} units of '{product.Name}' added. New stock: {stock.Quantity}.", "Success", "All");
+            _uow.AddNotification("Stock Added", $"{dto.QuantityToAdd} units of '{product.Name}' added. New stock: {stock.Quantity}.", "Success", "All");
 
             try
             {
-                await _db.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
                 return ApiResponse<object>.Ok(null!, $"Added {dto.QuantityToAdd} units. New stock: {stock.Quantity}");
             }
             catch (DbUpdateConcurrencyException)
@@ -67,14 +69,14 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> SellProductAsync(SellProductDto dto, int userId)
         {
-            var product = await _db.Products.Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+            var product = await _uow.Products.Query().Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound("Product not found");
 
             if (dto.QuantityToSell <= 0)
                 return ApiResponse<object>.Fail("Quantity to sell must be greater than zero");
 
-            var warehouseId = dto.WarehouseId ?? (await _db.Warehouses.FirstOrDefaultAsync())?.Id ?? 0;
+            var warehouseId = dto.WarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
             if (warehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
 
             var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == warehouseId);
@@ -84,10 +86,10 @@ namespace InventoryManagement.Application.Services
                 return ApiResponse<object>.Fail($"Insufficient stock. Available: {stock.Quantity}, Requested: {dto.QuantityToSell}");
 
             var previous = stock.Quantity;
-            stock.Quantity -= dto.QuantityToSell;
+            stock.ShipStock(dto.QuantityToSell);
             product.UpdatedAt = DateTime.UtcNow;
 
-            _db.InventoryLogs.Add(new InventoryLog
+            _uow.InventoryLogs.Add(new InventoryLog
             {
                 ProductId = product.Id,
                 UserId = userId,
@@ -99,16 +101,16 @@ namespace InventoryManagement.Application.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.AddNotification("Stock Sold", $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {stock.Quantity}.", "Info", "All");
+            _uow.AddNotification("Stock Sold", $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {stock.Quantity}.", "Info", "All");
 
             if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
             {
-                _db.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
+                _uow.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
             }
 
             try
             {
-                await _db.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
                 return ApiResponse<object>.Ok(null!, $"Sold {dto.QuantityToSell} units. Remaining stock: {stock.Quantity}");
             }
             catch (DbUpdateConcurrencyException)
@@ -119,29 +121,30 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> AdjustStockAsync(AdjustStockDto dto, int userId)
         {
-            var product = await _db.Products.Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+            var product = await _uow.Products.Query().Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound("Product not found");
 
             if (dto.NewQuantity < 0)
                 return ApiResponse<object>.Fail("Quantity cannot be negative");
 
-            var warehouseId = dto.WarehouseId ?? (await _db.Warehouses.FirstOrDefaultAsync())?.Id ?? 0;
+            var warehouseId = dto.WarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
             if (warehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
 
             var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == warehouseId);
             if (stock == null)
             {
-                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id, Quantity = 0, MinQuantity = 0 };
+                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id };
+                stock.InitializeStock(0, 0);
                 product.ProductStocks.Add(stock);
             }
 
             var previous = stock.Quantity;
             var change = dto.NewQuantity - previous;
-            stock.Quantity = dto.NewQuantity;
+            stock.AdjustStock(dto.NewQuantity);
             product.UpdatedAt = DateTime.UtcNow;
 
-            _db.InventoryLogs.Add(new InventoryLog
+            _uow.InventoryLogs.Add(new InventoryLog
             {
                 ProductId = product.Id,
                 UserId = userId,
@@ -153,16 +156,16 @@ namespace InventoryManagement.Application.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "SuperAdmin");
+            _uow.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "SuperAdmin");
 
             if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
             {
-                _db.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
+                _uow.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
             }
 
             try
             {
-                await _db.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
                 return ApiResponse<object>.Ok(null!, $"Stock adjusted from {previous} to {dto.NewQuantity}");
             }
             catch (DbUpdateConcurrencyException)
@@ -173,28 +176,29 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> ReturnProductAsync(ReturnProductDto dto, int userId)
         {
-            var product = await _db.Products.Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+            var product = await _uow.Products.Query().Include(p => p.ProductStocks).FirstOrDefaultAsync(p => p.Id == dto.ProductId);
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound("Product not found");
 
             if (dto.QuantityToReturn <= 0)
                 return ApiResponse<object>.Fail("Return quantity must be greater than zero");
 
-            var warehouseId = dto.WarehouseId ?? (await _db.Warehouses.FirstOrDefaultAsync())?.Id ?? 0;
+            var warehouseId = dto.WarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
             if (warehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
 
             var stock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == warehouseId);
             if (stock == null)
             {
-                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id, Quantity = 0, MinQuantity = 0 };
+                stock = new ProductStock { WarehouseId = warehouseId, ProductId = product.Id };
+                stock.InitializeStock(0, 0);
                 product.ProductStocks.Add(stock);
             }
 
             var previous = stock.Quantity;
-            stock.Quantity += dto.QuantityToReturn;
+            stock.ReceiveStock(dto.QuantityToReturn);
             product.UpdatedAt = DateTime.UtcNow;
 
-            _db.InventoryLogs.Add(new InventoryLog
+            _uow.InventoryLogs.Add(new InventoryLog
             {
                 ProductId = product.Id,
                 UserId = userId,
@@ -206,11 +210,11 @@ namespace InventoryManagement.Application.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.AddNotification("Stock Returned", $"{dto.QuantityToReturn} units of '{product.Name}' returned. New stock: {stock.Quantity}.", "Info", "All");
+            _uow.AddNotification("Stock Returned", $"{dto.QuantityToReturn} units of '{product.Name}' returned. New stock: {stock.Quantity}.", "Info", "All");
 
             try
             {
-                await _db.SaveChangesAsync();
+                await _uow.SaveChangesAsync();
                 return ApiResponse<object>.Ok(null!, $"Returned {dto.QuantityToReturn} units. New stock: {stock.Quantity}");
             }
             catch (DbUpdateConcurrencyException)
@@ -221,7 +225,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<PagedResult<InventoryLogDto>>> GetAllLogsAsync(InventoryLogQueryParams query)
         {
-            var q = _db.InventoryLogs
+            var q = _uow.InventoryLogs.Query()
                 .Include(l => l.Product)
                 .Include(l => l.User)
                 .AsQueryable();
@@ -286,7 +290,7 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<List<InventoryLogDto>>> GetLogsByProductAsync(int productId)
         {
-            var logs = await _db.InventoryLogs
+            var logs = await _uow.InventoryLogs.Query()
                 .Include(l => l.Product)
                 .Include(l => l.User)
                 .Where(l => l.ProductId == productId)
