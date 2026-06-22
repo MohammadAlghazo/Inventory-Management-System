@@ -15,6 +15,9 @@
           <lucide-icon [img]="icons.LayoutGrid" [size]="16"></lucide-icon>
         </button>
       </div>
+      <button *ngIf="isAdmin" class="btn btn-secondary" (click)="openImportModal()" style="display: flex; align-items: center; gap: 6px; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer;">
+        Import Excel
+      </button>
       <button *ngIf="isAdmin" class="btn btn-primary" (click)="openAddProduct()" style="display: flex; align-items: center; gap: 6px;">
         <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon> {{ 'PRODUCTS.ADD_PRODUCT' | translate }}
       </button>
@@ -307,4 +310,44 @@
     (close)="closeImageModal()"
     (imageUploaded)="onImageUploaded($event)">
   </app-profile-picture-modal>
+
+  <!-- Import Modal -->
+  <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()">
+    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">Bulk Import Products</h3>
+      </div>
+      <div class="custom-modal-body">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+          Upload an Excel (.xlsx) file to import products. The Excel sheet should contain columns:
+          <strong>Name, SKU, Price, PurchasePrice, Quantity, MinQuantity, Category, Brand, Unit, Barcode, Description</strong>.
+        </p>
+        
+        <div style="margin-bottom: 20px;">
+          <a (click)="downloadTemplate()" style="color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 13px; font-weight: bold;">
+            Download Template Excel File
+          </a>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="display: block; margin-bottom: 6px; font-weight: 500;">Select Excel File</label>
+          <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" class="form-input">
+        </div>
+
+        <div *ngIf="importError" class="badge badge-danger" style="margin-top: 12px; font-size: 13px; display: block; padding: 8px; text-align: left; white-space: normal;">
+          {{ importError }}
+        </div>
+        <div *ngIf="importSuccess" class="badge badge-success" style="margin-top: 12px; font-size: 13px; display: block; padding: 8px; text-align: left; white-space: normal;">
+          {{ importSuccess }}
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button (click)="closeImportModal()" class="btn btn-ghost" [disabled]="importing">Close</button>
+        <button (click)="submitImport()" class="btn btn-primary" [disabled]="importing || !selectedImportFile">
+          <span class="spinner" *ngIf="importing"></span>
+          Upload & Import
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

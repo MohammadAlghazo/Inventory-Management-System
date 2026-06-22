@@ -6,6 +6,7 @@ namespace InventoryManagement.Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsActive { get; set; } = true;
 
         public int? ParentCategoryId { get; set; }
         public Category? ParentCategory { get; set; }

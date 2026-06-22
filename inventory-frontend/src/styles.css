@@ -99,8 +99,11 @@
   --shadow-glow: 0 0 20px rgba(200, 75, 42, 0.08);
 }
 
-[dir="rtl"] {
-  font-family: var(--font-arabic);
+[dir="rtl"] body,
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4, [dir="rtl"] h5, [dir="rtl"] h6,
+[dir="rtl"] .form-input, [dir="rtl"] .form-select, [dir="rtl"] .form-textarea,
+[dir="rtl"] .btn, [dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select, [dir="rtl"] button {
+  font-family: var(--font-arabic) !important;
 }
 
 *, *::before, *::after {

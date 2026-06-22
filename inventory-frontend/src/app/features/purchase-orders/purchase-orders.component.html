@@ -15,6 +15,12 @@
           (keyup)="onSearch($event)"
         >
       </div>
+      <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="loading || orders.length === 0">
+        Excel
+      </button>
+      <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="loading || orders.length === 0">
+        PDF
+      </button>
       <button (click)="openCreateModal()" class="btn btn-primary" style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
         <lucide-icon [img]="PlusIcon" [size]="16"></lucide-icon> Create PO
       </button>
@@ -23,7 +29,7 @@
 
   <div class="card" style="padding: 0;">
     <div class="table-wrapper">
-      <table>
+      <table id="purchase-orders-table">
         <thead>
           <tr>
             <th>Order #</th>
@@ -88,6 +94,31 @@
           </ng-container>
         </tbody>
       </table>
+    </div>
+
+    <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span class="pagination-info" style="margin: 0;">Page {{ currentPage }} / {{ totalPages }}</span>
+        <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
+          <option [value]="5">5</option>
+          <option [value]="10">10</option>
+          <option [value]="15">15</option>
+          <option [value]="25">25</option>
+          <option [value]="50">50</option>
+          <option [value]="100">100</option>
+        </select>
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+          <lucide-icon [img]="ChevronLeftIcon" [size]="14"></lucide-icon>
+        </button>
+        <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: currentPage === pg }" (click)="goToPage(pg)">
+          {{ pg }}
+        </button>
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+          <lucide-icon [img]="ChevronRightIcon" [size]="14"></lucide-icon>
+        </button>
+      </div>
     </div>
   </div>
 

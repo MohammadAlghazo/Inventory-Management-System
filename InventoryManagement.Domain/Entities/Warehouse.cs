@@ -8,6 +8,7 @@ namespace InventoryManagement.Domain.Entities
         public string ManagerName { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsDefault { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int? BranchId { get; set; }

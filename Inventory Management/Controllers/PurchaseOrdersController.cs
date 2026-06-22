@@ -51,14 +51,11 @@ namespace InventoryManagement.Api.Controllers
         [HttpPost("{id}/receive")]
         public async Task<IActionResult> Receive(int id, [FromBody] ReceivePurchaseOrderDto dto)
         {
-            if (id != dto.PurchaseOrderId)
-                return BadRequest("ID mismatch");
-
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out int userId))
                 return Unauthorized();
 
-            var response = await _purchaseOrderService.ReceivePurchaseOrderAsync(id, userId);
+            var response = await _purchaseOrderService.ReceivePurchaseOrderAsync(id, dto, userId);
             if (!response.Success)
                 return BadRequest(response);
 

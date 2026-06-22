@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InventoryManagement.Domain.Entities
 {
     public class ProductStock
@@ -9,6 +11,8 @@ namespace InventoryManagement.Domain.Entities
         public Warehouse Warehouse { get; set; } = null!;
 
         public int Quantity { get; set; }
+        public int ReservedQuantity { get; set; }
         public int MinQuantity { get; set; }
+        public uint xmin { get; set; }
     }
 }

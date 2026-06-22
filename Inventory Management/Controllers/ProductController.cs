@@ -72,5 +72,17 @@ namespace InventoryManagement.Api.Controllers
             var result = await _productService.DeleteAsync(id);
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpPost("import")]
+        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        public async Task<IActionResult> Import(Microsoft.AspNetCore.Http.IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            using var stream = file.OpenReadStream();
+            var result = await _productService.ImportFromExcelAsync(stream);
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }

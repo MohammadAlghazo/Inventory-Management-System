@@ -11,6 +11,7 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
+import { Html5Qrcode } from 'html5-qrcode';
 
 @Component({
   selector: 'app-inventory',
@@ -160,7 +161,83 @@ export class InventoryComponent implements OnInit {
     this.actionError = '';
   }
 
+  scanning = false;
+  scanFeedback = '';
+  qrReader: any = null;
+
+  toggleScanner() {
+    if (this.scanning) {
+      this.stopScanner();
+    } else {
+      this.startScanner();
+    }
+  }
+
+  startScanner() {
+    this.scanning = true;
+    this.scanFeedback = '';
+    this.cdr.markForCheck();
+
+    setTimeout(() => {
+      this.qrReader = new Html5Qrcode('barcode-reader-elem');
+      this.qrReader.start(
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 150 }
+        },
+        (decodedText: string) => {
+          this.scanFeedback = `Scanned: ${decodedText}`;
+          this.cdr.markForCheck();
+
+          const matched = this.products.find(p => p.barcode === decodedText || p.sku === decodedText);
+          if (matched) {
+            this.selectedProductId = matched.id;
+            this.scanFeedback = `Found: ${matched.name}`;
+            this.cdr.markForCheck();
+            
+            setTimeout(() => {
+              this.stopScanner();
+            }, 1500);
+          } else {
+            this.scanFeedback = `Code "${decodedText}" not matched.`;
+            this.cdr.markForCheck();
+          }
+        },
+        (errorMessage: string) => {
+          // Silent
+        }
+      ).catch((err: any) => {
+        console.error('Error starting scanner:', err);
+        this.scanFeedback = 'Camera access denied or device not found.';
+        this.cdr.markForCheck();
+      });
+    }, 100);
+  }
+
+  stopScanner() {
+    if (this.qrReader) {
+      this.qrReader.stop().then(() => {
+        this.scanning = false;
+        this.scanFeedback = '';
+        this.qrReader = null;
+        this.cdr.markForCheck();
+      }).catch((err: any) => {
+        console.error('Error stopping scanner:', err);
+        this.scanning = false;
+        this.scanFeedback = '';
+        this.qrReader = null;
+        this.cdr.markForCheck();
+      });
+    } else {
+      this.scanning = false;
+      this.scanFeedback = '';
+      this.cdr.markForCheck();
+    }
+  }
+
   closeActionModal() {
+    this.stopScanner();
     this.actionModal = null;
   }
 

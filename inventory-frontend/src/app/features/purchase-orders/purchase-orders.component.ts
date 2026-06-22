@@ -7,8 +7,11 @@ import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { LookupService } from '../../core/services/lookup.service';
 import { SupplierService } from '../../core/services/supplier.service';
 import { ProductService } from '../../core/services/product.service';
-import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Package, X, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Package, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-purchase-orders',
@@ -47,13 +50,17 @@ export class PurchaseOrdersComponent implements OnInit {
   PackageIcon = Package;
   XIcon = X;
   Trash2Icon = Trash2;
+  ChevronLeftIcon = ChevronLeft;
+  ChevronRightIcon = ChevronRight;
 
   constructor(
     private poService: PurchaseOrderService,
     private lookupService: LookupService,
     private supplierService: SupplierService,
     private productService: ProductService,
-    private sweetAlert: SweetAlertService
+    private sweetAlert: SweetAlertService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
   ) {}
 
   ngOnInit(): void {
@@ -75,6 +82,22 @@ export class PurchaseOrdersComponent implements OnInit {
           this.loading = false;
         }
       });
+  }
+
+  exportToExcel() {
+    const dataToExport = this.orders.map(o => ({
+      'Order #': o.orderNumber,
+      'Supplier': o.supplierName,
+      'Warehouse': o.warehouseName,
+      'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
+      'Total': o.totalAmount,
+      'Status': o.status
+    }));
+    this.exportExcel.export(dataToExport, 'Purchase_Orders_Report');
+  }
+
+  exportToPdf() {
+    this.exportPdf.export('purchase-orders-table', 'Purchase_Orders_Report');
   }
 
   onSearch(event: any): void {
@@ -178,5 +201,41 @@ export class PurchaseOrdersComponent implements OnInit {
         this.sweetAlert.error('Error', err.error?.message || 'Failed to create PO');
       }
     });
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalCount / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadOrders();
+    }
+  }
+
+  goToPage(pg: number): void {
+    this.currentPage = pg;
+    this.loadOrders();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  getPagesArray(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 }

@@ -44,7 +44,7 @@ namespace InventoryManagement.Application.Services
             var token = GenerateJwtToken(user);
             var refreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = refreshToken;
+            user.RefreshToken = ComputeSha256Hash(refreshToken);
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(
                 _config.GetValue<int>("JwtSettings:RefreshTokenExpirationDays", 7));
             user.UpdatedAt = DateTime.UtcNow;
@@ -55,8 +55,9 @@ namespace InventoryManagement.Application.Services
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                ExpiresAt = DateTime.UtcNow.AddDays(_config.GetValue<int>("JwtSettings:ExpirationDays", 1)),
-                User = MapToProfile(user)
+                ExpiresAt = DateTime.UtcNow.AddHours(_config.GetValue<int>("JwtSettings:ExpirationHours", 1)),
+                User = MapToProfile(user),
+                MustChangePassword = user.MustChangePassword
             }, "Login successful");
         }
 
@@ -76,6 +77,9 @@ namespace InventoryManagement.Application.Services
             var role = await _db.Roles.FirstOrDefaultAsync(r => r.Name == dto.Role);
             if (role == null)
                 return ApiResponse<object>.Fail("Invalid role");
+
+            if (requestingUser.RoleId == 2 && role.Id == 1)
+                return ApiResponse<object>.Forbidden("Inventory Managers cannot register SuperAdmin users");
 
             var newUser = new User
             {
@@ -120,7 +124,8 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<AuthResponseDto>> RefreshTokenAsync(string refreshToken)
         {
-            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            string hashedToken = ComputeSha256Hash(refreshToken);
+            var user = await _db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.RefreshToken == hashedToken);
 
             if (user == null || user.RefreshTokenExpiry < DateTime.UtcNow)
                 return ApiResponse<AuthResponseDto>.Unauthorized("Invalid or expired refresh token");
@@ -128,7 +133,7 @@ namespace InventoryManagement.Application.Services
             var token = GenerateJwtToken(user);
             var newRefreshToken = GenerateRefreshToken();
 
-            user.RefreshToken = newRefreshToken;
+            user.RefreshToken = ComputeSha256Hash(newRefreshToken);
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(
                 _config.GetValue<int>("JwtSettings:RefreshTokenExpirationDays", 7));
             user.UpdatedAt = DateTime.UtcNow;
@@ -139,8 +144,9 @@ namespace InventoryManagement.Application.Services
             {
                 Token = token,
                 RefreshToken = newRefreshToken,
-                ExpiresAt = DateTime.UtcNow.AddDays(_config.GetValue<int>("JwtSettings:ExpirationDays", 1)),
-                User = MapToProfile(user)
+                ExpiresAt = DateTime.UtcNow.AddHours(_config.GetValue<int>("JwtSettings:ExpirationHours", 1)),
+                User = MapToProfile(user),
+                MustChangePassword = user.MustChangePassword
             });
         }
 
@@ -165,6 +171,7 @@ namespace InventoryManagement.Application.Services
                 return ApiResponse<object>.Fail("Current password is incorrect");
 
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            user.MustChangePassword = false;
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
@@ -200,6 +207,7 @@ namespace InventoryManagement.Application.Services
             string tempPassword = GenerateRandomPassword(8);
             
             user.HashedPassword = BCrypt.Net.BCrypt.HashPassword(tempPassword);
+            user.MustChangePassword = true;
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
@@ -256,13 +264,13 @@ namespace InventoryManagement.Application.Services
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-            var expirationDays = _config.GetValue<int>("JwtSettings:ExpirationDays", 1);
+            var expirationHours = _config.GetValue<int>("JwtSettings:ExpirationHours", 1);
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
                 claims: claims,
                 signingCredentials: creds,
-                expires: DateTime.UtcNow.AddDays(expirationDays)
+                expires: DateTime.UtcNow.AddHours(expirationHours)
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -291,10 +299,25 @@ namespace InventoryManagement.Application.Services
                 Role = roleName,
                 IsAdmin = user.RoleId == 1 || user.RoleId == 2,
                 IsActive = user.IsActive,
+                MustChangePassword = user.MustChangePassword,
                 ProfilePicture = user.ProfilePicture,
                 CreatedAt = user.CreatedAt,
                 Permissions = user.Role?.RolePermissions?.Select(rp => rp.Permission.SystemName).ToList() ?? new List<string>()
             };
+        }
+
+        private static string ComputeSha256Hash(string rawData)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }

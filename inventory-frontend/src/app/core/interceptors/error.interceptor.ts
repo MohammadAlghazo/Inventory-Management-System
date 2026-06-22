@@ -6,8 +6,17 @@ import { SweetAlertService } from '../services/sweetalert.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const swalService = inject(SweetAlertService);
+  const skipAlert = req.headers.has('X-Skip-Error-Alert');
 
-  return next(req).pipe(
+  // Strip the header so it doesn't get sent to the backend
+  let targetReq = req;
+  if (skipAlert) {
+    targetReq = req.clone({
+      headers: req.headers.delete('X-Skip-Error-Alert')
+    });
+  }
+
+  return next(targetReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Don't intercept 401 Unauthorized here, auth.interceptor handles it
       if (error.status === 401) {
@@ -56,8 +65,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
-      // Show user-friendly SweetAlert instead of technical jargon
-      swalService.error(errorTitle, errorMessage);
+      if (!skipAlert) {
+        // Show user-friendly SweetAlert instead of technical jargon
+        swalService.error(errorTitle, errorMessage);
+      }
 
       return throwError(() => error);
     })

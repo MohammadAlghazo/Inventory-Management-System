@@ -33,10 +33,11 @@ namespace InventoryManagement.Application.Services
             }
 
             var totalCount = await query.CountAsync();
+            var clampedPageSize = Math.Min(pageSize, 100);
             var items = await query
                 .OrderByDescending(p => p.OrderDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((page - 1) * clampedPageSize)
+                .Take(clampedPageSize)
                 .ToListAsync();
 
             var dtos = items.Select(MapToDto).ToList();
@@ -108,10 +109,11 @@ namespace InventoryManagement.Application.Services
             return await GetPurchaseOrderByIdAsync(order.Id);
         }
 
-        public async Task<ApiResponse<object>> ReceivePurchaseOrderAsync(int id, int userId)
+        public async Task<ApiResponse<object>> ReceivePurchaseOrderAsync(int id, ReceivePurchaseOrderDto dto, int userId)
         {
             var order = await _db.PurchaseOrders
                 .Include(p => p.Items)
+                    .ThenInclude(i => i.Product)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (order == null)
@@ -120,8 +122,20 @@ namespace InventoryManagement.Application.Services
             if (order.Status == OrderStatus.Completed)
                 return ApiResponse<object>.Fail("Order is already fully received.");
 
-            foreach (var item in order.Items)
+            if (dto.Items == null || !dto.Items.Any())
+                return ApiResponse<object>.Fail("No received items were specified.");
+
+            foreach (var receivedItem in dto.Items)
             {
+                if (receivedItem.QuantityReceived <= 0) continue;
+
+                var item = order.Items.FirstOrDefault(i => i.ProductId == receivedItem.ProductId);
+                if (item == null)
+                    return ApiResponse<object>.Fail($"Product with ID {receivedItem.ProductId} is not part of this purchase order.");
+
+                if (item.QuantityReceived + receivedItem.QuantityReceived > item.QuantityOrdered)
+                    return ApiResponse<object>.Fail($"Cannot receive more than ordered for Product '{item.Product?.Name}'. Ordered: {item.QuantityOrdered}, Already Received: {item.QuantityReceived}, New Receipt: {receivedItem.QuantityReceived}");
+
                 var product = await _db.Products
                     .Include(p => p.ProductStocks)
                     .FirstOrDefaultAsync(p => p.Id == item.ProductId);
@@ -144,7 +158,7 @@ namespace InventoryManagement.Application.Services
                     product.ProductStocks.Add(productStock);
                 }
 
-                int receivedQty = item.QuantityOrdered - item.QuantityReceived;
+                int receivedQty = receivedItem.QuantityReceived;
 
                 // Weighted Average Cost (WAC) Calculation
                 int currentTotalQty = product.ProductStocks.Sum(ps => ps.Quantity);
@@ -169,13 +183,25 @@ namespace InventoryManagement.Application.Services
                     PreviousQuantity = productStock.Quantity - receivedQty,
                     NewQuantity = productStock.Quantity,
                     Action = InventoryAction.ReceivePO,
-                    Notes = $"Received items for Purchase Order {order.OrderNumber}",
+                    Notes = string.IsNullOrWhiteSpace(dto.Notes) ? $"Received items for Purchase Order {order.OrderNumber}" : dto.Notes,
                     UserId = userId,
                     ActionDate = DateTime.UtcNow
                 });
             }
 
-            order.Status = OrderStatus.Completed;
+            // Check if order is fully completed or partially received
+            bool allCompleted = order.Items.All(i => i.QuantityReceived == i.QuantityOrdered);
+            bool anyReceived = order.Items.Any(i => i.QuantityReceived > 0);
+
+            if (allCompleted)
+            {
+                order.Status = OrderStatus.Completed;
+            }
+            else if (anyReceived)
+            {
+                order.Status = OrderStatus.Partial;
+            }
+
             await _db.SaveChangesAsync();
 
             return ApiResponse<object>.Ok(null, "Purchase order received successfully and inventory updated.");

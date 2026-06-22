@@ -54,7 +54,13 @@ namespace InventoryManagement.Application.Dtos
 
     public class ReceivePurchaseOrderDto
     {
-        public int PurchaseOrderId { get; set; }
         public string Notes { get; set; } = string.Empty;
+        public List<ReceivePurchaseOrderItemDto> Items { get; set; } = new();
+    }
+
+    public class ReceivePurchaseOrderItemDto
+    {
+        public int ProductId { get; set; }
+        public int QuantityReceived { get; set; }
     }
 }

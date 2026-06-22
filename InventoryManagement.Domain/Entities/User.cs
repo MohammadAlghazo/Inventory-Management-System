@@ -11,6 +11,7 @@ namespace InventoryManagement.Domain.Entities
         public int? RoleId { get; set; }
         public Role? Role { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool MustChangePassword { get; set; } = false;
         public string? ProfilePicture { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiry { get; set; }

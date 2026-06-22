@@ -13,6 +13,7 @@ namespace InventoryManagement.Application.Services
         Task<ApiResponse<List<ProductDto>>> GetLowStockAsync();
         Task<ApiResponse<List<string>>> GetCategoriesAsync();
         Task<ApiResponse<DashboardStatsDto>> GetDashboardStatsAsync();
+        Task<ApiResponse<object>> ImportFromExcelAsync(Stream fileStream);
     }
 }
 

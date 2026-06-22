@@ -50,8 +50,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext")));
+builder.Services.AddScoped<AuditTrailInterceptor>();
+
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("AppDbContext"));
+    var interceptor = serviceProvider.GetRequiredService<AuditTrailInterceptor>();
+    options.AddInterceptors(interceptor);
+});
 
 var jwtKey = builder.Configuration["JwtSettings:SecretKey"]
     ?? throw new InvalidOperationException("JWT SecretKey is not configured in appsettings.json");
@@ -84,7 +90,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin => true)
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -113,6 +119,7 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IEmailService, GoogleAppsScriptEmailService>();
 builder.Services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
 builder.Services.AddScoped<IAuthService, AuthService>();

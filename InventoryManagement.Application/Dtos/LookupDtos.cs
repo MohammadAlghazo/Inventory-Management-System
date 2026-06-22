@@ -51,6 +51,7 @@ namespace InventoryManagement.Application.Dtos
         public string ManagerName { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public bool IsActive { get; set; }
+        public bool IsDefault { get; set; }
     }
 
     public class CreateWarehouseDto
@@ -60,6 +61,7 @@ namespace InventoryManagement.Application.Dtos
         public string ManagerName { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public bool IsActive { get; set; } = true;
+        public bool IsDefault { get; set; }
     }
 
     public class UpdateCategoryDto : CreateCategoryDto { }

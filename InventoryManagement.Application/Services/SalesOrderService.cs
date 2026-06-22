@@ -33,10 +33,11 @@ namespace InventoryManagement.Application.Services
             }
 
             var totalCount = await query.CountAsync();
+            var clampedPageSize = Math.Min(pageSize, 100);
             var items = await query
                 .OrderByDescending(s => s.OrderDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((page - 1) * clampedPageSize)
+                .Take(clampedPageSize)
                 .ToListAsync();
 
             var dtos = items.Select(MapToDto).ToList();
@@ -91,10 +92,18 @@ namespace InventoryManagement.Application.Services
                 var productStock = await _db.ProductStocks
                     .FirstOrDefaultAsync(ps => ps.ProductId == item.ProductId && ps.WarehouseId == dto.WarehouseId);
 
-                if (productStock == null || productStock.Quantity < item.Quantity)
+                if (productStock == null)
                 {
-                    return ApiResponse<SalesOrderDto>.Fail($"Insufficient stock for product ID {item.ProductId} in selected warehouse.");
+                    return ApiResponse<SalesOrderDto>.Fail($"Stock record not found for product ID {item.ProductId} in selected warehouse.");
                 }
+
+                int availableQuantity = productStock.Quantity - productStock.ReservedQuantity;
+                if (availableQuantity < item.Quantity)
+                {
+                    return ApiResponse<SalesOrderDto>.Fail($"Insufficient available stock for product ID {item.ProductId} in selected warehouse. Available: {availableQuantity}, Requested: {item.Quantity}");
+                }
+
+                productStock.ReservedQuantity += item.Quantity;
 
                 var total = (item.Quantity * item.UnitPrice) - item.Discount;
                 totalAmount += total;
@@ -141,6 +150,7 @@ namespace InventoryManagement.Application.Services
 
                 int oldQuantity = productStock.Quantity;
                 productStock.Quantity -= item.Quantity;
+                productStock.ReservedQuantity = Math.Max(0, productStock.ReservedQuantity - item.Quantity);
 
                 _db.InventoryLogs.Add(new InventoryLog
                 {

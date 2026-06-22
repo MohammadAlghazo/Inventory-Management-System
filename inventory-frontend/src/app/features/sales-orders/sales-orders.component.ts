@@ -7,8 +7,11 @@ import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { LookupService } from '../../core/services/lookup.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
-import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2 } from 'lucide-angular';
+import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { ExportExcelService } from '../../core/services/export-excel.service';
+import { ExportPdfService } from '../../core/services/export-pdf.service';
 
 @Component({
   selector: 'app-sales-orders',
@@ -47,13 +50,17 @@ export class SalesOrdersComponent implements OnInit {
   TruckIcon = Truck;
   XIcon = X;
   Trash2Icon = Trash2;
+  ChevronLeftIcon = ChevronLeft;
+  ChevronRightIcon = ChevronRight;
 
   constructor(
     private soService: SalesOrderService,
     private lookupService: LookupService,
     private customerService: CustomerService,
     private productService: ProductService,
-    private sweetAlert: SweetAlertService
+    private sweetAlert: SweetAlertService,
+    private exportExcel: ExportExcelService,
+    private exportPdf: ExportPdfService
   ) {}
 
   ngOnInit(): void {
@@ -75,6 +82,22 @@ export class SalesOrdersComponent implements OnInit {
           this.loading = false;
         }
       });
+  }
+
+  exportToExcel() {
+    const dataToExport = this.orders.map(o => ({
+      'Order #': o.orderNumber,
+      'Customer': o.customerName,
+      'Warehouse': o.warehouseName,
+      'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
+      'Total': o.totalAmount,
+      'Status': o.status
+    }));
+    this.exportExcel.export(dataToExport, 'Sales_Orders_Report');
+  }
+
+  exportToPdf() {
+    this.exportPdf.export('sales-orders-table', 'Sales_Orders_Report');
   }
 
   onSearch(event: any): void {
@@ -178,5 +201,41 @@ export class SalesOrdersComponent implements OnInit {
         this.sweetAlert.error('Error', err.error?.message || 'Failed to create SO');
       }
     });
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalCount / this.pageSize);
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadOrders();
+    }
+  }
+
+  goToPage(pg: number): void {
+    this.currentPage = pg;
+    this.loadOrders();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  getPagesArray(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 }

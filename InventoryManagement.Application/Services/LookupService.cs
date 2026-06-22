@@ -78,7 +78,7 @@ namespace InventoryManagement.Application.Services
             var category = await _db.Categories.FindAsync(id);
             if (category == null) return ApiResponse<bool>.NotFound("Category not found");
 
-            _db.Categories.Remove(category);
+            category.IsActive = false;
             await _db.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Category deleted successfully");
@@ -138,7 +138,7 @@ namespace InventoryManagement.Application.Services
             var brand = await _db.Brands.FindAsync(id);
             if (brand == null) return ApiResponse<bool>.NotFound("Brand not found");
 
-            _db.Brands.Remove(brand);
+            brand.IsActive = false;
             await _db.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Brand deleted successfully");
@@ -198,7 +198,7 @@ namespace InventoryManagement.Application.Services
             var unit = await _db.Units.FindAsync(id);
             if (unit == null) return ApiResponse<bool>.NotFound("Unit not found");
 
-            _db.Units.Remove(unit);
+            unit.IsActive = false;
             await _db.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Unit deleted successfully");
@@ -214,13 +214,23 @@ namespace InventoryManagement.Application.Services
                     Location = w.Location,
                     ManagerName = w.ManagerName,
                     Capacity = w.Capacity,
-                    IsActive = w.IsActive
+                    IsActive = w.IsActive,
+                    IsDefault = w.IsDefault
                 }).ToListAsync();
             return ApiResponse<List<WarehouseDto>>.Ok(warehouses);
         }
 
         public async Task<ApiResponse<WarehouseDto>> CreateWarehouseAsync(CreateWarehouseDto dto)
         {
+            if (dto.IsDefault)
+            {
+                var otherDefaults = await _db.Warehouses.Where(w => w.IsDefault).ToListAsync();
+                foreach (var w in otherDefaults)
+                {
+                    w.IsDefault = false;
+                }
+            }
+
             var warehouse = new Warehouse
             {
                 Name = dto.Name,
@@ -228,6 +238,7 @@ namespace InventoryManagement.Application.Services
                 ManagerName = dto.ManagerName,
                 Capacity = dto.Capacity,
                 IsActive = dto.IsActive,
+                IsDefault = dto.IsDefault,
                 CreatedAt = DateTime.UtcNow
             };
             _db.Warehouses.Add(warehouse);
@@ -240,7 +251,8 @@ namespace InventoryManagement.Application.Services
                 Location = warehouse.Location,
                 ManagerName = warehouse.ManagerName,
                 Capacity = warehouse.Capacity,
-                IsActive = warehouse.IsActive
+                IsActive = warehouse.IsActive,
+                IsDefault = warehouse.IsDefault
             }, "Warehouse created successfully");
         }
 
@@ -249,11 +261,21 @@ namespace InventoryManagement.Application.Services
             var warehouse = await _db.Warehouses.FindAsync(id);
             if (warehouse == null) return ApiResponse<WarehouseDto>.NotFound("Warehouse not found");
 
+            if (dto.IsDefault && !warehouse.IsDefault)
+            {
+                var otherDefaults = await _db.Warehouses.Where(w => w.IsDefault && w.Id != id).ToListAsync();
+                foreach (var w in otherDefaults)
+                {
+                    w.IsDefault = false;
+                }
+            }
+
             warehouse.Name = dto.Name;
             warehouse.Location = dto.Location;
             warehouse.ManagerName = dto.ManagerName;
             warehouse.Capacity = dto.Capacity;
             warehouse.IsActive = dto.IsActive;
+            warehouse.IsDefault = dto.IsDefault;
             
             await _db.SaveChangesAsync();
 
@@ -264,7 +286,8 @@ namespace InventoryManagement.Application.Services
                 Location = warehouse.Location,
                 ManagerName = warehouse.ManagerName,
                 Capacity = warehouse.Capacity,
-                IsActive = warehouse.IsActive
+                IsActive = warehouse.IsActive,
+                IsDefault = warehouse.IsDefault
             }, "Warehouse updated successfully");
         }
 
@@ -273,7 +296,7 @@ namespace InventoryManagement.Application.Services
             var warehouse = await _db.Warehouses.FindAsync(id);
             if (warehouse == null) return ApiResponse<bool>.NotFound("Warehouse not found");
 
-            _db.Warehouses.Remove(warehouse);
+            warehouse.IsActive = false;
             await _db.SaveChangesAsync();
 
             return ApiResponse<bool>.Ok(true, "Warehouse deleted successfully");

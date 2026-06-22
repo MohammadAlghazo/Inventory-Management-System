@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-products',
@@ -219,6 +220,71 @@ export class ProductsComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  // Import Modal State
+  showImportModal = false;
+  importing = false;
+  selectedImportFile: File | null = null;
+  importError = '';
+  importSuccess = '';
+
+  openImportModal() {
+    this.showImportModal = true;
+    this.selectedImportFile = null;
+    this.importError = '';
+    this.importSuccess = '';
+  }
+
+  closeImportModal() {
+    this.showImportModal = false;
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImportFile = file;
+    }
+  }
+
+  submitImport() {
+    if (!this.selectedImportFile) return;
+    this.importing = true;
+    this.importError = '';
+    this.importSuccess = '';
+    this.productService.importProducts(this.selectedImportFile).subscribe({
+      next: (res: any) => {
+        this.importing = false;
+        this.importSuccess = res.message || 'Import completed successfully.';
+        this.loadProducts();
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.importing = false;
+        this.importError = err.error?.message || 'Failed to import products.';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  downloadTemplate() {
+    const data = [{
+      'Name': 'Example Product',
+      'SKU': 'PRD-001',
+      'Price': 19.99,
+      'PurchasePrice': 10.00,
+      'Quantity': 100,
+      'MinQuantity': 10,
+      'Category': 'Electronics',
+      'Brand': 'BrandX',
+      'Unit': 'Pcs',
+      'Barcode': '123456789012',
+      'Description': 'This is an example product.'
+    }];
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    XLSX.writeFile(wb, 'Products_Import_Template.xlsx');
   }
 
   showProductModal = false;

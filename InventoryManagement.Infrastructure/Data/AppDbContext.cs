@@ -77,10 +77,26 @@ namespace InventoryManagement.Infrastructure.Data
 
             modelBuilder.Entity<Category>(entity =>
             {
+                entity.HasQueryFilter(c => c.IsActive);
                 entity.HasOne(c => c.ParentCategory)
                       .WithMany(c => c.SubCategories)
                       .HasForeignKey(c => c.ParentCategoryId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Warehouse>(entity =>
+            {
+                entity.HasQueryFilter(w => w.IsActive);
+            });
+
+            modelBuilder.Entity<Brand>(entity =>
+            {
+                entity.HasQueryFilter(b => b.IsActive);
+            });
+
+            modelBuilder.Entity<Unit>(entity =>
+            {
+                entity.HasQueryFilter(u => u.IsActive);
             });
 
             modelBuilder.Entity<RolePermission>(entity =>
@@ -104,7 +120,8 @@ namespace InventoryManagement.Infrastructure.Data
             {
                 entity.HasKey(ps => new { ps.ProductId, ps.WarehouseId });
                 entity.HasOne(ps => ps.Product).WithMany(p => p.ProductStocks).HasForeignKey(ps => ps.ProductId).OnDelete(DeleteBehavior.Cascade);
-                entity.HasOne(ps => ps.Warehouse).WithMany(w => w.ProductStocks).HasForeignKey(ps => ps.WarehouseId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(ps => ps.Warehouse).WithMany(w => w.ProductStocks).HasForeignKey(ps => ps.WarehouseId).OnDelete(DeleteBehavior.Restrict);
+                entity.Property(ps => ps.xmin).IsRowVersion();
             });
 
             modelBuilder.Entity<PurchaseOrder>(entity =>

@@ -28,6 +28,7 @@ namespace InventoryManagement.Api.Controllers
 
         [HttpPost("register")]
         [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -70,6 +71,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("forgot-password")]
+        [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
             var result = await _authService.ForgotPasswordAsync(dto);

@@ -27,6 +27,7 @@ namespace InventoryManagement.Application.Dtos.Auth_Dto
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime ExpiresAt { get; set; }
         public UserProfileDto User { get; set; } = null!;
+        public bool MustChangePassword { get; set; }
     }
 
     public class UserProfileDto
@@ -39,6 +40,7 @@ namespace InventoryManagement.Application.Dtos.Auth_Dto
         public string Role { get; set; } = string.Empty;
         public bool IsAdmin { get; set; }
         public bool IsActive { get; set; }
+        public bool MustChangePassword { get; set; }
         public string? ProfilePicture { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<string> Permissions { get; set; } = new();

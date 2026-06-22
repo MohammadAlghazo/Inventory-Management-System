@@ -54,8 +54,15 @@ namespace InventoryManagement.Application.Services
 
             _db.AddNotification("Stock Added", $"{dto.QuantityToAdd} units of '{product.Name}' added. New stock: {stock.Quantity}.", "Success", "All");
 
-            await _db.SaveChangesAsync();
-            return ApiResponse<object>.Ok(null!, $"Added {dto.QuantityToAdd} units. New stock: {stock.Quantity}");
+            try
+            {
+                await _db.SaveChangesAsync();
+                return ApiResponse<object>.Ok(null!, $"Added {dto.QuantityToAdd} units. New stock: {stock.Quantity}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return ApiResponse<object>.Fail("Stock was modified by another transaction. Please try again.");
+            }
         }
 
         public async Task<ApiResponse<object>> SellProductAsync(SellProductDto dto, int userId)
@@ -94,7 +101,7 @@ namespace InventoryManagement.Application.Services
 
             _db.AddNotification("Stock Sold", $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {stock.Quantity}.", "Info", "All");
 
-            if (stock.Quantity <= stock.MinQuantity)
+            if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
             {
                 _db.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
             }
@@ -148,6 +155,11 @@ namespace InventoryManagement.Application.Services
 
             _db.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "Manager");
 
+            if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
+            {
+                _db.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
+            }
+
             try
             {
                 await _db.SaveChangesAsync();
@@ -196,8 +208,15 @@ namespace InventoryManagement.Application.Services
 
             _db.AddNotification("Stock Returned", $"{dto.QuantityToReturn} units of '{product.Name}' returned. New stock: {stock.Quantity}.", "Info", "All");
 
-            await _db.SaveChangesAsync();
-            return ApiResponse<object>.Ok(null!, $"Returned {dto.QuantityToReturn} units. New stock: {stock.Quantity}");
+            try
+            {
+                await _db.SaveChangesAsync();
+                return ApiResponse<object>.Ok(null!, $"Returned {dto.QuantityToReturn} units. New stock: {stock.Quantity}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return ApiResponse<object>.Fail("Stock was modified by another transaction. Please try again.");
+            }
         }
 
         public async Task<ApiResponse<PagedResult<InventoryLogDto>>> GetAllLogsAsync(InventoryLogQueryParams query)
@@ -236,10 +255,11 @@ namespace InventoryManagement.Application.Services
                 : q.OrderByDescending(l => l.ActionDate);
 
             var totalCount = await q.CountAsync();
+            var clampedPageSize = Math.Min(query.PageSize, 100);
 
             var items = await q
-                .Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
+                .Skip((query.Page - 1) * clampedPageSize)
+                .Take(clampedPageSize)
                 .Select(l => new InventoryLogDto
                 {
                     Id = l.Id,

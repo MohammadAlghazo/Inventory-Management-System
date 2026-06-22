@@ -73,10 +73,11 @@ namespace InventoryManagement.Application.Services
             };
 
             var totalCount = await q.CountAsync();
+            var clampedPageSize = Math.Min(query.PageSize, 100);
 
             var items = await q
-                .Skip((query.Page - 1) * query.PageSize)
-                .Take(query.PageSize)
+                .Skip((query.Page - 1) * clampedPageSize)
+                .Take(clampedPageSize)
                 .Select(p => MapToDto(p))
                 .ToListAsync();
 
@@ -217,6 +218,9 @@ namespace InventoryManagement.Application.Services
             product.BatchNumber = dto.BatchNumber;
             product.UpdatedAt = DateTime.UtcNow;
 
+            var previousTotalQuantity = product.ProductStocks.Sum(s => s.Quantity);
+            var previousMinQuantity = product.ProductStocks.Sum(s => s.MinQuantity);
+
             var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
             if (defaultWarehouse != null)
             {
@@ -236,9 +240,12 @@ namespace InventoryManagement.Application.Services
                 }
             }
 
-            if (product.ProductStocks.Sum(s => s.Quantity) <= product.ProductStocks.Sum(s => s.MinQuantity))
+            var currentTotalQuantity = product.ProductStocks.Sum(s => s.Quantity);
+            var currentMinQuantity = product.ProductStocks.Sum(s => s.MinQuantity);
+
+            if (previousTotalQuantity > previousMinQuantity && currentTotalQuantity <= currentMinQuantity && currentTotalQuantity > 0)
             {
-                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {product.ProductStocks.Sum(s => s.Quantity)}.", "Warning", "All");
+                _db.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {currentTotalQuantity}.", "Warning", "All");
             }
 
             await _db.SaveChangesAsync();
@@ -306,6 +313,174 @@ namespace InventoryManagement.Application.Services
             };
 
             return ApiResponse<DashboardStatsDto>.Ok(stats);
+        }
+
+        public async Task<ApiResponse<object>> ImportFromExcelAsync(Stream fileStream)
+        {
+            try
+            {
+                var rows = MiniExcelLibs.MiniExcel.Query(fileStream).Cast<IDictionary<string, object>>().ToList();
+                if (!rows.Any())
+                {
+                    return ApiResponse<object>.Fail("The Excel file contains no data.");
+                }
+
+                var defaultWarehouse = await _db.Warehouses.FirstOrDefaultAsync();
+                if (defaultWarehouse == null)
+                {
+                    return ApiResponse<object>.Fail("No warehouse exists in the database. Please create a warehouse before importing.");
+                }
+
+                var categories = await _db.Categories.Where(c => c.IsActive).ToListAsync();
+                var brands = await _db.Brands.Where(b => b.IsActive).ToListAsync();
+                var units = await _db.Units.Where(u => u.IsActive).ToListAsync();
+
+                int importedCount = 0;
+                int skippedCount = 0;
+
+                foreach (var row in rows)
+                {
+                    var dict = row.ToDictionary(k => k.Key.Trim().ToLower(), v => v.Value);
+
+                    string? name = dict.TryGetValue("name", out var n) ? n?.ToString() : null;
+                    string? sku = dict.TryGetValue("sku", out var s) ? s?.ToString() : null;
+
+                    if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(sku))
+                    {
+                        skippedCount++;
+                        continue;
+                    }
+
+                    if (await _db.Products.AnyAsync(p => p.SKU == sku && p.IsActive))
+                    {
+                        skippedCount++;
+                        continue;
+                    }
+
+                    decimal price = 0;
+                    if (dict.TryGetValue("price", out var pVal) && pVal != null)
+                    {
+                        decimal.TryParse(pVal.ToString(), out price);
+                    }
+
+                    decimal purchasePrice = 0;
+                    if (dict.TryGetValue("purchaseprice", out var ppVal) && ppVal != null)
+                    {
+                        decimal.TryParse(ppVal.ToString(), out purchasePrice);
+                    }
+
+                    int quantity = 0;
+                    if (dict.TryGetValue("quantity", out var qVal) && qVal != null)
+                    {
+                        int.TryParse(qVal.ToString(), out quantity);
+                    }
+
+                    int minQuantity = 0;
+                    if (dict.TryGetValue("minquantity", out var mqVal) && mqVal != null)
+                    {
+                        int.TryParse(mqVal.ToString(), out minQuantity);
+                    }
+
+                    string? categoryName = dict.TryGetValue("category", out var cVal) ? cVal?.ToString()?.Trim() : null;
+                    int? categoryId = null;
+                    if (!string.IsNullOrWhiteSpace(categoryName))
+                    {
+                        var cat = categories.FirstOrDefault(c => c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase));
+                        if (cat == null)
+                        {
+                            cat = new Category { Name = categoryName, IsActive = true };
+                            _db.Categories.Add(cat);
+                            await _db.SaveChangesAsync();
+                            categories.Add(cat);
+                        }
+                        categoryId = cat.Id;
+                    }
+
+                    string? brandName = dict.TryGetValue("brand", out var bVal) ? bVal?.ToString()?.Trim() : null;
+                    int? brandId = null;
+                    if (!string.IsNullOrWhiteSpace(brandName))
+                    {
+                        var brd = brands.FirstOrDefault(b => b.Name.Equals(brandName, StringComparison.OrdinalIgnoreCase));
+                        if (brd == null)
+                        {
+                            brd = new Brand { Name = brandName, IsActive = true };
+                            _db.Brands.Add(brd);
+                            await _db.SaveChangesAsync();
+                            brands.Add(brd);
+                        }
+                        brandId = brd.Id;
+                    }
+
+                    string? unitName = dict.TryGetValue("unit", out var uVal) ? uVal?.ToString()?.Trim() : null;
+                    int? unitId = null;
+                    if (!string.IsNullOrWhiteSpace(unitName))
+                    {
+                        var un = units.FirstOrDefault(u => u.Name.Equals(unitName, StringComparison.OrdinalIgnoreCase));
+                        if (un == null)
+                        {
+                            un = new Unit { Name = unitName, IsActive = true };
+                            _db.Units.Add(un);
+                            await _db.SaveChangesAsync();
+                            units.Add(un);
+                        }
+                        unitId = un.Id;
+                    }
+
+                    string? barcode = dict.TryGetValue("barcode", out var bc) ? bc?.ToString() : null;
+                    string? description = dict.TryGetValue("description", out var desc) ? desc?.ToString() : null;
+
+                    var product = new Product
+                    {
+                        Name = name,
+                        SKU = sku,
+                        Price = price,
+                        PurchasePrice = purchasePrice,
+                        Barcode = barcode,
+                        Description = description,
+                        CategoryId = categoryId,
+                        BrandId = brandId,
+                        UnitId = unitId,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+
+                    product.ProductStocks.Add(new ProductStock
+                    {
+                        WarehouseId = defaultWarehouse.Id,
+                        Quantity = quantity,
+                        MinQuantity = minQuantity
+                    });
+
+                    _db.Products.Add(product);
+                    await _db.SaveChangesAsync();
+
+                    if (quantity > 0)
+                    {
+                        _db.InventoryLogs.Add(new InventoryLog
+                        {
+                            ProductId = product.Id,
+                            WarehouseId = defaultWarehouse.Id,
+                            Action = InventoryAction.Add,
+                            QuantityChanged = quantity,
+                            PreviousQuantity = 0,
+                            NewQuantity = quantity,
+                            Notes = "Bulk Import Stock",
+                            ActionDate = DateTime.UtcNow
+                        });
+                        await _db.SaveChangesAsync();
+                    }
+
+                    importedCount++;
+                }
+
+                _db.AddNotification("Bulk Import Success", $"Imported {importedCount} products. Skipped {skippedCount} duplicates.", "Success", "All");
+                return ApiResponse<object>.Ok(new { ImportedCount = importedCount, SkippedCount = skippedCount }, $"Successfully imported {importedCount} products. Skipped {skippedCount} duplicate/invalid rows.");
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<object>.Fail($"Excel import failed: {ex.Message}");
+            }
         }
 
         private static ProductDto MapToDto(Product p) => new()

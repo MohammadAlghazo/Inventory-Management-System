@@ -13,6 +13,8 @@ import { AiService, AiResponseDto } from '../../core/services/ai.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import Swal from 'sweetalert2';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -188,10 +190,14 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
   }
 
   formatContent(content: string): string {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\n/g, '<br>');
+    if (!content) return '';
+    try {
+      const rawHtml = marked.parse(content) as string;
+      return DOMPurify.sanitize(rawHtml);
+    } catch (e) {
+      console.error('Error parsing markdown:', e);
+      return content;
+    }
   }
 
   onKeydown(event: KeyboardEvent): void {
