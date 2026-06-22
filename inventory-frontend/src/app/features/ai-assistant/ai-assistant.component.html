@@ -1,128 +1,104 @@
-<div class="h-full flex flex-col bg-base-100 relative overflow-hidden" style="height: calc(100vh - 80px);">
-  
-  <!-- Subtle Gradient Background -->
-  <div class="absolute inset-0 pointer-events-none opacity-40 z-0" 
-       style="background: radial-gradient(circle at top left, #e0e7ff 0%, transparent 40%), radial-gradient(circle at bottom right, #f3e8ff 0%, transparent 40%);">
-  </div>
-
+<div class="ai-page-container">
   <!-- Header -->
-  <div class="bg-base-100 border-b border-base-200/50 p-4 flex justify-between items-center z-10 relative">
-    <div class="flex items-center gap-3">
-      <div class="relative">
-        <div class="w-10 h-10 rounded-full bg-base-200 flex items-center justify-center font-bold text-base-content">
-          I
-        </div>
-        <div class="absolute bottom-0 right-0 w-3 h-3 bg-success rounded-full border-2 border-base-100"></div>
+  <header class="ai-header">
+    <div class="header-left">
+      <div class="ai-avatar">
+        I
+        <div class="online-dot"></div>
       </div>
-      <div>
-        <h3 class="font-bold text-base leading-tight text-base-content">Inventory AI</h3>
-        <p class="text-xs text-base-content/60">Your AI assistant</p>
+      <div class="header-titles">
+        <h2>Inventory Ai</h2>
+        <p>Your Ai assistant</p>
       </div>
     </div>
-    
-    <button class="btn btn-ghost btn-sm btn-circle text-base-content/60 hover:text-error transition-colors" (click)="clearChat()" title="Clear Chat">
-      <i class="fa-solid fa-trash"></i>
-    </button>
-  </div>
+    <div class="header-right">
+      <button class="clear-btn" (click)="clearChat()" title="Clear Chat">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+  </header>
 
-  <!-- Chat Messages Container -->
-  <div
-    class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 z-10 relative"
-    #messagesContainer
-  >
-    <div
-      *ngFor="let msg of messages; let i = index"
-      class="flex w-full"
-      [ngClass]="msg.role === 'user' ? 'justify-end' : 'justify-start'"
-    >
-      
-      <!-- Assistant Message -->
-      <div *ngIf="msg.role === 'assistant'" class="flex max-w-[85%] md:max-w-[75%] gap-4">
-        <div class="w-8 h-8 rounded-full bg-base-200 flex-shrink-0 flex items-center justify-center font-bold text-sm text-base-content mt-1">
+  <!-- Chat Area -->
+  <main class="ai-chat-area" #messagesContainer>
+    <div class="chat-background"></div>
+    
+    <div class="messages-list">
+      <div *ngFor="let msg of messages; let i = index" class="message-row" [ngClass]="msg.role">
+        
+        <!-- Assistant Avatar -->
+        <div *ngIf="msg.role === 'assistant'" class="ai-avatar-small">
           I
         </div>
-        <div class="flex flex-col gap-1">
-          <div class="text-sm md:text-base text-base-content leading-relaxed whitespace-pre-wrap">
+
+        <div class="message-content">
+          <div class="text-bubble" [ngClass]="msg.role">
             <ng-container *ngIf="!msg.loading; else loadingTpl">
-              <div [innerHTML]="formatContent(msg.content)" class="prose prose-sm max-w-none"></div>
+              <div [innerHTML]="formatContent(msg.content)"></div>
             </ng-container>
             <ng-template #loadingTpl>
-              <div class="flex gap-1 h-6 items-center">
-                <span class="w-2 h-2 rounded-full bg-primary animate-bounce"></span>
-                <span class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay: 0.2s"></span>
-                <span class="w-2 h-2 rounded-full bg-primary animate-bounce" style="animation-delay: 0.4s"></span>
+              <div class="typing-indicator">
+                <span></span><span></span><span></span>
               </div>
             </ng-template>
           </div>
-          <div class="flex items-center gap-3 mt-1">
-            <time class="text-[11px] text-base-content/40">{{ msg.timestamp | date:'shortTime' }}</time>
-            <span *ngIf="msg.tokens" class="text-[10px] text-base-content/30"><i class="fa-solid fa-bolt mr-1"></i>{{ msg.tokens }} tokens</span>
+          
+          <div class="message-meta" [ngClass]="msg.role">
+            <span class="time">{{ msg.timestamp | date:'hh:mm a' }}</span>
+            <span *ngIf="msg.tokens && msg.role === 'assistant'" class="tokens">
+              <i class="fa-solid fa-bolt"></i> {{ msg.tokens }} tokens
+            </span>
           </div>
         </div>
-      </div>
 
-      <!-- User Message -->
-      <div *ngIf="msg.role === 'user'" class="flex flex-col items-end max-w-[85%] md:max-w-[65%] gap-1">
-        <div class="bg-base-200/80 px-5 py-3 rounded-2xl rounded-tr-sm text-sm md:text-base text-base-content whitespace-pre-wrap shadow-sm">
-          {{ msg.content }}
-        </div>
-        <time class="text-[11px] text-base-content/40 mr-1">{{ msg.timestamp | date:'shortTime' }}</time>
       </div>
-
     </div>
-  </div>
+  </main>
 
-  <!-- Input Area -->
-  <div class="p-4 bg-transparent z-10 relative pb-6">
-    <div class="max-w-4xl mx-auto flex flex-col items-end gap-2">
+  <!-- Footer Input Area -->
+  <footer class="ai-footer">
+    <div class="input-container-wrapper">
       
-      <!-- Mode Selector (Pill) -->
-      <div class="bg-base-100 rounded-full border border-base-200 shadow-sm p-1 flex gap-1 items-center">
-        <button
-          class="px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-2"
-          [ngClass]="aiMode === 0 ? 'bg-base-200 text-base-content' : 'text-base-content/50 hover:bg-base-200/50'"
-          (click)="setAiMode(0)"
-        >
-          <i class="fa-solid fa-bolt text-warning" *ngIf="aiMode === 0"></i>
-          Normal
+      <!-- Mode Selector -->
+      <div class="mode-selector">
+        <button 
+          class="mode-btn" 
+          [class.active]="aiMode === 0" 
+          (click)="setAiMode(0)">
+          <i class="fa-solid fa-bolt"></i> Normal
         </button>
-        <button
-          class="px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-2"
-          [ngClass]="aiMode === 1 ? 'bg-base-200 text-base-content' : 'text-base-content/50 hover:bg-base-200/50'"
-          (click)="setAiMode(1)"
-        >
-          <i class="fa-solid fa-brain text-secondary" *ngIf="aiMode === 1"></i>
-          Deep Think
+        <button 
+          class="mode-btn" 
+          [class.active]="aiMode === 1" 
+          (click)="setAiMode(1)">
+          <i class="fa-solid fa-brain"></i> Deep Think
         </button>
       </div>
 
-      <!-- Input Box -->
-      <div class="w-full bg-base-100 rounded-3xl border border-base-200 shadow-sm flex flex-col relative transition-all duration-300 focus-within:border-primary/30 focus-within:shadow-md">
+      <!-- Main Input Box -->
+      <div class="input-box">
         <textarea
           [(ngModel)]="userInput"
           (keydown)="onKeydown($event)"
           [disabled]="isLoading"
           placeholder="Ask me anything about inventory, products, orders..."
-          class="w-full bg-transparent border-none focus:ring-0 resize-none p-4 pb-12 text-sm text-base-content placeholder-base-content/30 outline-none"
-          rows="2"
-          maxlength="500"
+          rows="1"
+          maxlength="250"
         ></textarea>
         
-        <div class="absolute bottom-3 left-4 text-xs text-base-content/30 font-medium">
-          {{ userInput.length }}/500
+        <div class="input-bottom-row">
+          <span class="char-counter">{{ userInput.length }}/250</span>
+          <button 
+            class="send-btn" 
+            [class.active]="canSend"
+            (click)="sendMessage()"
+            [disabled]="!canSend"
+          >
+            <i class="fa-solid fa-paper-plane" *ngIf="!isLoading"></i>
+            <span class="loading-spinner" *ngIf="isLoading"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+          </button>
         </div>
-
-        <button
-          class="absolute bottom-2 right-2 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200"
-          [ngClass]="canSend ? 'bg-primary text-primary-content hover:scale-105 shadow-md' : 'bg-base-200 text-base-content/30 cursor-not-allowed'"
-          (click)="sendMessage()"
-          [disabled]="!canSend"
-        >
-          <i class="fa-solid fa-paper-plane text-sm" *ngIf="!isLoading"></i>
-          <span class="loading loading-spinner loading-xs" *ngIf="isLoading"></span>
-        </button>
       </div>
-      
+
     </div>
-  </div>
+  </footer>
 </div>
