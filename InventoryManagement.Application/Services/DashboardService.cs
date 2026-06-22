@@ -4,20 +4,29 @@ using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Dashboard_Dtos;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace InventoryManagement.Application.Services
 {
     public class DashboardService : IDashboardService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMemoryCache _cache;
 
-        public DashboardService(IUnitOfWork uow)
+        public DashboardService(IUnitOfWork uow, IMemoryCache cache)
         {
             _uow = uow;
+            _cache = cache;
         }
 
         public async Task<ApiResponse<DashboardStatsDto>> GetStatsAsync()
         {
+            const string cacheKey = "Dashboard_Stats";
+            if (_cache.TryGetValue(cacheKey, out DashboardStatsDto? cachedStats))
+            {
+                return ApiResponse<DashboardStatsDto>.Ok(cachedStats!);
+            }
+
             var today = DateTime.UtcNow.Date;
 
             var stats = new DashboardStatsDto
@@ -31,11 +40,19 @@ namespace InventoryManagement.Application.Services
                 TotalCategories    = await _uow.Products.Query().Where(p => p.IsActive).Select(p => p.Category).Distinct().CountAsync()
             };
 
+            _cache.Set(cacheKey, stats, TimeSpan.FromMinutes(1));
+
             return ApiResponse<DashboardStatsDto>.Ok(stats);
         }
 
         public async Task<ApiResponse<List<ActivityChartDto>>> GetActivityChartAsync(int days = 30)
         {
+            var cacheKey = $"Dashboard_ActivityChart_{days}";
+            if (_cache.TryGetValue(cacheKey, out List<ActivityChartDto>? cachedChart))
+            {
+                return ApiResponse<List<ActivityChartDto>>.Ok(cachedChart!);
+            }
+
             var from = DateTime.UtcNow.Date.AddDays(-days + 1);
 
             var logs = await _uow.InventoryLogs.Query()
@@ -76,11 +93,19 @@ namespace InventoryManagement.Application.Services
                 }
             }
 
+            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(1));
+
             return ApiResponse<List<ActivityChartDto>>.Ok(result);
         }
 
         public async Task<ApiResponse<List<CategoryBreakdownDto>>> GetCategoryBreakdownAsync()
         {
+            const string cacheKey = "Dashboard_CategoryBreakdown";
+            if (_cache.TryGetValue(cacheKey, out List<CategoryBreakdownDto>? cachedBreakdown))
+            {
+                return ApiResponse<List<CategoryBreakdownDto>>.Ok(cachedBreakdown!);
+            }
+
             var breakdown = await _uow.Products.Query()
                 .Include(p => p.Category)
                 .Where(p => p.IsActive)
@@ -95,11 +120,19 @@ namespace InventoryManagement.Application.Services
                 .OrderByDescending(x => x.TotalValue)
                 .ToListAsync();
 
+            _cache.Set(cacheKey, breakdown, TimeSpan.FromMinutes(1));
+
             return ApiResponse<List<CategoryBreakdownDto>>.Ok(breakdown);
         }
 
         public async Task<ApiResponse<List<TopProductDto>>> GetTopProductsAsync(int limit = 5)
         {
+            var cacheKey = $"Dashboard_TopProducts_{limit}";
+            if (_cache.TryGetValue(cacheKey, out List<TopProductDto>? cachedTop))
+            {
+                return ApiResponse<List<TopProductDto>>.Ok(cachedTop!);
+            }
+
             var topProducts = await _uow.InventoryLogs.Query()
                 .Include(l => l.Product)
                 .ThenInclude(p => p.Category)
@@ -118,6 +151,8 @@ namespace InventoryManagement.Application.Services
                 .OrderByDescending(x => x.TotalMovements)
                 .Take(limit)
                 .ToListAsync();
+
+            _cache.Set(cacheKey, topProducts, TimeSpan.FromMinutes(1));
 
             return ApiResponse<List<TopProductDto>>.Ok(topProducts);
         }

@@ -244,10 +244,7 @@ namespace InventoryManagement.Application.Services
             var currentTotalQuantity = product.ProductStocks.Sum(s => s.Quantity);
             var currentMinQuantity = product.ProductStocks.Sum(s => s.MinQuantity);
 
-            if (previousTotalQuantity > previousMinQuantity && currentTotalQuantity <= currentMinQuantity && currentTotalQuantity > 0)
-            {
-                _uow.AddNotification("Low Stock Alert", $"Product '{product.Name}' is low on stock! Remaining: {currentTotalQuantity}.", "Warning", "All");
-            }
+            // Note: Low Stock notifications are now handled by Domain Events and MediatR (ProductStockLowEventHandler)
 
             await _uow.SaveChangesAsync();
 

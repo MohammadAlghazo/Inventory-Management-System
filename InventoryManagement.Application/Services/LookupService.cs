@@ -8,20 +8,33 @@ using InventoryManagement.Application.Dtos;
 using InventoryManagement.Domain.Entities;
 using InventoryManagement.Domain.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace InventoryManagement.Application.Services
 {
     public class LookupService : ILookupService
     {
         private readonly IUnitOfWork _uow;
+        private readonly IMemoryCache _cache;
+        
+        private const string CategoriesCacheKey = "Lookup_Categories";
+        private const string BrandsCacheKey = "Lookup_Brands";
+        private const string UnitsCacheKey = "Lookup_Units";
+        private const string WarehousesCacheKey = "Lookup_Warehouses";
 
-        public LookupService(IUnitOfWork uow)
+        public LookupService(IUnitOfWork uow, IMemoryCache cache)
         {
             _uow = uow;
+            _cache = cache;
         }
 
         public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()
         {
+            if (_cache.TryGetValue(CategoriesCacheKey, out List<CategoryDto>? cached))
+            {
+                return ApiResponse<List<CategoryDto>>.Ok(cached!);
+            }
+
             var categories = await _uow.Categories.Query()
                 .Select(c => new CategoryDto
                 {
@@ -30,6 +43,8 @@ namespace InventoryManagement.Application.Services
                     Description = c.Description,
                     ParentCategoryId = c.ParentCategoryId
                 }).ToListAsync();
+                
+            _cache.Set(CategoriesCacheKey, categories);
             return ApiResponse<List<CategoryDto>>.Ok(categories);
         }
 
@@ -44,6 +59,7 @@ namespace InventoryManagement.Application.Services
             };
             _uow.Categories.Add(category);
             await _uow.SaveChangesAsync();
+            _cache.Remove(CategoriesCacheKey);
 
             return ApiResponse<CategoryDto>.Ok(new CategoryDto
             {
@@ -64,6 +80,7 @@ namespace InventoryManagement.Application.Services
             category.ParentCategoryId = dto.ParentCategoryId;
             
             await _uow.SaveChangesAsync();
+            _cache.Remove(CategoriesCacheKey);
 
             return ApiResponse<CategoryDto>.Ok(new CategoryDto
             {
@@ -81,12 +98,18 @@ namespace InventoryManagement.Application.Services
 
             category.IsActive = false;
             await _uow.SaveChangesAsync();
+            _cache.Remove(CategoriesCacheKey);
 
             return ApiResponse<bool>.Ok(true, "Category deleted successfully");
         }
 
         public async Task<ApiResponse<List<BrandDto>>> GetBrandsAsync()
         {
+            if (_cache.TryGetValue(BrandsCacheKey, out List<BrandDto>? cached))
+            {
+                return ApiResponse<List<BrandDto>>.Ok(cached!);
+            }
+
             var brands = await _uow.Brands.Query()
                 .Select(b => new BrandDto
                 {
@@ -94,6 +117,8 @@ namespace InventoryManagement.Application.Services
                     Name = b.Name,
                     Description = b.Description
                 }).ToListAsync();
+
+            _cache.Set(BrandsCacheKey, brands);
             return ApiResponse<List<BrandDto>>.Ok(brands);
         }
 
@@ -107,6 +132,7 @@ namespace InventoryManagement.Application.Services
             };
             _uow.Brands.Add(brand);
             await _uow.SaveChangesAsync();
+            _cache.Remove(BrandsCacheKey);
 
             return ApiResponse<BrandDto>.Ok(new BrandDto
             {
@@ -125,6 +151,7 @@ namespace InventoryManagement.Application.Services
             brand.Description = dto.Description;
             
             await _uow.SaveChangesAsync();
+            _cache.Remove(BrandsCacheKey);
 
             return ApiResponse<BrandDto>.Ok(new BrandDto
             {
@@ -141,12 +168,18 @@ namespace InventoryManagement.Application.Services
 
             brand.IsActive = false;
             await _uow.SaveChangesAsync();
+            _cache.Remove(BrandsCacheKey);
 
             return ApiResponse<bool>.Ok(true, "Brand deleted successfully");
         }
 
         public async Task<ApiResponse<List<UnitDto>>> GetUnitsAsync()
         {
+            if (_cache.TryGetValue(UnitsCacheKey, out List<UnitDto>? cached))
+            {
+                return ApiResponse<List<UnitDto>>.Ok(cached!);
+            }
+
             var units = await _uow.Units.Query()
                 .Select(u => new UnitDto
                 {
@@ -154,6 +187,8 @@ namespace InventoryManagement.Application.Services
                     Name = u.Name,
                     Abbreviation = u.Abbreviation
                 }).ToListAsync();
+                
+            _cache.Set(UnitsCacheKey, units);
             return ApiResponse<List<UnitDto>>.Ok(units);
         }
 
@@ -167,6 +202,7 @@ namespace InventoryManagement.Application.Services
             };
             _uow.Units.Add(unit);
             await _uow.SaveChangesAsync();
+            _cache.Remove(UnitsCacheKey);
 
             return ApiResponse<UnitDto>.Ok(new UnitDto
             {
@@ -185,6 +221,7 @@ namespace InventoryManagement.Application.Services
             unit.Abbreviation = dto.Abbreviation;
             
             await _uow.SaveChangesAsync();
+            _cache.Remove(UnitsCacheKey);
 
             return ApiResponse<UnitDto>.Ok(new UnitDto
             {
@@ -201,12 +238,18 @@ namespace InventoryManagement.Application.Services
 
             unit.IsActive = false;
             await _uow.SaveChangesAsync();
+            _cache.Remove(UnitsCacheKey);
 
             return ApiResponse<bool>.Ok(true, "Unit deleted successfully");
         }
 
         public async Task<ApiResponse<List<WarehouseDto>>> GetWarehousesAsync()
         {
+            if (_cache.TryGetValue(WarehousesCacheKey, out List<WarehouseDto>? cached))
+            {
+                return ApiResponse<List<WarehouseDto>>.Ok(cached!);
+            }
+
             var warehouses = await _uow.Warehouses.Query()
                 .Select(w => new WarehouseDto
                 {
@@ -218,6 +261,8 @@ namespace InventoryManagement.Application.Services
                     IsActive = w.IsActive,
                     IsDefault = w.IsDefault
                 }).ToListAsync();
+                
+            _cache.Set(WarehousesCacheKey, warehouses);
             return ApiResponse<List<WarehouseDto>>.Ok(warehouses);
         }
 
@@ -244,6 +289,7 @@ namespace InventoryManagement.Application.Services
             };
             _uow.Warehouses.Add(warehouse);
             await _uow.SaveChangesAsync();
+            _cache.Remove(WarehousesCacheKey);
 
             return ApiResponse<WarehouseDto>.Ok(new WarehouseDto
             {
@@ -279,6 +325,7 @@ namespace InventoryManagement.Application.Services
             warehouse.IsDefault = dto.IsDefault;
             
             await _uow.SaveChangesAsync();
+            _cache.Remove(WarehousesCacheKey);
 
             return ApiResponse<WarehouseDto>.Ok(new WarehouseDto
             {
@@ -299,6 +346,7 @@ namespace InventoryManagement.Application.Services
 
             warehouse.IsActive = false;
             await _uow.SaveChangesAsync();
+            _cache.Remove(WarehousesCacheKey);
 
             return ApiResponse<bool>.Ok(true, "Warehouse deleted successfully");
         }

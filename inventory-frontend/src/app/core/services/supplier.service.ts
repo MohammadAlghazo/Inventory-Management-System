@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { BaseApiService } from './base-api.service';
 
 export interface Supplier {
   id?: number;
@@ -25,32 +25,13 @@ export interface ApiResponse<T> {
 @Injectable({
   providedIn: 'root'
 })
-export class SupplierService {
-  private apiUrl = `${environment.apiUrl}/suppliers`;
-
-  constructor(private http: HttpClient) {}
-
-  getAll(page: number = 1, pageSize: number = 10, search: string = ''): Observable<ApiResponse<any>> {
-    let url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
-    if (search) {
-      url += `&search=${encodeURIComponent(search)}`;
-    }
-    return this.http.get<ApiResponse<any>>(url);
+export class SupplierService extends BaseApiService<any> {
+  
+  constructor(protected override http: HttpClient) {
+    super(http, 'suppliers');
   }
 
-  getById(id: number): Observable<ApiResponse<Supplier>> {
-    return this.http.get<ApiResponse<Supplier>>(`${this.apiUrl}/${id}`);
-  }
-
-  create(supplier: Partial<Supplier>): Observable<ApiResponse<Supplier>> {
-    return this.http.post<ApiResponse<Supplier>>(this.apiUrl, supplier);
-  }
-
-  update(id: number, supplier: Partial<Supplier>): Observable<ApiResponse<Supplier>> {
-    return this.http.put<ApiResponse<Supplier>>(`${this.apiUrl}/${id}`, supplier);
-  }
-
-  delete(id: number): Observable<ApiResponse<boolean>> {
-    return this.http.delete<ApiResponse<boolean>>(`${this.apiUrl}/${id}`);
+  override getAll(page: number = 1, pageSize: number = 10, search: string = ''): Observable<ApiResponse<any>> {
+    return super.getAll({ page, pageSize, search });
   }
 }

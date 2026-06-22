@@ -7,6 +7,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { environment } from '../../../environments/environment';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
@@ -15,7 +17,7 @@ import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent, EmptyStateComponent, SpinnerComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

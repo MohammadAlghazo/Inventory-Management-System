@@ -16,8 +16,13 @@ using FluentValidation.AspNetCore;
 using InventoryManagement.Application.Validators;
 using InventoryManagement.Application.Common.Interfaces;
 using InventoryManagement.Application.Interfaces;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -144,7 +149,17 @@ builder.Services.AddHttpClient();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginDtoValidator>();
 
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssembly(typeof(InventoryManagement.Application.EventHandlers.ProductStockLowEventHandler).Assembly);
+});
+
+var connectionString = builder.Configuration.GetConnectionString("AppDbContext")!;
+builder.Services.AddHealthChecks()
+    .AddNpgSql(connectionString, name: "Database");
+
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.UseGlobalExceptionHandler();
 
@@ -171,6 +186,7 @@ app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 using (var scope = app.Services.CreateScope())
 {

@@ -88,10 +88,9 @@
 
           <tr *ngIf="!isLoading && getFilteredProducts().length === 0">
             <td colspan="8">
-              <div class="empty-state">
+              <app-empty-state [title]="'PRODUCTS.NO_PRODUCTS' | translate">
                 <lucide-icon [img]="icons.Package" [size]="40"></lucide-icon>
-                <p>{{ 'PRODUCTS.NO_PRODUCTS' | translate }}</p>
-              </div>
+              </app-empty-state>
             </td>
           </tr>
 
@@ -241,7 +240,7 @@
       <div class="custom-modal-footer">
         <button class="btn btn-ghost" (click)="deleteConfirm = null">{{ 'COMMON.CANCEL' | translate }}</button>
         <button class="btn btn-danger" (click)="deleteProduct()" [disabled]="isDeleting">
-          <span class="spinner" *ngIf="isDeleting"></span>
+          <app-spinner *ngIf="isDeleting" padding="0"></app-spinner>
           <lucide-icon [img]="icons.Trash2" [size]="14" *ngIf="!isDeleting"></lucide-icon>
           {{ 'COMMON.DELETE' | translate }}
         </button>
@@ -297,7 +296,7 @@
       <div class="custom-modal-footer">
         <button class="btn btn-ghost" (click)="showProductModal = false">{{ 'COMMON.CANCEL' | translate }}</button>
         <button class="btn btn-primary" (click)="submitProduct()" [disabled]="!productForm.name || !productForm.categoryId || isSavingProduct">
-          <span class="spinner" *ngIf="isSavingProduct"></span>
+          <app-spinner *ngIf="isSavingProduct" padding="0"></app-spinner>
           {{ 'COMMON.SAVE' | translate }}
         </button>
       </div>
@@ -344,7 +343,7 @@
       <div class="custom-modal-footer">
         <button (click)="closeImportModal()" class="btn btn-ghost" [disabled]="importing">Close</button>
         <button (click)="submitImport()" class="btn btn-primary" [disabled]="importing || !selectedImportFile">
-          <span class="spinner" *ngIf="importing"></span>
+          <app-spinner *ngIf="importing" padding="0"></app-spinner>
           Upload & Import
         </button>
       </div>

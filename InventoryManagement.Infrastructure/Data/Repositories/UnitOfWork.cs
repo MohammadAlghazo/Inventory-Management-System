@@ -2,15 +2,20 @@ using InventoryManagement.Domain.Entities;
 using InventoryManagement.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
+using InventoryManagement.Domain.Common;
+using MediatR;
+
 namespace InventoryManagement.Infrastructure.Data.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        private readonly IMediator _mediator;
 
-        public UnitOfWork(AppDbContext context)
+        public UnitOfWork(AppDbContext context, IMediator mediator)
         {
             _context = context;
+            _mediator = mediator;
             Products = new Repository<Product>(_context);
             InventoryLogs = new Repository<InventoryLog>(_context);
             Users = new Repository<User>(_context);
@@ -18,7 +23,7 @@ namespace InventoryManagement.Infrastructure.Data.Repositories
             Warehouses = new Repository<Warehouse>(_context);
             Categories = new Repository<Category>(_context);
             Brands = new Repository<Brand>(_context);
-            Units = new Repository<Unit>(_context);
+            Units = new Repository<InventoryManagement.Domain.Entities.Unit>(_context);
             Suppliers = new Repository<Supplier>(_context);
             Customers = new Repository<Customer>(_context);
             Notifications = new Repository<Notification>(_context);
@@ -40,7 +45,7 @@ namespace InventoryManagement.Infrastructure.Data.Repositories
         public IRepository<Warehouse> Warehouses { get; private set; }
         public IRepository<Category> Categories { get; private set; }
         public IRepository<Brand> Brands { get; private set; }
-        public IRepository<Unit> Units { get; private set; }
+        public IRepository<InventoryManagement.Domain.Entities.Unit> Units { get; private set; }
         public IRepository<Supplier> Suppliers { get; private set; }
         public IRepository<Customer> Customers { get; private set; }
         public IRepository<Notification> Notifications { get; private set; }
@@ -56,7 +61,29 @@ namespace InventoryManagement.Infrastructure.Data.Repositories
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            await DispatchDomainEventsAsync();
             return await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task DispatchDomainEventsAsync()
+        {
+            var domainEntities = _context.ChangeTracker
+                .Entries<IHasDomainEvents>()
+                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
+                .Select(x => x.Entity)
+                .ToList();
+
+            var domainEvents = domainEntities
+                .SelectMany(x => x.DomainEvents)
+                .ToList();
+
+            domainEntities.ToList()
+                .ForEach(entity => entity.ClearDomainEvents());
+
+            foreach (var domainEvent in domainEvents)
+            {
+                await _mediator.Publish(domainEvent);
+            }
         }
 
         public void AddNotification(string title, string message, string type, string targetRole)

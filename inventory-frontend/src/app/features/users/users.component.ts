@@ -15,10 +15,12 @@ import { ProfileService } from '../../core/services/profile.service';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { environment } from '../../../environments/environment';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent, EmptyStateComponent, SpinnerComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })

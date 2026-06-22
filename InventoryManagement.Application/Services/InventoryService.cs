@@ -103,10 +103,7 @@ namespace InventoryManagement.Application.Services
 
             _uow.AddNotification("Stock Sold", $"{dto.QuantityToSell} units of '{product.Name}' sold. Remaining stock: {stock.Quantity}.", "Info", "All");
 
-            if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
-            {
-                _uow.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
-            }
+            // Low Stock warnings are now handled by Domain Events and MediatR
 
             try
             {
@@ -158,10 +155,7 @@ namespace InventoryManagement.Application.Services
 
             _uow.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "SuperAdmin");
 
-            if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
-            {
-                _uow.AddNotification("Low Stock Warning", $"Product '{product.Name}' went low stock! Only {stock.Quantity} remaining.", "Danger", "All");
-            }
+            // Low Stock warnings are now handled by Domain Events and MediatR
 
             try
             {

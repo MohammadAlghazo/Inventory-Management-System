@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
+using InventoryManagement.Domain.Common;
+
 namespace InventoryManagement.Domain.Entities
 {
-    public class ProductStock
+    public class ProductStock : BaseDomainEntity
     {
         public int ProductId { get; set; }
         public Product Product { get; set; } = null!;
@@ -59,12 +61,24 @@ namespace InventoryManagement.Domain.Entities
                 Quantity -= quantity;
                 ReservedQuantity -= quantity;
             }
+
+            CheckForLowStock();
         }
 
         public void AdjustStock(int newQuantity)
         {
             if (newQuantity < 0) throw new InvalidOperationException("Stock quantity cannot be negative.");
             Quantity = newQuantity;
+
+            CheckForLowStock();
+        }
+
+        private void CheckForLowStock()
+        {
+            if (AvailableQuantity <= MinQuantity)
+            {
+                AddDomainEvent(new Events.ProductStockLowEvent(ProductId, WarehouseId, AvailableQuantity, MinQuantity));
+            }
         }
     }
 }
