@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus, ImagePlus } from 'lucide-angular';
+import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus } from 'lucide-angular';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -27,7 +27,7 @@ import * as XLSX from 'xlsx';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductsComponent implements OnInit {
-  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, LayoutGrid, List, Plus, ImagePlus };
+  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus };
 
   products: any[] = [];
   totalCount = 0;
@@ -168,10 +168,7 @@ export class ProductsComponent implements OnInit {
     this.searchSubject.next(query);
   }
 
-  onFilterChange() {
-    this.page = 1;
-    this.loadProducts();
-  }
+
 
   prevPage() {
     if (this.page > 1) {

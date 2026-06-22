@@ -22,7 +22,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent, EmptyStateComponent, SpinnerComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, EmptyStateComponent, SpinnerComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
