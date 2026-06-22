@@ -1,4 +1,5 @@
 using InventoryManagement.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace InventoryManagement.Application.Dtos
 {
@@ -43,8 +44,13 @@ namespace InventoryManagement.Application.Dtos
     public class CreateSalesOrderItemDto
     {
         public int ProductId { get; set; }
+        
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
         public int Quantity { get; set; }
+        
+        [Range(0, double.MaxValue, ErrorMessage = "UnitPrice cannot be negative.")]
         public decimal UnitPrice { get; set; }
+        
         public decimal Discount { get; set; }
     }
     

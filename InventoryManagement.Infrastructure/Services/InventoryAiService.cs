@@ -1,4 +1,4 @@
-using InventoryManagement.Application.Common;
+﻿using InventoryManagement.Application.Common;
 using InventoryManagement.Application.Common.Interfaces;
 using InventoryManagement.Application.DTOs.Ai_Dtos;
 using InventoryManagement.Domain.Enums;

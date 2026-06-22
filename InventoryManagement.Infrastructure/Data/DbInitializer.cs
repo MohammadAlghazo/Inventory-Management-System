@@ -164,12 +164,6 @@ namespace InventoryManagement.Infrastructure.Data
                 });
                 context.SaveChanges();
             }
-            else
-            {
-                // Force reset password to Admin@123!
-                emergencyAdmin.HashedPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123!");
-                context.SaveChanges();
-            }
 
 
             // Also ensure the default Employee exists

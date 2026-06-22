@@ -30,10 +30,10 @@ export class UserService {
   }
 
   updateProfilePicture(id: number, profilePictureUrl: string): Observable<any> {
-    return this.http.put(`//profile-picture`, { profilePictureUrl });
+    return this.http.put(`${this.apiUrl}/${id}/profile-picture`, { profilePictureUrl });
   }
 
   deleteProfilePicture(id: number): Observable<any> {
-    return this.http.delete(`//profile-picture`);
+    return this.http.delete(`${this.apiUrl}/${id}/profile-picture`);
   }
 }

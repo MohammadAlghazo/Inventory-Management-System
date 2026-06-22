@@ -65,7 +65,8 @@ export class InventoryComponent implements OnInit {
   }
 
   get isAdmin() {
-    return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] === 'Manager';
+    const role = this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    return role === 'SuperAdmin' || role === 'InventoryManager';
   }
 
   loadWarehouses() {
