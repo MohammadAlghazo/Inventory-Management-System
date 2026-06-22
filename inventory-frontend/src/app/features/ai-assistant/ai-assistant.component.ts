@@ -38,7 +38,6 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
   userInput: string = '';
   isLoading: boolean = false;
   aiMode: number = 0; // 0 = Normal, 1 = Deep Think
-  isOpen: boolean = false;
   private chatSub?: Subscription;
 
   ngOnInit(): void {
@@ -80,12 +79,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleChat(): void {
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
-      setTimeout(() => this.scrollToBottom(), 100);
-    }
-  }
+
 
   scrollToBottom(): void {
     try {

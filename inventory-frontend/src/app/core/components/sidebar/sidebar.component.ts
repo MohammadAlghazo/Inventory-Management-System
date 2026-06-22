@@ -17,7 +17,8 @@ import {
   ChevronRight,
   X,
   AlertTriangle,
-  BarChart3
+  BarChart3,
+  Bot
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -51,13 +52,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users, color: '#6366f1' }, // indigo
     { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User, color: '#a855f7' }, // violet
     { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings, color: '#64748b' }, // slate
+    { label: 'AI Assistant', route: '/ai-assistant', icon: Bot, color: '#ec4899' } // pink
   ];
 
   get filteredMenuItems() {
     const role = this.userRole;
     if (role === 'SuperAdmin' || role === 'Manager') return this.menuItems;
     
-    let allowedRoutes: string[] = ['/dashboard', '/products', '/inventory', '/profile'];
+    let allowedRoutes: string[] = ['/dashboard', '/products', '/inventory', '/profile', '/ai-assistant'];
 
     if (role === 'InventoryManager') {
       allowedRoutes.push('/suppliers', '/customers', '/purchase-orders', '/sales-orders', '/low-stock', '/reports');

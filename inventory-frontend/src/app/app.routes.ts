@@ -56,6 +56,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/reports/reports.component').then(m => m.ReportsComponent),
         canActivate: [RoleGuard],
         data: { roles: ['SuperAdmin', 'Manager', 'InventoryManager', 'Accountant', 'Auditor'] }
+      },
+      {
+        path: 'ai-assistant',
+        loadComponent: () => import('./features/ai-assistant/ai-assistant.component').then(m => m.AiAssistantComponent)
       }
     ]
   },
