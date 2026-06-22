@@ -75,7 +75,7 @@
         </thead>
         <tbody>
           
-          <ng-container *ngIf="isLoading && getFilteredProducts().length === 0">
+          <ng-container *ngIf="isLoading">
             <tr *ngFor="let dummy of [1,2,3,4,5]">
               <td *ngFor="let col of [1,2,3,4,5,6,7,8]">
                 <div class="skeleton" style="height: 16px; width: 70%;"></div>
@@ -92,7 +92,7 @@
             </td>
           </tr>
 
-          <ng-container *ngIf="getFilteredProducts().length > 0">
+          <ng-container *ngIf="!isLoading && getFilteredProducts().length > 0">
             <tr *ngFor="let p of getFilteredProducts()">
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
               <td [attr.data-label]="'PRODUCTS.PRODUCT_NAME' | translate">
@@ -176,7 +176,7 @@
 
   <div class="products-grid" *ngIf="viewMode === 'grid'">
     
-    <ng-container *ngIf="isLoading && getFilteredProducts().length === 0">
+    <ng-container *ngIf="isLoading">
       <div *ngFor="let dummy of [1,2,3,4,5,6,7,8]" class="skeleton" style="height: 180px; border-radius: 12px;"></div>
     </ng-container>
 

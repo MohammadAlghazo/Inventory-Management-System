@@ -60,13 +60,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngIf="isLoading && customers.length === 0">
-            <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'COMMON.LOADING' | translate }}</td>
-          </tr>
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let dummy of [1,2,3,4,5]">
+              <td *ngFor="let col of [1,2,3,4,5]">
+                <div class="skeleton" style="height: 16px; width: 70%;"></div>
+              </td>
+            </tr>
+          </ng-container>
           <tr *ngIf="!isLoading && customers.length === 0">
             <td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 30px;">{{ 'CUSTOMERS.NO_CUSTOMERS' | translate }}</td>
           </tr>
-          <tr *ngFor="let customer of customers">
+          <ng-container *ngIf="!isLoading && customers.length > 0">
+            <tr *ngFor="let customer of customers">
             <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ customer.id }}</td>
             <td [attr.data-label]="'COMMON.NAME' | translate" class="font-bold">{{ customer.name }}</td>
             <td [attr.data-label]="'SUPPLIERS.CONTACT_INFO' | translate">
@@ -91,6 +96,7 @@
               </div>
             </td>
           </tr>
+          </ng-container>
         </tbody>
       </table>
     </div>

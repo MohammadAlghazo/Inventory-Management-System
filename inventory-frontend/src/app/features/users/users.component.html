@@ -69,11 +69,13 @@
         </thead>
         <tbody>
           
-          <tr *ngIf="isLoading && users.length === 0">
-            <td colspan="7" style="text-align:center;color:var(--text-secondary);padding:30px;">
-              {{ 'COMMON.LOADING' | translate }}
-            </td>
-          </tr>
+          <ng-container *ngIf="isLoading">
+            <tr *ngFor="let dummy of [1,2,3,4,5]">
+              <td *ngFor="let col of [1,2,3,4,5,6,7]">
+                <div class="skeleton" style="height: 16px; width: 70%;"></div>
+              </td>
+            </tr>
+          </ng-container>
           
           <tr *ngIf="!isLoading && getFilteredUsers().length === 0">
             <td colspan="7">
@@ -84,7 +86,7 @@
             </td>
           </tr>
           
-          <ng-container *ngIf="getFilteredUsers().length > 0">
+          <ng-container *ngIf="!isLoading && getFilteredUsers().length > 0">
             <tr *ngFor="let u of getFilteredUsers()">
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ u.id }}</td>
               <td [attr.data-label]="'USERS.USERNAME' | translate">
