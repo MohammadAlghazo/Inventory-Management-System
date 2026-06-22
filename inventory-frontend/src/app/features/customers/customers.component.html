@@ -5,7 +5,7 @@
       <h1 class="page-title">{{ 'SIDEBAR.CUSTOMERS' | translate }}</h1>
       <p class="page-subtitle">{{ 'CUSTOMERS.SUBTITLE' | translate }}</p>
     </div>
-    <button *ngIf="isAdmin" (click)="openModal()" class="btn btn-primary">
+    <button *appHasPermission="'Manage_Customers'" (click)="openModal()" class="btn btn-primary">
       <lucide-icon [img]="iconPlus" [size]="16"></lucide-icon>
       {{ 'COMMON.ADD' | translate }}
     </button>
@@ -22,8 +22,7 @@
         <span class="search-icon"><lucide-icon [img]="iconSearch" [size]="16"></lucide-icon></span>
         <input 
           type="text" 
-          [(ngModel)]="searchQuery" 
-          (ngModelChange)="filterCustomers()"
+          (keyup)="onSearchChange($any($event.target).value)"
           [placeholder]="'COMMON.SEARCH' | translate" 
           class="search-input"
         >
@@ -87,10 +86,10 @@
             </td>
             <td [attr.data-label]="'COMMON.ACTIONS' | translate">
               <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                <button *ngIf="isAdmin" (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
+                <button *appHasPermission="'Manage_Customers'" (click)="openModal(customer)" class="btn btn-ghost btn-icon btn-sm" [title]="'COMMON.EDIT' | translate">
                   <lucide-icon [img]="iconEdit" [size]="14"></lucide-icon>
                 </button>
-                <button *ngIf="isAdmin" (click)="deleteCustomer(customer.id!)" class="btn btn-danger btn-icon btn-sm" [title]="'COMMON.DELETE' | translate">
+                <button *appHasPermission="'Delete_Customers'" (click)="deleteCustomer(customer.id!)" class="btn btn-danger btn-icon btn-sm" [title]="'COMMON.DELETE' | translate">
                   <lucide-icon [img]="iconTrash" [size]="14"></lucide-icon>
                 </button>
               </div>
@@ -114,13 +113,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="iconChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="iconChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -128,8 +127,8 @@
   </div>
 </div>
 
-<div *ngIf="showModal" class="custom-modal-overlay" (click)="closeModal()">
-  <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+<div *ngIf="showModal" class="custom-modal-overlay" (click)="closeModal()" (window:keydown.escape)="closeModal()">
+  <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
       <h3 class="custom-modal-title">
         {{ editingCustomer ? ('CUSTOMERS.EDIT_CUSTOMER' | translate) : ('CUSTOMERS.ADD_CUSTOMER' | translate) }}

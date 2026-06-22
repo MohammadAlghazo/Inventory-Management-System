@@ -6,6 +6,8 @@ import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
@@ -13,11 +15,13 @@ import { environment } from '../../../environments/environment';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, ProfilePictureModalComponent, EmptyStateComponent, SpinnerComponent],
+  standalone: true,
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, HasPermissionDirective, ProfilePictureModalComponent, EmptyStateComponent, SpinnerComponent],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -30,6 +34,7 @@ export class ProductsComponent implements OnInit {
   totalPages = 1;
   page = 1;
   searchQuery = '';
+  searchSubject = new Subject<string>();
   selectedCategory = '';
   selectedStockStatus = '';
   pageSize = 15;
@@ -38,7 +43,6 @@ export class ProductsComponent implements OnInit {
 
   categories: any[] = [];
 
-  deleteConfirm: any = null;
   isDeleting = false;
 
   showImageModal = false;
@@ -62,6 +66,15 @@ export class ProductsComponent implements OnInit {
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery = query;
+      this.page = 1;
+      this.loadProducts();
+    });
   }
 
   loadCategories() {
@@ -99,11 +112,6 @@ export class ProductsComponent implements OnInit {
         });
       }
     }
-  }
-
-  get isAdmin() {
-    const role = this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-    return role === 'SuperAdmin' || role === 'InventoryManager';
   }
 
   loadProducts() {
@@ -156,7 +164,11 @@ export class ProductsComponent implements OnInit {
     this.exportPdf.export('products-table', 'Products_Report');
   }
 
-  onSearch() {
+  onSearchChange(query: string) {
+    this.searchSubject.next(query);
+  }
+
+  onFilterChange() {
     this.page = 1;
     this.loadProducts();
   }
@@ -201,25 +213,23 @@ export class ProductsComponent implements OnInit {
     return 'PRODUCTS.IN_STOCK';
   }
 
-  confirmDelete(product: any) {
-    this.deleteConfirm = product;
-  }
-
-  deleteProduct() {
-    if (!this.deleteConfirm) return;
-    this.isDeleting = true;
-    this.productService.deleteProduct(this.deleteConfirm.id).subscribe({
-      next: () => {
-        this.isDeleting = false;
-        this.deleteConfirm = null;
-        this.sweetAlert.success('Success', 'Product deleted successfully');
-        this.loadProducts();
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.isLoading = false;
-        this.isDeleting = false;
-        this.cdr.markForCheck();
+  deleteProduct(product: any) {
+    this.sweetAlert.confirmDelete(product.name).then((result) => {
+      if (result.isConfirmed) {
+        this.isDeleting = true;
+        this.productService.deleteProduct(product.id).subscribe({
+          next: () => {
+            this.isDeleting = false;
+            this.sweetAlert.success('Success', 'Product deleted successfully');
+            this.loadProducts();
+            this.cdr.markForCheck();
+          },
+          error: () => {
+            this.isLoading = false;
+            this.isDeleting = false;
+            this.cdr.markForCheck();
+          }
+        });
       }
     });
   }

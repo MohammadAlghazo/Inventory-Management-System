@@ -42,6 +42,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
+  @ViewChild('chatInput') chatInput!: ElementRef<HTMLTextAreaElement>;
 
   messages: ChatMessage[] = [];
   userInput: string = '';
@@ -106,6 +107,14 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     const text = this.userInput.trim();
     this.userInput = '';
     this.addUserMessage(text);
+    
+    // Reset textarea height after sending
+    setTimeout(() => {
+      if (this.chatInput) {
+        this.chatInput.nativeElement.style.height = 'auto';
+      }
+    }, 0);
+    
     this.callChat(text);
   }
 
@@ -204,6 +213,18 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
+    }
+  }
+
+  autoGrow(event: Event): void {
+    const target = event.target as HTMLTextAreaElement;
+    target.style.height = 'auto'; // Reset height
+    const scrollHeight = target.scrollHeight;
+    // Set a max-height limit (e.g. 150px)
+    if (scrollHeight < 150) {
+      target.style.height = `${scrollHeight}px`;
+    } else {
+      target.style.height = '150px';
     }
   }
 

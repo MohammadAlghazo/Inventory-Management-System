@@ -23,9 +23,11 @@ namespace InventoryManagement.Api.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] string? search = null)
+            [FromQuery] string? search = null,
+            [FromQuery] bool? isActive = null,
+            [FromQuery] string? role = null)
         {
-            var result = await _userService.GetAllUsersAsync(page, pageSize, search);
+            var result = await _userService.GetAllUsersAsync(page, pageSize, search, isActive, role);
             return StatusCode(result.StatusCode, result);
         }
 

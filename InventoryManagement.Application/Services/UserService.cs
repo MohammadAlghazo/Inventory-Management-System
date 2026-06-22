@@ -15,9 +15,9 @@ namespace InventoryManagement.Application.Services
             _uow = uow;
         }
 
-        public async Task<ApiResponse<PagedResult<UserProfileDto>>> GetAllUsersAsync(int page, int pageSize, string? search)
+        public async Task<ApiResponse<PagedResult<UserProfileDto>>> GetAllUsersAsync(int page, int pageSize, string? search, bool? isActive = null, string? role = null)
         {
-            var q = _uow.Users.Query();
+            var q = _uow.Users.Query().Include(u => u.Role).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -26,6 +26,15 @@ namespace InventoryManagement.Application.Services
                                  u.Email.ToLower().Contains(s) ||
                                  u.FirstName.ToLower().Contains(s) ||
                                  u.LastName.ToLower().Contains(s));
+            }
+            if (isActive.HasValue)
+            {
+                q = q.Where(u => u.IsActive == isActive.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(role))
+            {
+                q = q.Where(u => u.Role != null && u.Role.Name == role);
             }
 
             var total = await q.CountAsync();

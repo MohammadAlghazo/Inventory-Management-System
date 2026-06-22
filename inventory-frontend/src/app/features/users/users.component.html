@@ -19,8 +19,7 @@
         <input 
           class="search-input" 
           [placeholder]="'COMMON.SEARCH' | translate"
-          [(ngModel)]="searchQuery" 
-          (ngModelChange)="onFilterChange()" 
+          (keyup)="onSearchChange($any($event.target).value)" 
         />
       </div>
 
@@ -154,20 +153,20 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="viewUser" (click)="closeView()">
+  <div class="custom-modal-overlay" *ngIf="viewUser" (click)="closeView()" (window:keydown.escape)="closeView()">
     <div class="custom-modal view-modal" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">User Details</h3>
@@ -219,8 +218,8 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="editUser" (click)="closeEdit()">
-    <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="editUser" (click)="closeEdit()" (window:keydown.escape)="closeEdit()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="icons.Pencil" [size]="18" style="color:var(--accent);margin-right:8px;"></lucide-icon>
@@ -292,8 +291,8 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
-    <div class="custom-modal" style="max-width:400px;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null" (window:keydown.escape)="deleteConfirm = null">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:400px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title" style="color:var(--danger);">{{ 'USERS.DELETE_USER' | translate }}</h3>
       </div>
@@ -313,8 +312,8 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false">
-    <div class="custom-modal" style="max-width:500px;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="showRegisterModal = false" (window:keydown.escape)="showRegisterModal = false">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ 'USERS.REGISTER_NEW_USER' | translate }}</h3>
         <button class="btn btn-ghost btn-sm btn-icon" (click)="showRegisterModal = false">

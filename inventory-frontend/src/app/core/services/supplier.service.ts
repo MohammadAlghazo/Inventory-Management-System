@@ -31,7 +31,7 @@ export class SupplierService extends BaseApiService<any> {
     super(http, 'suppliers');
   }
 
-  override getAll(page: number = 1, pageSize: number = 10, search: string = ''): Observable<ApiResponse<any>> {
-    return super.getAll({ page, pageSize, search });
+  override getAll(page: number = 1, pageSize: number = 10, search: string = '', isActive?: boolean): Observable<ApiResponse<any>> {
+    return super.getAll({ page, pageSize, search, isActive });
   }
 }

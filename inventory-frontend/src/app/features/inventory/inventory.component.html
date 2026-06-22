@@ -9,7 +9,7 @@
       <button class="btn btn-secondary" (click)="openActionModal('return')">
         {{ 'INVENTORY.RETURN_STOCK' | translate }}
       </button>
-      <button *ngIf="isAdmin" class="btn btn-secondary" (click)="openActionModal('adjust')">
+      <button *appHasPermission="'Manage_Inventory'" class="btn btn-secondary" (click)="openActionModal('adjust')">
         {{ 'INVENTORY.ADJUST_STOCK' | translate }}
       </button>
       <button class="btn btn-danger" style="background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239,68,68,0.2);" (click)="openActionModal('sell')">
@@ -29,8 +29,7 @@
         <span class="search-icon"><lucide-icon [img]="icons.Search" [size]="16"></lucide-icon></span>
         <input 
           type="text" 
-          [(ngModel)]="searchQuery" 
-          (ngModelChange)="onFilterChange()"
+          (keyup)="onSearchChange($any($event.target).value)"
           [placeholder]="'COMMON.SEARCH' | translate" 
           class="search-input"
         >
@@ -143,21 +142,21 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="actionModal" (click)="closeActionModal()">
-    <div class="custom-modal" style="max-width: 440px;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="actionModal" (click)="closeActionModal()" (window:keydown.escape)="closeActionModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 440px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ getModalTitle() | translate }}</h3>
       </div>

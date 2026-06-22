@@ -72,7 +72,7 @@
               <td style="color: var(--text-secondary);">{{ order.customerName }}</td>
               <td style="color: var(--text-secondary);">{{ order.warehouseName }}</td>
               <td style="color: var(--text-secondary);">{{ order.orderDate | date:'mediumDate' }}</td>
-              <td style="font-weight: 600;">${{ order.totalAmount | number:'1.2-2' }}</td>
+              <td style="font-weight: 600;">{{ order.totalAmount | currency }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatusClass(order.status)">
                   {{ order.status }}
@@ -109,13 +109,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="ChevronLeftIcon" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: currentPage === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="ChevronRightIcon" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -123,8 +123,8 @@
   </div>
 
   <!-- Create Modal -->
-  <div class="custom-modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="custom-modal" style="max-width: 900px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()" (window:keydown.escape)="closeCreateModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 900px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="FileTextIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
@@ -175,11 +175,11 @@
               <input type="number" [(ngModel)]="item.quantity" min="1" class="form-input">
             </div>
             <div class="form-group" style="width: 110px; margin-bottom: 0;">
-              <label class="form-label">Unit Price ($)</label>
+              <label class="form-label">Unit Price (JOD)</label>
               <input type="number" [(ngModel)]="item.unitPrice" min="0" step="0.01" class="form-input">
             </div>
             <div class="form-group" style="width: 100px; margin-bottom: 0;">
-              <label class="form-label">Discount ($)</label>
+              <label class="form-label">Discount (JOD)</label>
               <input type="number" [(ngModel)]="item.discount" min="0" step="0.01" class="form-input">
             </div>
             <button (click)="removeItem(i)" class="btn btn-danger btn-icon" style="margin-bottom: 2px;">

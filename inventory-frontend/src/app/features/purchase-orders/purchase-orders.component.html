@@ -72,7 +72,7 @@
               <td style="color: var(--text-secondary);">{{ order.supplierName }}</td>
               <td style="color: var(--text-secondary);">{{ order.warehouseName }}</td>
               <td style="color: var(--text-secondary);">{{ order.orderDate | date:'mediumDate' }}</td>
-              <td style="font-weight: 600;">${{ order.totalAmount | number:'1.2-2' }}</td>
+              <td style="font-weight: 600;">{{ order.totalAmount | currency }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatusClass(order.status)">
                   {{ order.status }}
@@ -82,7 +82,7 @@
                 <div style="display: flex; justify-content: flex-end; gap: 6px;">
                   <button 
                     *ngIf="order.status !== 'Completed' && order.status !== 'Cancelled'"
-                    (click)="receiveOrder(order.id)"
+                    (click)="openReceiveModal(order)"
                     class="btn btn-ghost btn-icon btn-sm"
                     style="color: var(--success);"
                     title="Receive Items">
@@ -109,13 +109,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="ChevronLeftIcon" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: currentPage === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="ChevronRightIcon" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -123,8 +123,8 @@
   </div>
 
   <!-- Create Modal -->
-  <div class="custom-modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()">
-    <div class="custom-modal" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="showCreateModal" (click)="closeCreateModal()" (window:keydown.escape)="closeCreateModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="FileTextIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
@@ -175,7 +175,7 @@
               <input type="number" [(ngModel)]="item.quantity" min="1" class="form-input">
             </div>
             <div class="form-group" style="width: 120px; margin-bottom: 0;">
-              <label class="form-label">Unit Cost ($)</label>
+              <label class="form-label">Unit Cost (JOD)</label>
               <input type="number" [(ngModel)]="item.unitCost" min="0" step="0.01" class="form-input">
             </div>
             <button (click)="removeItem(i)" class="btn btn-danger btn-icon" style="margin-bottom: 2px;">
@@ -194,6 +194,49 @@
         <button (click)="submitCreatePO()" class="btn btn-primary" [disabled]="submitting">
           <span class="spinner" *ngIf="submitting"></span>
           Create Order
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Receive Modal -->
+  <div class="custom-modal-overlay" *ngIf="showReceiveModal" (click)="closeReceiveModal()" (window:keydown.escape)="closeReceiveModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">
+          <lucide-icon [img]="PackageIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
+          Receive Items for PO #{{ receivingOrder?.orderNumber }}
+        </h3>
+        <button class="btn btn-ghost btn-sm btn-icon" (click)="closeReceiveModal()">
+          <lucide-icon [img]="XIcon" [size]="16"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="custom-modal-body" style="overflow-y: auto; flex: 1;">
+        <div class="form-group">
+          <label class="form-label">Receiving Notes</label>
+          <input type="text" [(ngModel)]="receiveDto.notes" class="form-input" placeholder="e.g. Received via portal">
+        </div>
+
+        <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">Items to Receive</h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div *ngFor="let item of receiveDto.items; let i = index" class="card" style="padding: 12px; background-color: var(--bg-body); border-radius: 8px; display: flex; gap: 12px; align-items: flex-end;">
+            <div style="flex: 1; margin-bottom: 6px;">
+              <div style="font-weight: 600;">{{ item.productName }}</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Ordered: {{ item.quantityOrdered }}</div>
+            </div>
+            <div class="form-group" style="width: 150px; margin-bottom: 0;">
+              <label class="form-label">Qty Received</label>
+              <input type="number" [(ngModel)]="item.quantityReceived" min="0" [max]="item.quantityOrdered" class="form-input">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-modal-footer">
+        <button (click)="closeReceiveModal()" class="btn btn-ghost">Cancel</button>
+        <button (click)="submitReceiveOrder()" class="btn btn-primary" [disabled]="submitting">
+          <app-spinner *ngIf="submitting" padding="0"></app-spinner>
+          Confirm Receipt
         </button>
       </div>
     </div>

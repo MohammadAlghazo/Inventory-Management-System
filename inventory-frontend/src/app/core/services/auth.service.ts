@@ -115,9 +115,21 @@ export class AuthService {
     try {
       const permissions: string[] = JSON.parse(permissionsStr);
       if (permissions.includes('*')) return true; // SuperAdmin
-      return permissions.includes(permission);
-    } catch {
-      return false;
+      if (permissions.length > 0) {
+        return permissions.includes(permission);
+      }
+    } catch {}
+
+    // Fallback to role checks if no granular permissions exist
+    const user = this.getCurrentUser();
+    const role = user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    
+    if (role === 'SuperAdmin') return true;
+    
+    if (permission.startsWith('Manage_') || permission.startsWith('Delete_') || permission.startsWith('Edit_') || permission.startsWith('Create_')) {
+       return role === 'InventoryManager';
     }
+    
+    return false;
   }
 }

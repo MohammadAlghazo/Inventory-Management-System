@@ -6,6 +6,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ProfileService } from '../../core/services/profile.service';
 import { UserService } from '../../core/services/user.service';
 import { environment } from '../../../environments/environment';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 
 @Component({
@@ -39,7 +40,8 @@ export class ProfileComponent implements OnInit {
   constructor(
     private profileService: ProfileService,
     private userService: UserService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private sweetAlert: SweetAlertService
   ) {}
 
   ngOnInit() {
@@ -151,16 +153,23 @@ export class ProfileComponent implements OnInit {
   }
 
   deleteProfilePicture() {
-    if (confirm(this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete your profile picture?')) {
-      this.userService.deleteProfilePicture(this.profile.id).subscribe({
-        next: (res) => {
-          this.profile.profilePicture = null;
-          this.profileService.updateProfilePictureInState(null);
-        },
-        error: (err) => {
-          console.error('Failed to delete profile picture', err);
-        }
-      });
-    }
+    this.sweetAlert.confirm(
+      'Delete Profile Picture',
+      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete your profile picture?',
+      'Yes, delete it!'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.deleteProfilePicture(this.profile.id).subscribe({
+          next: (res) => {
+            this.profile.profilePicture = null;
+            this.profileService.updateProfilePictureInState(null);
+            this.sweetAlert.toast('Profile picture deleted successfully');
+          },
+          error: (err) => {
+            console.error('Failed to delete profile picture', err);
+          }
+        });
+      }
+    });
   }
 }

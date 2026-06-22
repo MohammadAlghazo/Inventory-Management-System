@@ -9,20 +9,24 @@ import { SupplierService } from '../../core/services/supplier.service';
 import { ProductService } from '../../core/services/product.service';
 import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Package, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-purchase-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, SpinnerComponent],
   templateUrl: './purchase-orders.component.html',
   styleUrls: ['./purchase-orders.component.css']
 })
 export class PurchaseOrdersComponent implements OnInit {
   orders: PurchaseOrder[] = [];
   searchTerm: string = '';
+  searchSubject = new Subject<string>();
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
@@ -41,6 +45,11 @@ export class PurchaseOrdersComponent implements OnInit {
     expectedDate: '',
     items: []
   };
+
+  // Receive Modal State
+  showReceiveModal = false;
+  receivingOrder: PurchaseOrder | null = null;
+  receiveDto: any = { purchaseOrderId: 0, notes: '', items: [] };
   
   // Icons
   PlusIcon = Plus;
@@ -65,6 +74,15 @@ export class PurchaseOrdersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchTerm = query;
+      this.currentPage = 1;
+      this.loadOrders();
+    });
   }
 
   loadOrders(): void {
@@ -77,7 +95,6 @@ export class PurchaseOrdersComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          this.sweetAlert.error('Error loading purchase orders');
           console.error(err);
           this.loading = false;
         }
@@ -101,20 +118,55 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   onSearch(event: any): void {
-    this.searchTerm = event.target.value;
-    this.currentPage = 1;
-    this.loadOrders();
+    this.searchSubject.next(event.target.value);
   }
 
-  receiveOrder(id: number): void {
-    this.poService.receivePurchaseOrder(id, { purchaseOrderId: id, notes: 'Received via portal' })
+  openReceiveModal(order: PurchaseOrder): void {
+    this.receivingOrder = order;
+    this.receiveDto = {
+      purchaseOrderId: order.id,
+      notes: '',
+      items: order.items.map(i => ({
+        productId: i.productId,
+        productName: i.productName,
+        quantityOrdered: i.quantityOrdered,
+        quantityReceived: i.quantityOrdered - i.quantityReceived // default to remaining
+      }))
+    };
+    this.showReceiveModal = true;
+  }
+
+  closeReceiveModal(): void {
+    this.showReceiveModal = false;
+    this.receivingOrder = null;
+  }
+
+  submitReceiveOrder(): void {
+    if (!this.receivingOrder) return;
+    
+    // Filter out items with 0 received quantity (unless that's allowed, but usually we only send what's received)
+    // Actually the backend expects items to update. If we send 0, it adds 0. Let's send all mapped items.
+    const payload = {
+      purchaseOrderId: this.receiveDto.purchaseOrderId,
+      notes: this.receiveDto.notes,
+      items: this.receiveDto.items.map((i: any) => ({
+        productId: i.productId,
+        quantityReceived: i.quantityReceived
+      }))
+    };
+
+    this.submitting = true;
+    this.poService.receivePurchaseOrder(this.receivingOrder.id, payload)
       .subscribe({
         next: () => {
+          this.submitting = false;
           this.sweetAlert.success('Purchase Order Received Successfully', 'Inventory has been updated.');
+          this.closeReceiveModal();
           this.loadOrders();
         },
         error: (err) => {
-          this.sweetAlert.error('Failed to receive order', err.error?.message || 'An error occurred');
+          this.submitting = false;
+          // Handled by interceptor
         }
       });
   }
@@ -198,7 +250,7 @@ export class PurchaseOrdersComponent implements OnInit {
       },
       error: (err) => {
         this.submitting = false;
-        this.sweetAlert.error('Error', err.error?.message || 'Failed to create PO');
+        // Handled by interceptor
       }
     });
   }

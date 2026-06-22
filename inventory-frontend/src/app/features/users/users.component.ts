@@ -8,6 +8,8 @@ import {
 } from 'lucide-angular';
 import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
@@ -37,6 +39,7 @@ export class UsersComponent implements OnInit {
   page = 1;
   pageSize = 15;
   searchQuery = '';
+  searchSubject = new Subject<string>();
   selectedRole = '';
   selectedStatus = '';
   isLoading = false;
@@ -71,7 +74,18 @@ export class UsersComponent implements OnInit {
     this.currentUser = this.authService.getCurrentUser();
   }
 
-  ngOnInit() { this.loadUsers(); }
+  ngOnInit() { 
+    this.loadUsers(); 
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery = query;
+      this.page = 1;
+      this.loadUsers();
+    });
+  }
 
   get currentUserId() {
     return this.currentUser?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
@@ -79,7 +93,11 @@ export class UsersComponent implements OnInit {
 
   loadUsers() {
     this.isLoading = true;
-    this.userService.getUsers(this.page, this.pageSize, this.searchQuery).subscribe({
+    let isActive: boolean | undefined = undefined;
+    if (this.selectedStatus === 'active') isActive = true;
+    else if (this.selectedStatus === 'inactive') isActive = false;
+
+    this.userService.getUsers(this.page, this.pageSize, this.searchQuery, isActive, this.selectedRole || undefined).subscribe({
       next: (res) => {
         this.users = res.data?.items || [];
         this.totalCount = res.data?.totalCount || 0;
@@ -91,26 +109,11 @@ export class UsersComponent implements OnInit {
   }
 
   getFilteredUsers() {
-    return this.users.filter(u => {
-      const q = this.searchQuery.trim().toLowerCase();
-      const matchesSearch = q ? (
-        String(u.id).includes(q) ||
-        u.username.toLowerCase().includes(q) ||
-        (u.email && u.email.toLowerCase().includes(q)) ||
-        `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(q)
-      ) : true;
+    return this.users;
+  }
 
-      const matchesRole = this.selectedRole ? u.role === this.selectedRole : true;
-
-      let matchesStatus = true;
-      if (this.selectedStatus === 'active') {
-        matchesStatus = u.isActive === true;
-      } else if (this.selectedStatus === 'inactive') {
-        matchesStatus = u.isActive === false;
-      }
-
-      return matchesSearch && matchesRole && matchesStatus;
-    });
+  onSearchChange(query: string) {
+    this.searchSubject.next(query);
   }
 
   onFilterChange() {
@@ -269,17 +272,23 @@ export class UsersComponent implements OnInit {
   }
 
   deleteProfilePicture(user: any) {
-    if (confirm(this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete this profile picture?')) {
-      this.userService.deleteProfilePicture(user.id).subscribe({
-        next: () => {
-          this.sweetAlert.toast('Profile picture deleted successfully');
-          if (String(user.id) === String(this.currentUserId)) {
-            this.profileService.updateProfilePictureInState(null);
-          }
-          this.loadUsers();
-        },
-        error: (err) => console.error(err)
-      });
-    }
+    this.sweetAlert.confirm(
+      'Delete Profile Picture',
+      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete this profile picture?',
+      'Yes, delete it!'
+    ).then((result) => {
+      if (result.isConfirmed) {
+        this.userService.deleteProfilePicture(user.id).subscribe({
+          next: () => {
+            this.sweetAlert.toast('Profile picture deleted successfully');
+            if (String(user.id) === String(this.currentUserId)) {
+              this.profileService.updateProfilePictureInState(null);
+            }
+            this.loadUsers();
+          },
+          error: (err) => console.error(err)
+        });
+      }
+    });
   }
 }

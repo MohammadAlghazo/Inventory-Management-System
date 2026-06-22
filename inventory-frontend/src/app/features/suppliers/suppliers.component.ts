@@ -4,20 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { SupplierService, Supplier, ApiResponse } from '../../core/services/supplier.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-suppliers',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, HasPermissionDirective],
   templateUrl: './suppliers.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SuppliersComponent implements OnInit {
   suppliers: Supplier[] = [];
   searchQuery = '';
+  searchSubject = new Subject<string>();
   selectedStatus = '';
   page = 1;
   pageSize = 10;
@@ -48,35 +53,36 @@ export class SuppliersComponent implements OnInit {
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private sweetAlert: SweetAlertService
   ) {
     this.user = this.authService.getCurrentUser();
   }
 
   user: any;
 
-  get isAdmin() {
-    const role = this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-    return role === 'SuperAdmin' || role === 'InventoryManager';
-  }
-
   ngOnInit() {
     this.loadSuppliers();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery = query;
+      this.page = 1;
+      this.loadSuppliers();
+    });
   }
 
   loadSuppliers() {
     this.isLoading = true;
-    this.supplierService.getAll(this.page, this.pageSize, this.searchQuery).subscribe({
+    let isActive: boolean | undefined = undefined;
+    if (this.selectedStatus === 'active') isActive = true;
+    else if (this.selectedStatus === 'inactive') isActive = false;
+
+    this.supplierService.getAll(this.page, this.pageSize, this.searchQuery, isActive).subscribe({
       next: (res: any) => {
-        let items = res?.data?.items || [];
-        
-        if (this.selectedStatus === 'active') {
-          items = items.filter((s: any) => s.isActive === true);
-        } else if (this.selectedStatus === 'inactive') {
-          items = items.filter((s: any) => s.isActive === false);
-        }
-        
-        this.suppliers = items;
+        this.suppliers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -87,6 +93,10 @@ export class SuppliersComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  onSearchChange(query: string) {
+    this.searchSubject.next(query);
   }
 
   filterSuppliers() {
@@ -188,17 +198,20 @@ export class SuppliersComponent implements OnInit {
   }
 
   deleteSupplier(id: number) {
-    if (confirm('Are you sure you want to delete this supplier?')) {
-      this.supplierService.delete(id).subscribe({
-        next: () => {
-          this.loadSuppliers();
-          this.cdr.markForCheck();
-        },
-        error: (err: any) => {
-          this.error = 'Failed to delete supplier';
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    this.sweetAlert.confirmDelete('this supplier').then((result) => {
+      if (result.isConfirmed) {
+        this.supplierService.delete(id).subscribe({
+          next: () => {
+            this.sweetAlert.success('Deleted', 'Supplier has been deleted.');
+            this.loadSuppliers();
+            this.cdr.markForCheck();
+          },
+          error: (err: any) => {
+            this.error = 'Failed to delete supplier';
+            this.cdr.markForCheck();
+          }
+        });
+      }
+    });
   }
 }

@@ -9,6 +9,8 @@ import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
 import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
@@ -23,6 +25,7 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
 export class SalesOrdersComponent implements OnInit {
   orders: SalesOrder[] = [];
   searchTerm: string = '';
+  searchSubject = new Subject<string>();
   currentPage: number = 1;
   pageSize: number = 10;
   totalCount: number = 0;
@@ -65,6 +68,15 @@ export class SalesOrdersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchTerm = query;
+      this.currentPage = 1;
+      this.loadOrders();
+    });
   }
 
   loadOrders(): void {
@@ -77,7 +89,6 @@ export class SalesOrdersComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          this.sweetAlert.error('Error loading sales orders');
           console.error(err);
           this.loading = false;
         }
@@ -101,9 +112,7 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   onSearch(event: any): void {
-    this.searchTerm = event.target.value;
-    this.currentPage = 1;
-    this.loadOrders();
+    this.searchSubject.next(event.target.value);
   }
 
   shipOrder(id: number): void {
@@ -114,7 +123,7 @@ export class SalesOrdersComponent implements OnInit {
           this.loadOrders();
         },
         error: (err) => {
-          this.sweetAlert.error('Failed to ship order', err.error?.message || 'An error occurred');
+          // Handled by interceptor
         }
       });
   }
@@ -198,7 +207,7 @@ export class SalesOrdersComponent implements OnInit {
       },
       error: (err) => {
         this.submitting = false;
-        this.sweetAlert.error('Error', err.error?.message || 'Failed to create SO');
+        // Handled by interceptor
       }
     });
   }

@@ -41,4 +41,10 @@ export interface CreatePurchaseOrderItemDto {
 export interface ReceivePurchaseOrderDto {
   purchaseOrderId: number;
   notes: string;
+  items: ReceivePurchaseOrderItemDto[];
+}
+
+export interface ReceivePurchaseOrderItemDto {
+  productId: number;
+  quantityReceived: number;
 }

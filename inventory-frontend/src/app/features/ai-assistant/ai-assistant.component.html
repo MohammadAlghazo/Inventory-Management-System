@@ -77,16 +77,16 @@
       <!-- Main Input Box -->
       <div class="input-box">
         <textarea
+          #chatInput
           [(ngModel)]="userInput"
+          (input)="autoGrow($event)"
           (keydown)="onKeydown($event)"
           [disabled]="isLoading"
           placeholder="Ask me anything about inventory, products, orders..."
           rows="1"
-          maxlength="250"
         ></textarea>
         
         <div class="input-bottom-row">
-          <span class="char-counter">{{ userInput.length }}/250</span>
           <button 
             class="send-btn" 
             [class.active]="canSend"

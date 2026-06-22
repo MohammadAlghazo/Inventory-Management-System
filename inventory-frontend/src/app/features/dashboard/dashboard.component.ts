@@ -73,7 +73,7 @@ export class DashboardComponent implements OnInit {
   get kpis() {
     return [
       { label: 'DASHBOARD.TOTAL_PRODUCTS', value: (this.statsObj.totalProducts || 0).toLocaleString(),       icon: this.icons.Package,       color: '#d2593b', bg: 'rgba(210, 89, 59, 0.12)',  route: '/products'  },
-      { label: 'DASHBOARD.TOTAL_VALUE',    value: '$'+(this.statsObj.totalInventoryValue||0).toLocaleString(), icon: this.icons.DollarSign,    color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)', route: '/reports'  },
+      { label: 'DASHBOARD.TOTAL_VALUE',    value: (this.statsObj.totalInventoryValue||0).toLocaleString() + ' JOD', icon: this.icons.DollarSign,    color: '#10b981', bg: 'rgba(16, 185, 129, 0.12)', route: '/reports'  },
       { label: 'DASHBOARD.LOW_STOCK',      value: (this.statsObj.lowStockCount || 0).toLocaleString(),       icon: this.icons.AlertTriangle, color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.12)', route: '/low-stock'  },
       { label: 'DASHBOARD.ITEMS_OUT',      value: (this.statsObj.todaysMovements || 0).toLocaleString(),     icon: this.icons.Activity,      color: '#ef4444', bg: 'rgba(239, 68, 68, 0.12)',  route: '/inventory' },
     ];

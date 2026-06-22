@@ -9,7 +9,7 @@ namespace InventoryManagement.Application.Services
 {
     public interface ICustomerService
     {
-        Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null);
+        Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null, bool? isActive = null);
         Task<ApiResponse<CustomerDto>> GetCustomerByIdAsync(int id);
         Task<ApiResponse<CustomerDto>> CreateCustomerAsync(CreateCustomerDto dto);
         Task<ApiResponse<CustomerDto>> UpdateCustomerAsync(int id, UpdateCustomerDto dto);
@@ -27,7 +27,7 @@ namespace InventoryManagement.Application.Services
             _emailService = emailService;
         }
 
-        public async Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null)
+        public async Task<ApiResponse<PagedResult<CustomerDto>>> GetAllCustomersAsync(int page = 1, int pageSize = 10, string? search = null, bool? isActive = null)
         {
             var query = _uow.Customers.Query();
 
@@ -37,6 +37,11 @@ namespace InventoryManagement.Application.Services
                 query = query.Where(c => c.Name.ToLower().Contains(s) || 
                                          c.Phone.ToLower().Contains(s) || 
                                          c.Email.ToLower().Contains(s));
+            }
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(c => c.IsActive == isActive.Value);
             }
 
             var total = await query.CountAsync();

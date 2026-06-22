@@ -11,9 +11,11 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(page: number = 1, pageSize: number = 15, search?: string): Observable<any> {
+  getUsers(page: number = 1, pageSize: number = 15, search?: string, isActive?: boolean, role?: string): Observable<any> {
     let url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
     if (search) url += `&search=${search}`;
+    if (isActive !== undefined && isActive !== null) url += `&isActive=${isActive}`;
+    if (role) url += `&role=${role}`;
     return this.http.get<any>(url);
   }
 

@@ -5,7 +5,7 @@ namespace InventoryManagement.Application.Services
 {
     public interface IUserService
     {
-        Task<ApiResponse<PagedResult<UserProfileDto>>> GetAllUsersAsync(int page, int pageSize, string? search);
+        Task<ApiResponse<PagedResult<UserProfileDto>>> GetAllUsersAsync(int page, int pageSize, string? search, bool? isActive = null, string? role = null);
         Task<ApiResponse<UserProfileDto>> GetUserByIdAsync(int id);
         Task<ApiResponse<UserProfileDto>> UpdateUserAsync(int id, UpdateUserDto dto);
         Task<ApiResponse<object>> ToggleUserStatusAsync(int id);

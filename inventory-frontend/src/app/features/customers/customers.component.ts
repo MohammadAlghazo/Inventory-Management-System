@@ -4,20 +4,25 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { CustomerService, Customer, ApiResponse } from '../../core/services/customer.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
+import { SweetAlertService } from '../../core/services/sweetalert.service';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-customers',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, HasPermissionDirective],
   templateUrl: './customers.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CustomersComponent implements OnInit {
   customers: Customer[] = [];
   searchQuery = '';
+  searchSubject = new Subject<string>();
   selectedStatus = '';
   page = 1;
   pageSize = 10;
@@ -47,35 +52,36 @@ export class CustomersComponent implements OnInit {
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
     private cdr: ChangeDetectorRef,
-    private authService: AuthService
+    private authService: AuthService,
+    private sweetAlert: SweetAlertService
   ) {
     this.user = this.authService.getCurrentUser();
   }
 
   user: any;
 
-  get isAdmin() {
-    const role = this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-    return role === 'SuperAdmin' || role === 'InventoryManager';
-  }
-
   ngOnInit() {
     this.loadCustomers();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery = query;
+      this.page = 1;
+      this.loadCustomers();
+    });
   }
 
   loadCustomers() {
     this.isLoading = true;
-    this.customerService.getAll(this.page, this.pageSize, this.searchQuery).subscribe({
+    let isActive: boolean | undefined = undefined;
+    if (this.selectedStatus === 'active') isActive = true;
+    else if (this.selectedStatus === 'inactive') isActive = false;
+
+    this.customerService.getAll(this.page, this.pageSize, this.searchQuery, isActive).subscribe({
       next: (res: any) => {
-        let items = res?.data?.items || [];
-        
-        if (this.selectedStatus === 'active') {
-          items = items.filter((c: any) => c.isActive === true);
-        } else if (this.selectedStatus === 'inactive') {
-          items = items.filter((c: any) => c.isActive === false);
-        }
-        
-        this.customers = items;
+        this.customers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -86,6 +92,10 @@ export class CustomersComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  onSearchChange(query: string) {
+    this.searchSubject.next(query);
   }
 
   filterCustomers() {
@@ -186,17 +196,20 @@ export class CustomersComponent implements OnInit {
   }
 
   deleteCustomer(id: number) {
-    if (confirm('Are you sure you want to delete this customer?')) {
-      this.customerService.delete(id).subscribe({
-        next: () => {
-          this.loadCustomers();
-          this.cdr.markForCheck();
-        },
-        error: (err: any) => {
-          this.error = 'Failed to delete customer';
-          this.cdr.markForCheck();
-        }
-      });
-    }
+    this.sweetAlert.confirmDelete('this customer').then((result) => {
+      if (result.isConfirmed) {
+        this.customerService.delete(id).subscribe({
+          next: () => {
+            this.sweetAlert.success('Deleted', 'Customer has been deleted.');
+            this.loadCustomers();
+            this.cdr.markForCheck();
+          },
+          error: (err: any) => {
+            this.error = 'Failed to delete customer';
+            this.cdr.markForCheck();
+          }
+        });
+      }
+    });
   }
 }

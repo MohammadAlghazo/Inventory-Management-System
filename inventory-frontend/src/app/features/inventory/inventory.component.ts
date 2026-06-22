@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Download, Plus, ClipboardList, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -12,15 +12,18 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { Html5Qrcode } from 'html5-qrcode';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
   selector: 'app-inventory',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, HasPermissionDirective],
   templateUrl: './inventory.component.html',
   styleUrl: './inventory.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InventoryComponent implements OnInit {
+export class InventoryComponent implements OnInit, OnDestroy {
   readonly icons = { Search, Download, Plus, ClipboardList, ChevronLeft, ChevronRight };
 
   logs: any[] = [];
@@ -31,6 +34,7 @@ export class InventoryComponent implements OnInit {
   pageSize = 15;
   actionFilter = '';
   searchQuery = '';
+  searchSubject = new Subject<string>();
   isLoading = false;
 
   user: any;
@@ -63,11 +67,24 @@ export class InventoryComponent implements OnInit {
     this.loadLogs();
     this.loadProducts();
     this.loadWarehouses();
+
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => {
+      this.searchQuery = query;
+      this.page = 1;
+      this.loadLogs();
+    });
   }
 
-  get isAdmin() {
-    const role = this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-    return role === 'SuperAdmin' || role === 'InventoryManager';
+  ngOnDestroy() {
+    this.searchSubject.complete();
+    if (this.scanning && this.qrReader) {
+      try {
+        this.qrReader.stop().catch(() => {});
+      } catch (e) {}
+    }
   }
 
   loadWarehouses() {
@@ -103,6 +120,10 @@ export class InventoryComponent implements OnInit {
   onFilterChange() {
     this.page = 1;
     this.loadLogs();
+  }
+
+  onSearchChange(query: string) {
+    this.searchSubject.next(query);
   }
 
   onPageSizeChange() {

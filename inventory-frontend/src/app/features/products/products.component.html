@@ -15,10 +15,11 @@
           <lucide-icon [img]="icons.LayoutGrid" [size]="16"></lucide-icon>
         </button>
       </div>
-      <button *ngIf="isAdmin" class="btn btn-secondary" (click)="openImportModal()" style="display: flex; align-items: center; gap: 6px; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer;">
-        Import Excel
+      <button *appHasPermission="'Manage_Products'" class="btn btn-secondary" (click)="openImportModal()" style="display: flex; align-items: center; gap: 6px; background-color: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer;">
+        <lucide-icon [img]="icons.Upload" [size]="16"></lucide-icon>
+        {{ 'COMMON.IMPORT' | translate }}
       </button>
-      <button *ngIf="isAdmin" class="btn btn-primary" (click)="openAddProduct()" style="display: flex; align-items: center; gap: 6px;">
+      <button *appHasPermission="'Manage_Products'" class="btn btn-primary" (click)="openAddProduct()" style="display: flex; align-items: center; gap: 6px;">
         <lucide-icon [img]="icons.Plus" [size]="16"></lucide-icon> {{ 'PRODUCTS.ADD_PRODUCT' | translate }}
       </button>
     </div>
@@ -32,8 +33,7 @@
         <input
           class="search-input"
           [placeholder]="'COMMON.SEARCH' | translate"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="onFilterChange()"
+          (keyup)="onSearchChange($any($event.target).value)"
         />
       </div>
 
@@ -133,13 +133,13 @@
               </td>
               <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display: flex; gap: 6px;">
-                                    <button *ngIf="isAdmin" class="btn btn-ghost btn-icon btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
+                  <button *appHasPermission="'Manage_Products'" class="btn btn-ghost btn-icon btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
                     <lucide-icon [img]="icons.ImagePlus" [size]="14"></lucide-icon>
                   </button>
-                  <button *ngIf="isAdmin" class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
+                  <button *appHasPermission="'Manage_Products'" class="btn btn-ghost btn-icon btn-sm" (click)="openEditProduct(p)" [title]="'COMMON.EDIT' | translate">
                     <lucide-icon [img]="icons.Edit" [size]="14"></lucide-icon>
                   </button>
-                  <button *ngIf="isAdmin" class="btn btn-danger btn-icon btn-sm" (click)="confirmDelete(p)" [title]="'COMMON.DELETE' | translate">
+                  <button *appHasPermission="'Delete_Products'" class="btn btn-danger btn-icon btn-sm" (click)="deleteProduct(p)" [title]="'COMMON.DELETE' | translate">
                     <lucide-icon [img]="icons.Trash2" [size]="14"></lucide-icon>
                   </button>
                 </div>
@@ -163,13 +163,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -207,13 +207,13 @@
           <span class="text-muted">{{ 'PRODUCTS.MIN' | translate }}: {{ p.minQuantity }}</span>
         </div>
                   <div class="product-card-actions">
-            <button *ngIf="isAdmin" class="btn btn-ghost btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
+            <button *appHasPermission="'Manage_Products'" class="btn btn-ghost btn-sm" (click)="openImageModal(p)" [title]="'PROFILE.UPLOAD_PICTURE' | translate">
               <lucide-icon [img]="icons.ImagePlus" [size]="13"></lucide-icon>
             </button>
-            <button *ngIf="isAdmin" class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
+            <button *appHasPermission="'Manage_Products'" class="btn btn-ghost btn-sm" (click)="openEditProduct(p)">
               <lucide-icon [img]="icons.Edit" [size]="13"></lucide-icon> {{ 'COMMON.EDIT' | translate }}
             </button>
-          <button *ngIf="isAdmin" class="btn btn-danger btn-sm" (click)="confirmDelete(p)">
+          <button *appHasPermission="'Delete_Products'" class="btn btn-danger btn-sm" (click)="deleteProduct(p)">
             <lucide-icon [img]="icons.Trash2" [size]="13"></lucide-icon> {{ 'COMMON.DELETE' | translate }}
           </button>
         </div>
@@ -221,35 +221,10 @@
     </ng-container>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="deleteConfirm = null">
-    <div class="custom-modal" style="max-width: 400px;" (click)="$event.stopPropagation()">
-      <div class="custom-modal-header">
-        <h3 class="custom-modal-title" style="color: var(--danger);">
-          <lucide-icon [img]="icons.Trash2" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
-          {{ 'PRODUCTS.CONFIRM_DELETE_TITLE' | translate }}
-        </h3>
-      </div>
-      <div class="custom-modal-body">
-        <p style="color: var(--text-secondary); font-size: 14px;">
-          {{ 'PRODUCTS.CONFIRM_DELETE_MSG' | translate }}
-        </p>
-        <p style="margin-top: 8px; font-weight: 600; color: var(--text-primary);">
-          "{{ deleteConfirm.name }}"
-        </p>
-      </div>
-      <div class="custom-modal-footer">
-        <button class="btn btn-ghost" (click)="deleteConfirm = null">{{ 'COMMON.CANCEL' | translate }}</button>
-        <button class="btn btn-danger" (click)="deleteProduct()" [disabled]="isDeleting">
-          <app-spinner *ngIf="isDeleting" padding="0"></app-spinner>
-          <lucide-icon [img]="icons.Trash2" [size]="14" *ngIf="!isDeleting"></lucide-icon>
-          {{ 'COMMON.DELETE' | translate }}
-        </button>
-      </div>
-    </div>
-  </div>
 
-  <div class="custom-modal-overlay" *ngIf="showProductModal" (click)="showProductModal = false">
-    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+
+  <div class="custom-modal-overlay" *ngIf="showProductModal" (click)="showProductModal = false" (window:keydown.escape)="showProductModal = false">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="icons.Package" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
@@ -311,8 +286,8 @@
   </app-profile-picture-modal>
 
   <!-- Import Modal -->
-  <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()">
-    <div class="custom-modal" style="max-width: 500px;" (click)="$event.stopPropagation()">
+  <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()" (window:keydown.escape)="closeImportModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">Bulk Import Products</h3>
       </div>
