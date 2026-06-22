@@ -156,8 +156,6 @@
   gap: 24px;
   position: relative;
   z-index: 1;
-  max-width: 900px;
-  margin: 0 auto;
   padding-bottom: 20px;
 }
 
@@ -264,8 +262,6 @@
 }
 
 .input-container-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
