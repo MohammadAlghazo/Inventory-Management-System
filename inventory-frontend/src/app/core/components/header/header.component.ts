@@ -10,15 +10,20 @@ import { LayoutService } from '../../services/layout.service';
 import { ThemeService, ColorScheme } from '../../services/theme.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { ProfileService } from '../../services/profile.service';
+import { Subscription } from 'rxjs';
+
 @Component({
   selector: 'app-header',
   imports: [CommonModule, LucideAngularModule, TranslatePipe, RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   readonly icons = { Menu, Globe, Moon, Sun, Bell, Check, Trash, Palette };
   user: any = null;
+  dbProfile: any = null;
+  profileSub?: Subscription;
   currentLang: string = 'en';
   destroyRef: DestroyRef;
   isDarkMode = true;
@@ -31,6 +36,7 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private profileService: ProfileService,
     private translate: TranslateService,
     private notificationService: NotificationService,
     private router: Router,
@@ -48,6 +54,9 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
+    this.profileSub = this.profileService.currentProfile$.subscribe(profile => {
+      this.dbProfile = profile;
+    });
 
     this.availableSchemes = this.themeService.availableSchemes;
     this.themeService.isDarkMode$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isDark => this.isDarkMode = isDark);
@@ -63,6 +72,12 @@ export class HeaderComponent implements OnInit {
       this.showNotifications = false; 
     });
     this.updateTitle();
+  }
+
+  ngOnDestroy() {
+    if (this.profileSub) {
+      this.profileSub.unsubscribe();
+    }
   }
 
   updateTitle() {

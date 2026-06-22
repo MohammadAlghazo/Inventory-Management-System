@@ -23,7 +23,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LayoutService } from '../../services/layout.service';
+import { ProfileService } from '../../services/profile.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
@@ -34,6 +35,8 @@ import { LayoutService } from '../../services/layout.service';
 export class SidebarComponent implements OnInit, OnDestroy {
   readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X, AlertTriangle, BarChart3 };
   user: any = null;
+  dbProfile: any = null;
+  profileSub?: Subscription;
 
   private isResizing = false;
   private startX = 0;
@@ -78,6 +81,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
+    private profileService: ProfileService,
     private router: Router,
     public layoutService: LayoutService,
     private elRef: ElementRef
@@ -85,9 +89,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
+    this.profileSub = this.profileService.currentProfile$.subscribe(profile => {
+      this.dbProfile = profile;
+    });
+    this.profileService.getMe().subscribe();
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+    if (this.profileSub) {
+      this.profileSub.unsubscribe();
+    }
+  }
 
   get userName() {
     return this.user?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || 'User';

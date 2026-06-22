@@ -83,8 +83,11 @@
     </div>
 
     <div class="header-user" routerLink="/profile" style="cursor:pointer;" title="My Profile">
-      <div class="avatar">
-        {{ userName.charAt(0).toUpperCase() }}
+      <div class="avatar" style="padding: 0; overflow: hidden;">
+        <img *ngIf="dbProfile?.profilePicture" [src]="dbProfile.profilePicture" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+        <span *ngIf="!dbProfile?.profilePicture" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+          {{ userName.charAt(0).toUpperCase() }}
+        </span>
       </div>
       <div class="header-user-info">
         <span class="header-user-name">{{ userName }}</span>

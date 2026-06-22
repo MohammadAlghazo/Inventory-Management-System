@@ -142,6 +142,7 @@ export class ProfileComponent implements OnInit {
     this.userService.updateProfilePicture(this.profile.id, url).subscribe({
       next: (res) => {
         this.profile.profilePicture = url;
+        this.profileService.updateProfilePictureInState(url);
       },
       error: (err) => {
         console.error('Failed to update profile picture in database', err);
@@ -154,6 +155,7 @@ export class ProfileComponent implements OnInit {
       this.userService.deleteProfilePicture(this.profile.id).subscribe({
         next: (res) => {
           this.profile.profilePicture = null;
+          this.profileService.updateProfilePictureInState(null);
         },
         error: (err) => {
           console.error('Failed to delete profile picture', err);
