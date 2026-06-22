@@ -1,8 +1,8 @@
 // Determine if we are running locally or on the deployed frontend
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// TODO: ضع رابط السيرفر الخاص بك على ريندر هنا
-const RENDER_API_URL = 'https://YOUR-APP-NAME.onrender.com/api';
+// رابط السيرفر على ريندر
+const RENDER_API_URL = 'https://inventory-management-system-omkq.onrender.com/api';
 
 export const environment = {
   production: true,
