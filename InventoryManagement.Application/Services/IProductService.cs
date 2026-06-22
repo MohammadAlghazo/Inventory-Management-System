@@ -1,6 +1,8 @@
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Product_Dtos;
 
+using InventoryManagement.Application.Dtos.Dashboard_Dtos;
+
 namespace InventoryManagement.Application.Services
 {
     public interface IProductService

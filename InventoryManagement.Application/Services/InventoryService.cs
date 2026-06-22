@@ -153,7 +153,7 @@ namespace InventoryManagement.Application.Services
                 ActionDate = DateTime.UtcNow
             });
 
-            _db.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "Manager");
+            _db.AddNotification("Stock Adjusted", $"'{product.Name}' adjusted from {previous} to {stock.Quantity}.", "Warning", "SuperAdmin");
 
             if (previous > stock.MinQuantity && stock.Quantity <= stock.MinQuantity)
             {

@@ -4,6 +4,7 @@ using InventoryManagement.Application.Dtos;
 using InventoryManagement.Application.Services;
 using InventoryManagement.Domain.Common;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagement.Api.Controllers
@@ -21,7 +22,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("low-stock")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<ActionResult<ApiResponse<List<LowStockAlertDto>>>> GetLowStockAlerts()
         {
             var data = await _reportService.GetLowStockAlertsAsync();
@@ -29,7 +30,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("valuation")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<ActionResult<ApiResponse<List<ValuationReportDto>>>> GetValuation()
         {
             var data = await _reportService.GetInventoryValuationAsync();
@@ -37,7 +38,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("abc-analysis")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<ActionResult<ApiResponse<List<AbcAnalysisDto>>>> GetAbcAnalysis()
         {
             var data = await _reportService.GetAbcAnalysisAsync();
@@ -45,3 +46,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

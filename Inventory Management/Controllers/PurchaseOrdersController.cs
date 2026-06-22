@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -8,7 +9,7 @@ namespace InventoryManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin,InventoryManager,PurchasingOfficer,WarehouseStaff")]
+    [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.PurchasingOfficer + "," + RoleConstants.WarehouseStaff)]
     public class PurchaseOrdersController : ControllerBase
     {
         private readonly IPurchaseOrderService _purchaseOrderService;
@@ -63,3 +64,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

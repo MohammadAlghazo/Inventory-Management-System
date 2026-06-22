@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Dtos.Auth_Dto;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
@@ -27,7 +28,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("register")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         [EnableRateLimiting("LoginPolicy")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
@@ -79,3 +80,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

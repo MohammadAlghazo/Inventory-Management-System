@@ -2,13 +2,14 @@ using System.Security.Claims;
 using InventoryManagement.Application.Dtos.Auth_Dto;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagement.Api.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = RoleConstants.SuperAdmin)]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -98,3 +99,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

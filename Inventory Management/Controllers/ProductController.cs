@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Dtos.Product_Dtos;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagement.Api.Controllers
@@ -42,7 +43,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpGet("low-stock")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> GetLowStock()
         {
             var result = await _productService.GetLowStockAsync();
@@ -50,7 +51,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> Create([FromBody] CreateProductDto dto)
         {
             var result = await _productService.CreateAsync(dto);
@@ -58,7 +59,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
         {
             var result = await _productService.UpdateAsync(id, dto);
@@ -66,7 +67,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _productService.DeleteAsync(id);
@@ -74,7 +75,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("import")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> Import(Microsoft.AspNetCore.Http.IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -86,3 +87,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

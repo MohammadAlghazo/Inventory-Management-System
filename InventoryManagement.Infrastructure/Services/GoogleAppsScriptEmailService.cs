@@ -52,7 +52,7 @@ namespace InventoryManagement.Infrastructure.Services
             }
         }
 
-        public string GenerateEmailTemplate(string title, string content, string ctaText = null, string ctaLink = null)
+        public string GenerateEmailTemplate(string title, string content, string? ctaText = null, string? ctaLink = null)
         {
             var ctaHtml = "";
             if (!string.IsNullOrEmpty(ctaText) && !string.IsNullOrEmpty(ctaLink))

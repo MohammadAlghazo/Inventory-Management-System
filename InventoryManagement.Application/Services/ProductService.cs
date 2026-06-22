@@ -6,6 +6,8 @@ using InventoryManagement.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
+using InventoryManagement.Application.Dtos.Dashboard_Dtos;
+
 namespace InventoryManagement.Application.Services
 {
     public class ProductService : IProductService

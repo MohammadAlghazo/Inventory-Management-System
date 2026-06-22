@@ -122,15 +122,6 @@ namespace InventoryManagement.Application.Dtos.Product_Dtos
         public bool IncludeInactive { get; set; } = false;
     }
 
-    public class DashboardStatsDto
-    {
-        public int TotalProducts { get; set; }
-        public int LowStockCount { get; set; }
-        public int OutOfStockCount { get; set; }
-        public decimal TotalInventoryValue { get; set; }
-        public int TodayMovements { get; set; }
-        public int TotalCategories { get; set; }
-    }
 
     public class ProductStockDto
     {

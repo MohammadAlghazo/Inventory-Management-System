@@ -96,7 +96,7 @@ namespace InventoryManagement.Application.Services
 
             _db.Users.Add(newUser);
 
-            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{role.Name}'.", "Info", "Manager");
+            _db.AddNotification("New User Registered", $"New user '{newUser.Username}' has been registered as '{role.Name}'.", "Info", "SuperAdmin");
 
             await _db.SaveChangesAsync();
 
@@ -250,8 +250,8 @@ namespace InventoryManagement.Application.Services
                 ?? throw new InvalidOperationException("JWT SecretKey not configured");
 
             var roleName = user.Role != null ? user.Role.Name : "Employee";
-            if (roleName == "Manager") roleName = "SuperAdmin";
-            if (roleName == "Employee") roleName = "WarehouseStaff";
+
+
 
             var claims = new List<Claim>
             {
@@ -286,8 +286,8 @@ namespace InventoryManagement.Application.Services
         private static UserProfileDto MapToProfile(User user)
         {
             var roleName = user.Role != null ? user.Role.Name : "Employee";
-            if (roleName == "Manager") roleName = "SuperAdmin";
-            if (roleName == "Employee") roleName = "WarehouseStaff";
+
+
 
             return new UserProfileDto
             {

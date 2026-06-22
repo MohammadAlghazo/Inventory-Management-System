@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Dtos.Inventory_Dtos;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -38,7 +39,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager,WarehouseStaff")]
+        [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.WarehouseStaff)]
         public async Task<IActionResult> AddItem([FromBody] AddInventoryDto dto)
         {
             var result = await _inventoryService.AddItemAsync(dto, GetCurrentUserId());
@@ -46,7 +47,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("sell")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales,WarehouseStaff")]
+        [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.Sales + "," + RoleConstants.WarehouseStaff)]
         public async Task<IActionResult> Sell([FromBody] SellProductDto dto)
         {
             var result = await _inventoryService.SellProductAsync(dto, GetCurrentUserId());
@@ -54,7 +55,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("adjust")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
         public async Task<IActionResult> Adjust([FromBody] AdjustStockDto dto)
         {
             var result = await _inventoryService.AdjustStockAsync(dto, GetCurrentUserId());
@@ -62,7 +63,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost("return")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager,Sales")]
+        [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.Sales)]
         public async Task<IActionResult> Return([FromBody] ReturnProductDto dto)
         {
             var result = await _inventoryService.ReturnProductAsync(dto, GetCurrentUserId());
@@ -70,3 +71,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

@@ -1,6 +1,7 @@
 using InventoryManagement.Application.Dtos;
 using InventoryManagement.Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using InventoryManagement.Domain.Constants;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagement.Api.Controllers
@@ -32,7 +33,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "SuperAdmin,InventoryManager,PurchasingOfficer")]
+        [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.PurchasingOfficer)]
         public async Task<IActionResult> Create([FromBody] CreateSupplierDto dto)
         {
             var result = await _supplierService.CreateSupplierAsync(dto);
@@ -40,7 +41,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager,PurchasingOfficer")]
+        [Authorize(Roles = RoleConstants.SuperAdmin + "," + RoleConstants.InventoryManager + "," + RoleConstants.PurchasingOfficer)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSupplierDto dto)
         {
             var result = await _supplierService.UpdateSupplierAsync(id, dto);
@@ -48,7 +49,7 @@ namespace InventoryManagement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "SuperAdmin,InventoryManager")] 
+        [Authorize(Roles = RoleConstants.AdminOrManager)] 
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _supplierService.DeleteSupplierAsync(id);
@@ -56,3 +57,4 @@ namespace InventoryManagement.Api.Controllers
         }
     }
 }
+

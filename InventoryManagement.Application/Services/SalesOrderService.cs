@@ -16,7 +16,7 @@ namespace InventoryManagement.Application.Services
             _db = db;
         }
 
-        public async Task<PagedResult<SalesOrderDto>> GetSalesOrdersAsync(int page, int pageSize, string? search)
+        public async Task<ApiResponse<PagedResult<SalesOrderDto>>> GetSalesOrdersAsync(int page, int pageSize, string? search)
         {
             var query = _db.SalesOrders
                 .Include(s => s.Customer)
@@ -42,13 +42,13 @@ namespace InventoryManagement.Application.Services
 
             var dtos = items.Select(MapToDto).ToList();
 
-            return new PagedResult<SalesOrderDto>
+            return ApiResponse<PagedResult<SalesOrderDto>>.Ok(new PagedResult<SalesOrderDto>
             {
                 Items = dtos,
                 TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
-            };
+            });
         }
 
         public async Task<ApiResponse<SalesOrderDto>> GetSalesOrderByIdAsync(int id)

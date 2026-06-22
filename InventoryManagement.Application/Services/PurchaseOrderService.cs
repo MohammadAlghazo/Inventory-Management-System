@@ -16,7 +16,7 @@ namespace InventoryManagement.Application.Services
             _db = db;
         }
 
-        public async Task<PagedResult<PurchaseOrderDto>> GetPurchaseOrdersAsync(int page, int pageSize, string? search)
+        public async Task<ApiResponse<PagedResult<PurchaseOrderDto>>> GetPurchaseOrdersAsync(int page, int pageSize, string? search)
         {
             var query = _db.PurchaseOrders
                 .Include(p => p.Supplier)
@@ -42,13 +42,13 @@ namespace InventoryManagement.Application.Services
 
             var dtos = items.Select(MapToDto).ToList();
 
-            return new PagedResult<PurchaseOrderDto>
+            return ApiResponse<PagedResult<PurchaseOrderDto>>.Ok(new PagedResult<PurchaseOrderDto>
             {
                 Items = dtos,
                 TotalCount = totalCount,
                 Page = page,
                 PageSize = pageSize
-            };
+            });
         }
 
         public async Task<ApiResponse<PurchaseOrderDto>> GetPurchaseOrderByIdAsync(int id)
