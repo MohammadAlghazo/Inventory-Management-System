@@ -12,6 +12,9 @@
       <button *appHasPermission="'Manage_Inventory'" class="btn btn-secondary" (click)="openActionModal('adjust')">
         {{ 'INVENTORY.ADJUST_STOCK' | translate }}
       </button>
+      <button *appHasPermission="'Manage_Inventory'" class="btn btn-secondary" (click)="openActionModal('transfer')">
+        Transfer Stock
+      </button>
       <button class="btn btn-danger" style="background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239,68,68,0.2);" (click)="openActionModal('sell')">
         {{ 'INVENTORY.SELL_STOCK' | translate }}
       </button>
@@ -191,10 +194,20 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">{{ 'INVENTORY.WAREHOUSE' | translate }} (Optional)</label>
+          <label class="form-label">{{ actionModal === 'transfer' ? 'Source Warehouse *' : ('INVENTORY.WAREHOUSE' | translate) + ' (Optional)' }}</label>
           <select class="form-select" [(ngModel)]="selectedWarehouseId">
             <option value="">{{ 'INVENTORY.DEFAULT_WAREHOUSE' | translate }}</option>
             <option *ngFor="let w of warehouses" [value]="w.id">
+              {{ w.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="actionModal === 'transfer'">
+          <label class="form-label">Destination Warehouse *</label>
+          <select class="form-select" [(ngModel)]="destinationWarehouseId">
+            <option value="">Select Destination</option>
+            <option *ngFor="let w of warehouses" [value]="w.id" [disabled]="w.id == selectedWarehouseId">
               {{ w.name }}
             </option>
           </select>

@@ -18,7 +18,8 @@ import {
   X,
   AlertTriangle,
   BarChart3,
-  Bot
+  Bot,
+  Activity
 } from 'lucide-angular';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -34,7 +35,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent implements OnInit, OnDestroy {
-  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X, AlertTriangle, BarChart3 };
+  readonly icons = { LogOut, Boxes, ChevronLeft, ChevronRight, X, AlertTriangle, BarChart3, Activity };
   user: any = null;
   dbProfile: any = null;
   profileSub?: Subscription;
@@ -54,6 +55,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck, color: '#14b8a6' }, // teal
     { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2, color: '#f97316' }, // orange
     { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users, color: '#6366f1' }, // indigo
+    { label: 'Audit Logs',        route: '/audit-log',  icon: Activity, color: '#f43f5e' }, // rose
     { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User, color: '#a855f7' }, // violet
     { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings, color: '#64748b' }, // slate
     { label: 'AI Assistant', route: '/ai-assistant', icon: Bot, color: '#ec4899' } // pink
@@ -61,12 +63,13 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   get filteredMenuItems() {
     const role = this.userRole;
-    if (role === 'SuperAdmin' || role === 'Manager') return this.menuItems;
+    if (role === 'SuperAdmin') return this.menuItems;
+    if (role === 'Manager') return this.menuItems.filter(item => item.route !== '/audit-log');
     
     let allowedRoutes: string[] = ['/dashboard', '/products', '/inventory', '/profile', '/ai-assistant'];
 
     if (role === 'InventoryManager') {
-      allowedRoutes.push('/suppliers', '/customers', '/purchase-orders', '/sales-orders', '/low-stock', '/reports');
+      allowedRoutes.push('/suppliers', '/customers', '/purchase-orders', '/sales-orders', '/low-stock', '/reports', '/settings');
     } else if (role === 'PurchasingOfficer') {
       allowedRoutes.push('/suppliers', '/purchase-orders', '/low-stock');
     } else if (role === 'Sales') {

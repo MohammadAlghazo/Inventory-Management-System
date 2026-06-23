@@ -43,6 +43,7 @@ export class ReportsComponent implements OnInit {
     if (this.activeTab === 'valuation') {
       this.reportService.getValuation().subscribe({
         next: (res: any) => {
+          this.error = null;
           this.valuations = res.data || [];
           this.loading = false;
         },
@@ -54,6 +55,7 @@ export class ReportsComponent implements OnInit {
     } else {
       this.reportService.getAbcAnalysis().subscribe({
         next: (res: any) => {
+          this.error = null;
           this.abcData = res.data || [];
           this.loading = false;
         },

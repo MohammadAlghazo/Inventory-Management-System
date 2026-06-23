@@ -8,7 +8,7 @@
       <button class="btn btn-secondary" (click)="loadAlerts()" style="display: flex; align-items: center; gap: 6px;" [disabled]="loading">
         <lucide-icon [img]="AlertCircleIcon" [size]="16" *ngIf="!loading"></lucide-icon>
         <span class="spinner" *ngIf="loading"></span>
-        Refresh
+        {{ 'LOW_STOCK.REFRESH' | translate }}
       </button>
     </div>
   </div>

@@ -232,7 +232,7 @@
 }
 
 .notif-item.unread {
-  background: rgba(210, 89, 59, 0.05);
+  background: var(--danger-light);
 }
 
 .notif-item:last-child {

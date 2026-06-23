@@ -3,13 +3,13 @@
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
       <h1 class="page-title">{{ 'SIDEBAR.REPORTS' | translate }}</h1>
-      <p class="page-subtitle">Financial overview and inventory analysis.</p>
+      <p class="page-subtitle">{{ 'REPORTS.SUBTITLE' | translate }}</p>
     </div>
     <div style="display: flex; gap: 12px; align-items: center;">
       <button class="btn btn-secondary" (click)="loadData()" style="display: flex; align-items: center; gap: 6px;" [disabled]="loading">
         <lucide-icon [img]="RefreshCwIcon" [size]="16" *ngIf="!loading"></lucide-icon>
         <span class="spinner" *ngIf="loading"></span>
-        Refresh
+        {{ 'REPORTS.REFRESH' | translate }}
       </button>
     </div>
   </div>
@@ -22,14 +22,14 @@
         [ngStyle]="{'border-bottom': activeTab === 'valuation' ? '2px solid var(--primary)' : '2px solid transparent', 'color': activeTab === 'valuation' ? 'var(--primary)' : 'var(--text-secondary)'}"
         style="padding-bottom: 12px; font-weight: 500; font-size: 14px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
         <lucide-icon [img]="DollarSignIcon" [size]="16"></lucide-icon>
-        Inventory Valuation
+        {{ 'REPORTS.INVENTORY_VALUATION' | translate }}
       </button>
       <button 
         (click)="setTab('abc')"
         [ngStyle]="{'border-bottom': activeTab === 'abc' ? '2px solid var(--primary)' : '2px solid transparent', 'color': activeTab === 'abc' ? 'var(--primary)' : 'var(--text-secondary)'}"
         style="padding-bottom: 12px; font-weight: 500; font-size: 14px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;">
         <lucide-icon [img]="TrendingUpIcon" [size]="16"></lucide-icon>
-        ABC Analysis
+        {{ 'REPORTS.ABC_ANALYSIS' | translate }}
       </button>
     </nav>
   </div>
@@ -43,7 +43,7 @@
   <div *ngIf="!error && activeTab === 'valuation'" style="display: flex; flex-direction: column; gap: 20px;">
     <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
       <div>
-        <h3 style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Total Network Value</h3>
+        <h3 style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">{{ 'REPORTS.TOTAL_NETWORK_VALUE' | translate }}</h3>
         <p style="font-size: 28px; font-weight: 700; color: var(--text-primary); margin: 0;">{{ getTotalValuation() | currency }}</p>
       </div>
     </div>
@@ -53,9 +53,9 @@
         <table>
           <thead>
             <tr>
-              <th>Warehouse</th>
-              <th style="text-align: right;">Total Items</th>
-              <th style="text-align: right;">Total Value</th>
+              <th>{{ 'REPORTS.WAREHOUSE' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.TOTAL_ITEMS' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.TOTAL_VALUE' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -71,7 +71,7 @@
               <td colspan="3">
                 <div class="empty-state">
                   <lucide-icon [img]="DollarSignIcon" [size]="40"></lucide-icon>
-                  <p>No valuation data available.</p>
+                  <p>{{ 'REPORTS.NO_VALUATION' | translate }}</p>
                 </div>
               </td>
             </tr>
@@ -92,9 +92,9 @@
   <!-- ABC Analysis Tab -->
   <div *ngIf="!error && activeTab === 'abc'" style="display: flex; flex-direction: column; gap: 20px;">
     <div class="card">
-      <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; margin-top: 0;">ABC Analysis (by Value)</h3>
-      <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">Products are classified based on their total value contribution to the inventory. 
-        <strong style="color: var(--text-primary);">Class A:</strong> Top 80% of value. <strong style="color: var(--text-primary);">Class B:</strong> Next 15% of value. <strong style="color: var(--text-primary);">Class C:</strong> Bottom 5% of value.
+      <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; margin-top: 0;">{{ 'REPORTS.ABC_ANALYSIS_BY_VALUE' | translate }}</h3>
+      <p style="color: var(--text-secondary); font-size: 13px; margin: 0;">{{ 'REPORTS.ABC_DESC' | translate }} 
+        <strong style="color: var(--text-primary);">{{ 'REPORTS.CLASS_A' | translate }}</strong> {{ 'REPORTS.TOP_80' | translate }} <strong style="color: var(--text-primary);">{{ 'REPORTS.CLASS_B' | translate }}</strong> {{ 'REPORTS.NEXT_15' | translate }} <strong style="color: var(--text-primary);">{{ 'REPORTS.CLASS_C' | translate }}</strong> {{ 'REPORTS.BOTTOM_5' | translate }}
       </p>
     </div>
 
@@ -103,12 +103,12 @@
         <table>
           <thead>
             <tr>
-              <th>Class</th>
-              <th>Product</th>
-              <th style="text-align: right;">Total Qty</th>
-              <th style="text-align: right;">Unit WAC</th>
-              <th style="text-align: right;">Total Value</th>
-              <th style="text-align: right;">Cumulative %</th>
+              <th>{{ 'REPORTS.CLASS' | translate }}</th>
+              <th>{{ 'REPORTS.PRODUCT' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.TOTAL_QTY' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.UNIT_WAC' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.TOTAL_VALUE' | translate }}</th>
+              <th style="text-align: right;">{{ 'REPORTS.CUMULATIVE_PERC' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -124,7 +124,7 @@
               <td colspan="6">
                 <div class="empty-state">
                   <lucide-icon [img]="TrendingUpIcon" [size]="40"></lucide-icon>
-                  <p>No ABC data available.</p>
+                  <p>{{ 'REPORTS.NO_ABC' | translate }}</p>
                 </div>
               </td>
             </tr>

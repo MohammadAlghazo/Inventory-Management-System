@@ -16,7 +16,7 @@ export const routes: Routes = [
       { path: 'products', loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent) },
       { path: 'inventory', loadComponent: () => import('./features/inventory/inventory.component').then(m => m.InventoryComponent) },
       { path: 'users', loadComponent: () => import('./features/users/users.component').then(m => m.UsersComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin', 'Manager'] } },
-      { path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin', 'Manager'] } },
+      { path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent), canActivate: [RoleGuard], data: { roles: ['SuperAdmin', 'Manager', 'InventoryManager'] } },
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent)
@@ -60,6 +60,12 @@ export const routes: Routes = [
       {
         path: 'ai-assistant',
         loadComponent: () => import('./features/ai-assistant/ai-assistant.component').then(m => m.AiAssistantComponent)
+      },
+      {
+        path: 'audit-log',
+        loadComponent: () => import('./features/audit-log/audit-log.component').then(m => m.AuditLogComponent),
+        canActivate: [RoleGuard],
+        data: { roles: ['SuperAdmin'] }
       }
     ]
   },

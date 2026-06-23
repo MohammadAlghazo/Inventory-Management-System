@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using InventoryManagement.Domain.Entities;
 
 namespace InventoryManagement.Infrastructure.Data
@@ -14,9 +15,9 @@ namespace InventoryManagement.Infrastructure.Data
             return stock;
         }
 
-        public static void Seed(AppDbContext context)
+        public static void Seed(AppDbContext context, bool isDevelopment)
         {
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
 
             // Ensure all 7 roles exist in case the DB was already created before we added them
             if (context.Roles.Count() < 7)
@@ -117,9 +118,10 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "tareq.othman@stockmaster.com",
                         FirstName = "Tareq",
                         LastName = "Othman",
-                        RoleId = 3,
+                        RoleId = 4, // Purchasing Officer
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
+                        MustChangePassword = !isDevelopment,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -129,9 +131,10 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "ziad.nabulsi@stockmaster.com",
                         FirstName = "Ziad",
                         LastName = "Nabulsi",
-                        RoleId = 3,
+                        RoleId = 5, // Sales
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
+                        MustChangePassword = !isDevelopment,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     },
@@ -141,9 +144,10 @@ namespace InventoryManagement.Infrastructure.Data
                         Email = "mona.sabah@stockmaster.com",
                         FirstName = "Mona",
                         LastName = "Sabah",
-                        RoleId = 3,
+                        RoleId = 6, // Accountant
                         IsActive = true,
                         HashedPassword = BCrypt.Net.BCrypt.HashPassword("User@123"),
+                        MustChangePassword = !isDevelopment,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     }
@@ -166,6 +170,7 @@ namespace InventoryManagement.Infrastructure.Data
                     RoleId = 1, // SuperAdmin
                     IsActive = true,
                     HashedPassword = BCrypt.Net.BCrypt.HashPassword("Admin@123!"),
+                    MustChangePassword = !isDevelopment,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 });
@@ -498,6 +503,79 @@ namespace InventoryManagement.Infrastructure.Data
                 }
 
                 context.InventoryLogs.AddRange(logsToSeed);
+                context.SaveChanges();
+            }
+
+            SeedPermissions(context);
+        }
+
+        private static void SeedPermissions(AppDbContext context)
+        {
+            var existingPermissions = context.Set<Permission>().Select(p => p.SystemName).ToList();
+
+            var permissionsToSeed = new List<Permission>
+            {
+                new Permission { Name = "Manage Products", SystemName = "Manage_Products", Module = "Catalog" },
+                new Permission { Name = "Delete Products", SystemName = "Delete_Products", Module = "Catalog" },
+                new Permission { Name = "Manage Suppliers", SystemName = "Manage_Suppliers", Module = "Purchasing" },
+                new Permission { Name = "Delete Suppliers", SystemName = "Delete_Suppliers", Module = "Purchasing" },
+                new Permission { Name = "Manage Customers", SystemName = "Manage_Customers", Module = "Sales" },
+                new Permission { Name = "Delete Customers", SystemName = "Delete_Customers", Module = "Sales" },
+                new Permission { Name = "Manage Inventory", SystemName = "Manage_Inventory", Module = "Warehouse" },
+                new Permission { Name = "Manage Purchase Orders", SystemName = "Manage_PurchaseOrders", Module = "Purchasing" },
+                new Permission { Name = "Manage Sales Orders", SystemName = "Manage_SalesOrders", Module = "Sales" },
+                new Permission { Name = "Manage Users", SystemName = "Manage_Users", Module = "System" },
+                new Permission { Name = "Delete Users", SystemName = "Delete_Users", Module = "System" },
+                new Permission { Name = "Manage Settings", SystemName = "Manage_Settings", Module = "System" }
+            };
+
+            var addedPermissions = new List<Permission>();
+            foreach (var perm in permissionsToSeed)
+            {
+                if (!existingPermissions.Contains(perm.SystemName))
+                {
+                    addedPermissions.Add(perm);
+                }
+            }
+
+            if (addedPermissions.Any())
+            {
+                context.Set<Permission>().AddRange(addedPermissions);
+                context.SaveChanges();
+            }
+
+            // Grant permissions to specific roles
+            var permissions = context.Set<Permission>().ToList();
+            var roles = context.Roles.ToList();
+            
+            var invManagerRole = roles.FirstOrDefault(r => r.Name == "InventoryManager");
+            var purchasingRole = roles.FirstOrDefault(r => r.Name == "PurchasingOfficer");
+            var salesRole = roles.FirstOrDefault(r => r.Name == "Sales");
+            var warehouseRole = roles.FirstOrDefault(r => r.Name == "WarehouseStaff");
+
+            var rolePermissionsToSeed = new List<RolePermission>();
+
+            void AddRolePermissions(Role? role, params string[] systemNames)
+            {
+                if (role == null) return;
+                foreach (var name in systemNames)
+                {
+                    var p = permissions.FirstOrDefault(x => x.SystemName == name);
+                    if (p != null && !context.Set<RolePermission>().Any(rp => rp.RoleId == role.Id && rp.PermissionId == p.Id))
+                    {
+                        rolePermissionsToSeed.Add(new RolePermission { RoleId = role.Id, PermissionId = p.Id });
+                    }
+                }
+            }
+
+            AddRolePermissions(invManagerRole, "Manage_Products", "Manage_Inventory", "Manage_Suppliers", "Manage_PurchaseOrders", "Manage_Settings");
+            AddRolePermissions(purchasingRole, "Manage_Suppliers", "Manage_PurchaseOrders");
+            AddRolePermissions(salesRole, "Manage_Customers", "Manage_SalesOrders");
+            AddRolePermissions(warehouseRole, "Manage_Inventory", "Manage_PurchaseOrders", "Manage_SalesOrders");
+
+            if (rolePermissionsToSeed.Any())
+            {
+                context.Set<RolePermission>().AddRange(rolePermissionsToSeed);
                 context.SaveChanges();
             }
         }

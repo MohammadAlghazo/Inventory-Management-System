@@ -135,25 +135,37 @@ export class UsersComponent implements OnInit {
     this.loadUsers();
   }
 
-  getPagesArray() {
+  getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.page - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    const maxPages = Math.min(this.totalPages, 5);
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
 
   exportToExcel() {
-    const dataToExport = this.getFilteredUsers().map(u => ({
-      'ID': u.id,
-      'Username': u.username,
-      'Email': u.email,
-      'Full Name': `${u.firstName || ''} ${u.lastName || ''}`.trim() || '—',
-      'Role': u.role,
-      'Status': u.isActive ? 'Active' : 'Inactive'
-    }));
-    this.exportExcel.export(dataToExport, 'Users_Report');
+    this.userService.getUsers(1, 10000, this.searchQuery).subscribe({
+      next: (res: any) => {
+        const dataToExport = (res?.data?.items || []).map((u: any) => ({
+          'ID': u.id,
+          'Username': u.username,
+          'Email': u.email,
+          'Full Name': `${u.firstName || ''} ${u.lastName || ''}`.trim() || '—',
+          'Role': u.role,
+          'Status': u.isActive ? 'Active' : 'Inactive'
+        }));
+        this.exportExcel.export(dataToExport, 'Users_Report');
+      }
+    });
   }
 
   exportToPdf() {

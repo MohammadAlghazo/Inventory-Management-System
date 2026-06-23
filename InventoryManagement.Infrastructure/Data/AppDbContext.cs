@@ -39,6 +39,7 @@ namespace InventoryManagement.Infrastructure.Data
 
             modelBuilder.Entity<Product>(entity =>
             {
+                entity.HasIndex(p => p.SKU).IsUnique();
                 entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.PurchasePrice).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.Tax).HasColumnType("decimal(18,2)");
@@ -46,6 +47,7 @@ namespace InventoryManagement.Infrastructure.Data
                 entity.Property(p => p.IsActive).HasDefaultValue(true);
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.HasQueryFilter(p => p.IsActive);
 
                 entity.Ignore(p => p.IsLowStock);
                 entity.Ignore(p => p.TotalValue);
@@ -97,6 +99,16 @@ namespace InventoryManagement.Infrastructure.Data
             modelBuilder.Entity<Unit>(entity =>
             {
                 entity.HasQueryFilter(u => u.IsActive);
+            });
+
+            modelBuilder.Entity<Supplier>(entity =>
+            {
+                entity.HasQueryFilter(s => s.IsActive);
+            });
+
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.HasQueryFilter(c => c.IsActive);
             });
 
             modelBuilder.Entity<RolePermission>(entity =>

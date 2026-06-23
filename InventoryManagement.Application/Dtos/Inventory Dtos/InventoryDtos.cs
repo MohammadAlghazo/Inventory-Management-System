@@ -48,6 +48,15 @@ namespace InventoryManagement.Application.Dtos.Inventory_Dtos
         public string? Notes { get; set; }
     }
 
+    public class TransferStockDto
+    {
+        public int ProductId { get; set; }
+        public int SourceWarehouseId { get; set; }
+        public int DestinationWarehouseId { get; set; }
+        public int Quantity { get; set; }
+        public string? Notes { get; set; }
+    }
+
     public class InventoryLogQueryParams
     {
         public int Page { get; set; } = 1;

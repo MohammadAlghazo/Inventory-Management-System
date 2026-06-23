@@ -85,6 +85,7 @@ export class SuppliersComponent implements OnInit {
         this.suppliers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
+        this.error = null;
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -128,26 +129,42 @@ export class SuppliersComponent implements OnInit {
     this.loadSuppliers();
   }
 
-  getPagesArray() {
+  getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.page - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    const maxPages = Math.min(this.totalPages, 5);
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
 
   exportToExcel() {
-    const dataToExport = this.suppliers.map(s => ({
-      'ID': s.id,
-      'Name': s.name,
-      'Phone': s.phone || '—',
-      'Email': s.email || '—',
-      'Address': s.address || '—',
-      'Tax Number': s.taxNumber || '—',
-      'Status': s.isActive ? 'Active' : 'Inactive'
-    }));
-    this.exportExcel.export(dataToExport, 'Suppliers_Report');
+    let isActive: boolean | undefined = undefined;
+    if (this.selectedStatus === 'active') isActive = true;
+    else if (this.selectedStatus === 'inactive') isActive = false;
+
+    this.supplierService.getAll(1, 10000, this.searchQuery, isActive).subscribe({
+      next: (res: any) => {
+        const dataToExport = (res?.data?.items || []).map((s: any) => ({
+          'ID': s.id,
+          'Name': s.name,
+          'Phone': s.phone || '—',
+          'Email': s.email || '—',
+          'Address': s.address || '—',
+          'Tax Number': s.taxNumber || '—',
+          'Status': s.isActive ? 'Active' : 'Inactive'
+        }));
+        this.exportExcel.export(dataToExport, 'Suppliers_Report');
+      }
+    });
   }
 
   exportToPdf() {
@@ -173,6 +190,7 @@ export class SuppliersComponent implements OnInit {
     if (this.editingSupplier) {
       this.supplierService.update(this.editingSupplier.id!, this.supplierForm).subscribe({
         next: () => {
+          this.error = null;
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -185,6 +203,7 @@ export class SuppliersComponent implements OnInit {
     } else {
       this.supplierService.create(this.supplierForm).subscribe({
         next: () => {
+          this.error = null;
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -202,6 +221,7 @@ export class SuppliersComponent implements OnInit {
       if (result.isConfirmed) {
         this.supplierService.delete(id).subscribe({
           next: () => {
+            this.error = null;
             this.sweetAlert.success('Deleted', 'Supplier has been deleted.');
             this.loadSuppliers();
             this.cdr.markForCheck();

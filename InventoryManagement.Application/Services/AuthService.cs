@@ -56,7 +56,7 @@ namespace InventoryManagement.Application.Services
             {
                 Token = token,
                 RefreshToken = refreshToken,
-                ExpiresAt = DateTime.UtcNow.AddHours(_config.GetValue<int>("JwtSettings:ExpirationHours", 1)),
+                ExpiresAt = DateTime.UtcNow.AddDays(_config.GetValue<int>("JwtSettings:ExpirationDays", 1)),
                 User = MapToProfile(user),
                 MustChangePassword = user.MustChangePassword
             }, "Login successful");
@@ -145,7 +145,7 @@ namespace InventoryManagement.Application.Services
             {
                 Token = token,
                 RefreshToken = newRefreshToken,
-                ExpiresAt = DateTime.UtcNow.AddHours(_config.GetValue<int>("JwtSettings:ExpirationHours", 1)),
+                ExpiresAt = DateTime.UtcNow.AddDays(_config.GetValue<int>("JwtSettings:ExpirationDays", 1)),
                 User = MapToProfile(user),
                 MustChangePassword = user.MustChangePassword
             });
@@ -265,13 +265,13 @@ namespace InventoryManagement.Application.Services
             var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
-            var expirationHours = _config.GetValue<int>("JwtSettings:ExpirationHours", 1);
+            var expirationDays = _config.GetValue<int>("JwtSettings:ExpirationDays", 1);
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
                 claims: claims,
                 signingCredentials: creds,
-                expires: DateTime.UtcNow.AddHours(expirationHours)
+                expires: DateTime.UtcNow.AddDays(expirationDays)
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);

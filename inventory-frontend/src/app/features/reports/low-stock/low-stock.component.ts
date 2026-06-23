@@ -29,6 +29,7 @@ export class LowStockComponent implements OnInit {
     this.loading = true;
     this.reportService.getLowStockAlerts().subscribe({
       next: (res) => {
+        this.error = null;
         this.alerts = res.data || [];
         this.loading = false;
       },

@@ -32,12 +32,12 @@
       <table id="purchase-orders-table">
         <thead>
           <tr>
-            <th>Order #</th>
-            <th>Supplier</th>
-            <th>Warehouse</th>
-            <th>Date</th>
-            <th>Total</th>
-            <th>Status</th>
+            <th>{{ 'PURCHASE_ORDERS.ORDER_NO' | translate }}</th>
+            <th>{{ 'PURCHASE_ORDERS.SUPPLIER' | translate }}</th>
+            <th>{{ 'PURCHASE_ORDERS.WAREHOUSE' | translate }}</th>
+            <th>{{ 'PURCHASE_ORDERS.DATE' | translate }}</th>
+            <th>{{ 'PURCHASE_ORDERS.TOTAL' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
             <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
@@ -54,7 +54,7 @@
             <td colspan="7">
               <div class="empty-state">
                 <lucide-icon [img]="FileTextIcon" [size]="40"></lucide-icon>
-                <p>No purchase orders found.</p>
+                <p>{{ 'PURCHASE_ORDERS.NO_ORDERS' | translate }}</p>
               </div>
             </td>
           </tr>
@@ -128,7 +128,7 @@
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="FileTextIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
-          Create Purchase Order
+          {{ 'PURCHASE_ORDERS.CREATE_TITLE' | translate }}
         </h3>
       </div>
 
@@ -164,7 +164,7 @@
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <div *ngFor="let item of newOrder.items; let i = index" class="card" style="padding: 12px; background-color: var(--bg-body); border-radius: 8px; display: flex; gap: 12px; align-items: flex-end;">
             <div class="form-group" style="flex: 1; margin-bottom: 0;">
-              <label class="form-label">Product</label>
+              <label class="form-label">{{ 'PURCHASE_ORDERS.PRODUCT' | translate }}</label>
               <select [ngModel]="item.productId" (ngModelChange)="onProductSelect(item, $event)" class="form-select">
                 <option [value]="0" disabled>Select Product</option>
                 <option *ngFor="let p of products" [value]="p.id">{{p.name}} (SKU: {{p.sku}})</option>

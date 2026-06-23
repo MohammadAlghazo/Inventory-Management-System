@@ -73,6 +73,18 @@ namespace InventoryManagement.Application.Services
             if (!dto.Items.Any())
                 return ApiResponse<PurchaseOrderDto>.Fail("Order must contain at least one item.");
 
+            var productIds = dto.Items.Select(i => i.ProductId).ToList();
+            if (productIds.Distinct().Count() != productIds.Count)
+                return ApiResponse<PurchaseOrderDto>.Fail("Duplicate products in the order are not allowed. Please combine quantities.");
+
+            var supplierExists = await _uow.Suppliers.Query().AnyAsync(s => s.Id == dto.SupplierId);
+            if (!supplierExists)
+                return ApiResponse<PurchaseOrderDto>.Fail("Selected supplier does not exist or is inactive.");
+
+            var warehouseExists = await _uow.Warehouses.Query().AnyAsync(w => w.Id == dto.WarehouseId);
+            if (!warehouseExists)
+                return ApiResponse<PurchaseOrderDto>.Fail("Selected warehouse does not exist or is inactive.");
+
             var orderNumber = $"PO-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
 
             var order = new PurchaseOrder

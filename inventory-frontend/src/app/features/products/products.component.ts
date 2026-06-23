@@ -146,18 +146,22 @@ export class ProductsComponent implements OnInit {
   }
 
   exportToExcel() {
-    const dataToExport = this.getFilteredProducts().map(p => ({
-      'ID': p.id,
-      'Name': p.name,
-      'SKU': p.sku,
-      'Category': p.category,
-      'Price': p.price,
-      'Quantity': p.quantity,
-      'Min Quantity': p.minQuantity,
-      'Supplier': p.supplier || '—',
-      'Status': p.isActive ? 'Active' : 'Inactive'
-    }));
-    this.exportExcel.export(dataToExport, 'Products_Report');
+    this.productService.getProducts(1, 10000, this.searchQuery, this.selectedCategory, this.selectedStockStatus).subscribe({
+      next: (res) => {
+        const dataToExport = (res.data?.items || []).map((p: any) => ({
+          'ID': p.id,
+          'Name': p.name,
+          'SKU': p.sku,
+          'Category': p.category,
+          'Price': p.price,
+          'Quantity': p.quantity,
+          'Min Quantity': p.minQuantity,
+          'Supplier': p.supplier || '—',
+          'Status': p.isActive ? 'Active' : 'Inactive'
+        }));
+        this.exportExcel.export(dataToExport, 'Products_Report');
+      }
+    });
   }
 
   exportToPdf() {
@@ -189,10 +193,18 @@ export class ProductsComponent implements OnInit {
     this.loadProducts();
   }
 
-  getPagesArray() {
+  getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.page - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    const maxPages = Math.min(this.totalPages, 5);
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;

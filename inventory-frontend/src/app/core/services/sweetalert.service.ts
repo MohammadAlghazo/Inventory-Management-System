@@ -11,7 +11,7 @@ export class SweetAlertService {
   success(title: string, text: string = '') {
     return Swal.fire({
       title,
-      text,
+      html: text,
       icon: 'success',
       confirmButtonColor: '#4338ca', 
       customClass: {
@@ -24,7 +24,7 @@ export class SweetAlertService {
   error(title: string, text: string = '') {
     return Swal.fire({
       title,
-      text,
+      html: text,
       icon: 'error',
       confirmButtonColor: '#ef4444',
       customClass: {
@@ -37,7 +37,7 @@ export class SweetAlertService {
   warning(title: string, text: string = '') {
     return Swal.fire({
       title,
-      text,
+      html: text,
       icon: 'warning',
       confirmButtonColor: '#f59e0b',
       customClass: {
@@ -50,7 +50,7 @@ export class SweetAlertService {
   confirmDelete(itemName: string): Promise<SweetAlertResult<any>> {
     return Swal.fire({
       title: 'Are you sure?',
-      text: `You are about to delete ${itemName}. This action cannot be undone!`,
+      html: `You are about to delete ${itemName}. This action cannot be undone!`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
@@ -67,7 +67,7 @@ export class SweetAlertService {
   confirm(title: string, text: string, confirmButtonText: string = 'Confirm'): Promise<SweetAlertResult<any>> {
     return Swal.fire({
       title,
-      text,
+      html: text,
       icon: 'info',
       showCancelButton: true,
       confirmButtonColor: '#4338ca',

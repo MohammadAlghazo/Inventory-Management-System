@@ -69,6 +69,22 @@ namespace InventoryManagement.Api.Controllers
             var result = await _inventoryService.ReturnProductAsync(dto, GetCurrentUserId());
             return StatusCode(result.StatusCode, result);
         }
+
+        [HttpGet("search-barcode")]
+        [Authorize]
+        public async Task<IActionResult> SearchBarcode([FromQuery] string sku)
+        {
+            var result = await _inventoryService.SearchByBarcodeAsync(sku);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpPost("transfer")]
+        [Authorize(Roles = RoleConstants.AdminOrManager)]
+        public async Task<IActionResult> TransferStock([FromBody] TransferStockDto dto)
+        {
+            var result = await _inventoryService.TransferStockAsync(dto, GetCurrentUserId());
+            return StatusCode(result.StatusCode, result);
+        }
     }
 }
 

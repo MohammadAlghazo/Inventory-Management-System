@@ -33,4 +33,12 @@ export class InventoryService {
   returnStock(data: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/return`, data);
   }
+
+  searchByBarcode(sku: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/search-barcode?sku=${encodeURIComponent(sku)}`);
+  }
+
+  transferStock(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/transfer`, data);
+  }
 }

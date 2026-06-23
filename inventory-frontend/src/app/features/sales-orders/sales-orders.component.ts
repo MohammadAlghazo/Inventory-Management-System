@@ -32,6 +32,12 @@ export class SalesOrdersComponent implements OnInit {
   submitting: boolean = false;
   loading: boolean = false;
 
+  // Ship Modal
+  showShipModal = false;
+  shipOrderId: number = 0;
+  shipPayload = { trackingNumber: '', notes: '' };
+  shipping = false;
+
   // Create Modal State
   showCreateModal = false;
   customers: any[] = [];
@@ -96,15 +102,19 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   exportToExcel() {
-    const dataToExport = this.orders.map(o => ({
-      'Order #': o.orderNumber,
-      'Customer': o.customerName,
-      'Warehouse': o.warehouseName,
-      'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
-      'Total': o.totalAmount,
-      'Status': o.status
-    }));
-    this.exportExcel.export(dataToExport, 'Sales_Orders_Report');
+    this.salesOrderService.getOrders(1, 10000).subscribe({
+      next: (res) => {
+        const dataToExport = (res.data?.items || []).map((o: any) => ({
+          'Order #': o.orderNumber,
+          'Customer': o.customerName,
+          'Warehouse': o.warehouseName,
+          'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
+          'Total': o.totalAmount,
+          'Status': o.status
+        }));
+        this.exportExcel.export(dataToExport, 'Sales_Orders_Report');
+      }
+    });
   }
 
   exportToPdf() {
@@ -115,17 +125,38 @@ export class SalesOrdersComponent implements OnInit {
     this.searchSubject.next(event.target.value);
   }
 
-  shipOrder(id: number): void {
-    this.soService.shipSalesOrder(id, { salesOrderId: id, trackingNumber: 'TRK-' + id, notes: 'Shipped from portal' })
-      .subscribe({
-        next: () => {
-          this.sweetAlert.success('Sales Order Shipped Successfully', 'Inventory has been deducted.');
-          this.loadOrders();
-        },
-        error: (err) => {
-          // Handled by interceptor
-        }
-      });
+  openShipModal(id: number): void {
+    this.shipOrderId = id;
+    this.shipPayload = { trackingNumber: '', notes: '' };
+    this.showShipModal = true;
+  }
+
+  closeShipModal(): void {
+    this.showShipModal = false;
+  }
+
+  submitShipOrder(): void {
+    if (!this.shipPayload.trackingNumber) {
+      this.sweetAlert.error('Validation Error', 'Tracking number is required.');
+      return;
+    }
+    this.shipping = true;
+    this.soService.shipSalesOrder(this.shipOrderId, {
+      salesOrderId: this.shipOrderId,
+      trackingNumber: this.shipPayload.trackingNumber,
+      notes: this.shipPayload.notes
+    }).subscribe({
+      next: () => {
+        this.shipping = false;
+        this.sweetAlert.success('Sales Order Shipped Successfully', 'Inventory has been deducted.');
+        this.closeShipModal();
+        this.loadOrders();
+      },
+      error: (err) => {
+        this.shipping = false;
+        // Handled by interceptor
+      }
+    });
   }
 
   getStatusClass(status: string): string {
@@ -241,8 +272,17 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;

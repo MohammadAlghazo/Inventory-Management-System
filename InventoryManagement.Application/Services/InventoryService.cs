@@ -3,6 +3,7 @@ using InventoryManagement.Application.Common.Interfaces;
 using InventoryManagement.Domain.Interfaces;
 using InventoryManagement.Domain.Common;
 using InventoryManagement.Application.Dtos.Inventory_Dtos;
+using InventoryManagement.Application.Dtos.Product_Dtos;
 using InventoryManagement.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -210,6 +211,113 @@ namespace InventoryManagement.Application.Services
             {
                 await _uow.SaveChangesAsync();
                 return ApiResponse<object>.Ok(null!, $"Returned {dto.QuantityToReturn} units. New stock: {stock.Quantity}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return ApiResponse<object>.Fail("Stock was modified by another transaction. Please try again.");
+            }
+        }
+
+        public async Task<ApiResponse<ProductDto>> SearchByBarcodeAsync(string skuOrBarcode)
+        {
+            var product = await _uow.Products.Query()
+                .Include(p => p.Category)
+                .Include(p => p.Unit)
+                .Include(p => p.Supplier)
+                .Include(p => p.Brand)
+                .Include(p => p.ProductStocks)
+                    .ThenInclude(ps => ps.Warehouse)
+                .FirstOrDefaultAsync(p => p.SKU == skuOrBarcode || p.Barcode == skuOrBarcode);
+
+            if (product == null || !product.IsActive)
+                return ApiResponse<ProductDto>.Fail("Product not found.", 404);
+
+            var dto = new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                SKU = product.SKU,
+                Barcode = product.Barcode,
+                Price = product.Price,
+                PurchasePrice = product.PurchasePrice,
+                Quantity = product.ProductStocks?.Sum(s => s.Quantity) ?? 0,
+                CategoryName = product.Category?.Name,
+                SupplierName = product.Supplier?.Name,
+                ProductStocks = product.ProductStocks.Select(ps => new ProductStockDto
+                {
+                    WarehouseId = ps.WarehouseId,
+                    WarehouseName = ps.Warehouse?.Name ?? "Unknown",
+                    Quantity = ps.Quantity,
+                    MinQuantity = ps.MinQuantity
+                }).ToList()
+            };
+
+            return ApiResponse<ProductDto>.Ok(dto);
+        }
+
+        public async Task<ApiResponse<object>> TransferStockAsync(TransferStockDto dto, int userId)
+        {
+            if (dto.SourceWarehouseId == dto.DestinationWarehouseId)
+                return ApiResponse<object>.Fail("Source and destination warehouses cannot be the same.");
+
+            if (dto.Quantity <= 0)
+                return ApiResponse<object>.Fail("Quantity must be greater than zero.");
+
+            var product = await _uow.Products.Query()
+                .Include(p => p.ProductStocks)
+                .FirstOrDefaultAsync(p => p.Id == dto.ProductId);
+
+            if (product == null || !product.IsActive)
+                return ApiResponse<object>.NotFound("Product not found.");
+
+            var sourceStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == dto.SourceWarehouseId);
+            if (sourceStock == null || sourceStock.Quantity < dto.Quantity)
+                return ApiResponse<object>.Fail($"Insufficient stock in source warehouse. Available: {sourceStock?.Quantity ?? 0}");
+
+            var destStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == dto.DestinationWarehouseId);
+            if (destStock == null)
+            {
+                destStock = new ProductStock { WarehouseId = dto.DestinationWarehouseId, ProductId = product.Id };
+                destStock.InitializeStock(0, 0);
+                product.ProductStocks.Add(destStock);
+            }
+
+            var previousSource = sourceStock.Quantity;
+            var previousDest = destStock.Quantity;
+
+            sourceStock.ShipStock(dto.Quantity);
+            destStock.ReceiveStock(dto.Quantity);
+
+            _uow.InventoryLogs.Add(new InventoryLog
+            {
+                ProductId = product.Id,
+                WarehouseId = dto.SourceWarehouseId,
+                UserId = userId,
+                Action = InventoryAction.Adjust,
+                QuantityChanged = -dto.Quantity,
+                PreviousQuantity = previousSource,
+                NewQuantity = sourceStock.Quantity,
+                Notes = $"Transferred to Warehouse {dto.DestinationWarehouseId}. {dto.Notes}",
+                ActionDate = DateTime.UtcNow
+            });
+
+            _uow.InventoryLogs.Add(new InventoryLog
+            {
+                ProductId = product.Id,
+                WarehouseId = dto.DestinationWarehouseId,
+                UserId = userId,
+                Action = InventoryAction.Adjust,
+                QuantityChanged = dto.Quantity,
+                PreviousQuantity = previousDest,
+                NewQuantity = destStock.Quantity,
+                Notes = $"Transferred from Warehouse {dto.SourceWarehouseId}. {dto.Notes}",
+                ActionDate = DateTime.UtcNow
+            });
+
+            try
+            {
+                await _uow.SaveChangesAsync();
+                return ApiResponse<object>.Ok(null!, "Stock transferred successfully.");
             }
             catch (DbUpdateConcurrencyException)
             {

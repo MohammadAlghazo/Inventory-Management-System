@@ -102,15 +102,19 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   exportToExcel() {
-    const dataToExport = this.orders.map(o => ({
-      'Order #': o.orderNumber,
-      'Supplier': o.supplierName,
-      'Warehouse': o.warehouseName,
-      'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
-      'Total': o.totalAmount,
-      'Status': o.status
-    }));
-    this.exportExcel.export(dataToExport, 'Purchase_Orders_Report');
+    this.purchaseOrderService.getOrders(1, 10000).subscribe({
+      next: (res) => {
+        const dataToExport = (res.data?.items || []).map((o: any) => ({
+          'Order #': o.orderNumber,
+          'Supplier': o.supplierName,
+          'Warehouse': o.warehouseName,
+          'Date': o.orderDate ? new Date(o.orderDate).toLocaleDateString() : '',
+          'Total': o.totalAmount,
+          'Status': o.status
+        }));
+        this.exportExcel.export(dataToExport, 'Purchase_Orders_Report');
+      }
+    });
   }
 
   exportToPdf() {
@@ -217,7 +221,7 @@ export class PurchaseOrdersComponent implements OnInit {
     item.productId = pId;
     const product = this.products.find(p => p.id === pId);
     if (product) {
-      item.unitCost = product.price; // Or whatever default cost makes sense
+      item.unitCost = product.purchasePrice || product.price || 0;
     }
   }
 
@@ -284,8 +288,17 @@ export class PurchaseOrdersComponent implements OnInit {
   }
 
   getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    for (let i = 1; i <= this.totalPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;

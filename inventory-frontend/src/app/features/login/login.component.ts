@@ -48,6 +48,7 @@ export class LoginComponent {
     this.isLoading = true;
     this.authService.login(this.credentials).subscribe({
       next: (res) => {
+        this.error = '';
         this.isLoading = false;
         this.router.navigate(['/']);
       },

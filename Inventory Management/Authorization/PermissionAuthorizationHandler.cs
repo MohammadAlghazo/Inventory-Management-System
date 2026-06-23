@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using InventoryManagement.Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace InventoryManagement.Api.Authorization
 {
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IMemoryCache _cache;
 
-        public PermissionAuthorizationHandler(IServiceProvider serviceProvider)
+        public PermissionAuthorizationHandler(IServiceProvider serviceProvider, IMemoryCache cache)
         {
             _serviceProvider = serviceProvider;
+            _cache = cache;
         }
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
@@ -27,34 +30,39 @@ namespace InventoryManagement.Api.Authorization
                 return;
             }
 
-            using var scope = _serviceProvider.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+            var cacheKey = $"UserPermissions_{userId}";
 
-            var user = await dbContext.Users
-                .Include(u => u.Role)
-                .ThenInclude(r => r.RolePermissions)
-                .ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user?.Role == null)
+            if (!_cache.TryGetValue(cacheKey, out List<string>? userPermissions))
             {
-                return;
+                using var scope = _serviceProvider.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+
+                var user = await dbContext.Users
+                    .Include(u => u.Role)
+                    .ThenInclude(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+
+                if (user?.Role == null)
+                {
+                    return;
+                }
+
+                if (user.Role.Name == "SuperAdmin")
+                {
+                    userPermissions = new List<string> { "SuperAdmin" };
+                }
+                else
+                {
+                    userPermissions = user.Role.RolePermissions.Select(rp => rp.Permission.SystemName).ToList();
+                }
+
+                _cache.Set(cacheKey, userPermissions, TimeSpan.FromMinutes(10));
             }
 
-            // SuperAdmin has all permissions implicitly
-            if (user.Role.Name == "SuperAdmin")
+            if (userPermissions != null && (userPermissions.Contains("SuperAdmin") || userPermissions.Contains(requirement.Permission)))
             {
                 context.Succeed(requirement);
-                return;
-            }
-
-            var hasPermission = user.Role.RolePermissions
-                .Any(rp => rp.Permission.SystemName == requirement.Permission);
-
-            if (hasPermission)
-            {
-                context.Succeed(requirement);
-                return;
             }
         }
     }

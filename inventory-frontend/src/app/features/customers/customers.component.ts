@@ -84,6 +84,7 @@ export class CustomersComponent implements OnInit {
         this.customers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
+        this.error = null;
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -127,25 +128,41 @@ export class CustomersComponent implements OnInit {
     this.loadCustomers();
   }
 
-  getPagesArray() {
+  getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.page - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    const maxPages = Math.min(this.totalPages, 5);
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
 
   exportToExcel() {
-    const dataToExport = this.customers.map(c => ({
-      'ID': c.id,
-      'Name': c.name,
-      'Phone': c.phone || '—',
-      'Email': c.email || '—',
-      'Address': c.address || '—',
-      'Status': c.isActive ? 'Active' : 'Inactive'
-    }));
-    this.exportExcel.export(dataToExport, 'Customers_Report');
+    let isActive: boolean | undefined = undefined;
+    if (this.selectedStatus === 'active') isActive = true;
+    else if (this.selectedStatus === 'inactive') isActive = false;
+
+    this.customerService.getAll(1, 10000, this.searchQuery, isActive).subscribe({
+      next: (res: any) => {
+        const dataToExport = (res?.data?.items || []).map((c: any) => ({
+          'ID': c.id,
+          'Name': c.name,
+          'Phone': c.phone || '—',
+          'Email': c.email || '—',
+          'Address': c.address || '—',
+          'Status': c.isActive ? 'Active' : 'Inactive'
+        }));
+        this.exportExcel.export(dataToExport, 'Customers_Report');
+      }
+    });
   }
 
   exportToPdf() {
@@ -171,6 +188,7 @@ export class CustomersComponent implements OnInit {
     if (this.editingCustomer) {
       this.customerService.update(this.editingCustomer.id!, this.customerForm).subscribe({
         next: () => {
+          this.error = null;
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -183,6 +201,7 @@ export class CustomersComponent implements OnInit {
     } else {
       this.customerService.create(this.customerForm).subscribe({
         next: () => {
+          this.error = null;
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -200,6 +219,7 @@ export class CustomersComponent implements OnInit {
       if (result.isConfirmed) {
         this.customerService.delete(id).subscribe({
           next: () => {
+            this.error = null;
             this.sweetAlert.success('Deleted', 'Customer has been deleted.');
             this.loadCustomers();
             this.cdr.markForCheck();

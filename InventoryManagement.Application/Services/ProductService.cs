@@ -452,13 +452,12 @@ namespace InventoryManagement.Application.Services
                     product.ProductStocks.Add(newStock);
 
                     _uow.Products.Add(product);
-                    await _uow.SaveChangesAsync();
 
                     if (quantity > 0)
                     {
                         _uow.InventoryLogs.Add(new InventoryLog
                         {
-                            ProductId = product.Id,
+                            Product = product, // Use navigation property instead of ProductId which is 0
                             WarehouseId = defaultWarehouse.Id,
                             Action = InventoryAction.Add,
                             QuantityChanged = quantity,
@@ -467,10 +466,19 @@ namespace InventoryManagement.Application.Services
                             Notes = "Bulk Import Stock",
                             ActionDate = DateTime.UtcNow
                         });
-                        await _uow.SaveChangesAsync();
                     }
 
                     importedCount++;
+
+                    if (importedCount % 100 == 0)
+                    {
+                        await _uow.SaveChangesAsync();
+                    }
+                }
+
+                if (importedCount % 100 != 0)
+                {
+                    await _uow.SaveChangesAsync();
                 }
 
                 _uow.AddNotification("Bulk Import Success", $"Imported {importedCount} products. Skipped {skippedCount} duplicates.", "Success", "All");

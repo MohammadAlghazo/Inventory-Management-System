@@ -32,12 +32,12 @@
       <table id="sales-orders-table">
         <thead>
           <tr>
-            <th>Order #</th>
-            <th>Customer</th>
-            <th>Warehouse</th>
-            <th>Date</th>
-            <th>Total</th>
-            <th>Status</th>
+            <th>{{ 'SALES_ORDERS.ORDER_NO' | translate }}</th>
+            <th>{{ 'SALES_ORDERS.CUSTOMER' | translate }}</th>
+            <th>{{ 'SALES_ORDERS.WAREHOUSE' | translate }}</th>
+            <th>{{ 'SALES_ORDERS.DATE' | translate }}</th>
+            <th>{{ 'SALES_ORDERS.TOTAL' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
             <th style="text-align: right;">Actions</th>
           </tr>
         </thead>
@@ -54,7 +54,7 @@
             <td colspan="7">
               <div class="empty-state">
                 <lucide-icon [img]="FileTextIcon" [size]="40"></lucide-icon>
-                <p>No sales orders found.</p>
+                <p>{{ 'SALES_ORDERS.NO_ORDERS' | translate }}</p>
               </div>
             </td>
           </tr>
@@ -82,7 +82,7 @@
                 <div style="display: flex; justify-content: flex-end; gap: 6px;">
                   <button 
                     *ngIf="order.status !== 'Shipped' && order.status !== 'Completed' && order.status !== 'Cancelled'"
-                    (click)="shipOrder(order.id)"
+                    (click)="openShipModal(order.id)"
                     class="btn btn-ghost btn-icon btn-sm"
                     style="color: var(--primary);"
                     title="Ship Items">
@@ -128,7 +128,7 @@
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="FileTextIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
-          Create Sales Order
+          {{ 'SALES_ORDERS.CREATE_TITLE' | translate }}
         </h3>
       </div>
 
@@ -164,7 +164,7 @@
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <div *ngFor="let item of newOrder.items; let i = index" class="card" style="padding: 12px; background-color: var(--bg-body); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
             <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
-              <label class="form-label">Product</label>
+              <label class="form-label">{{ 'SALES_ORDERS.PRODUCT' | translate }}</label>
               <select [ngModel]="item.productId" (ngModelChange)="onProductSelect(item, $event)" class="form-select">
                 <option [value]="0" disabled>Select Product</option>
                 <option *ngFor="let p of products" [value]="p.id">{{p.name}} (SKU: {{p.sku}})</option>
@@ -198,6 +198,35 @@
         <button (click)="submitCreateSO()" class="btn btn-primary" [disabled]="submitting">
           <span class="spinner" *ngIf="submitting"></span>
           Create Order
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ship Modal -->
+  <div class="custom-modal-overlay" *ngIf="showShipModal" (click)="closeShipModal()" (window:keydown.escape)="closeShipModal()">
+    <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
+      <div class="custom-modal-header">
+        <h3 class="custom-modal-title">
+          <lucide-icon [img]="TruckIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
+          Ship Sales Order
+        </h3>
+      </div>
+      <div class="custom-modal-body">
+        <div class="form-group">
+          <label class="form-label">Tracking Number *</label>
+          <input type="text" class="form-input" [(ngModel)]="shipPayload.trackingNumber" placeholder="e.g. TRK-123456789">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Shipping Notes</label>
+          <textarea class="form-input" [(ngModel)]="shipPayload.notes" rows="3" placeholder="Any special instructions or carrier notes..."></textarea>
+        </div>
+      </div>
+      <div class="custom-modal-footer">
+        <button (click)="closeShipModal()" class="btn btn-ghost">Cancel</button>
+        <button (click)="submitShipOrder()" class="btn btn-primary" [disabled]="shipping">
+          <span class="spinner" *ngIf="shipping"></span>
+          Confirm Shipment
         </button>
       </div>
     </div>

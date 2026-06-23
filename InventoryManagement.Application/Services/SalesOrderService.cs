@@ -73,6 +73,10 @@ namespace InventoryManagement.Application.Services
             if (!dto.Items.Any())
                 return ApiResponse<SalesOrderDto>.Fail("Order must contain at least one item.");
 
+            var productIds = dto.Items.Select(i => i.ProductId).ToList();
+            if (productIds.Distinct().Count() != productIds.Count)
+                return ApiResponse<SalesOrderDto>.Fail("Duplicate products in the order are not allowed. Please combine quantities.");
+
             var orderNumber = $"SO-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString().Substring(0, 4).ToUpper()}";
 
             var order = new SalesOrder

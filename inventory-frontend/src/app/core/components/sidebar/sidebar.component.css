@@ -226,7 +226,7 @@
 }
 
 .sidebar-resize-handle:hover {
-  background: rgba(210, 89, 59, 0.25);
+  background: var(--accent-light);
 }
 
 :host-context([dir="rtl"]) .sidebar-resize-handle {

@@ -39,12 +39,13 @@ export class InventoryComponent implements OnInit, OnDestroy {
 
   user: any;
 
-  actionModal: 'add' | 'sell' | 'adjust' | 'return' | null = null;
+  actionModal: 'add' | 'sell' | 'adjust' | 'return' | 'transfer' | null = null;
   isSubmitting = false;
   actionError = '';
 
   selectedProductId: number | '' = '';
   selectedWarehouseId: number | '' = '';
+  destinationWarehouseId: number | '' = '';
   quantity: number = 1;
   notes: string = '';
 
@@ -164,19 +165,28 @@ export class InventoryComponent implements OnInit, OnDestroy {
     this.loadLogs();
   }
 
-  getPagesArray() {
+  getPagesArray(): number[] {
+    const maxPagesToShow = 5;
+    let startPage = Math.max(1, this.page - Math.floor(maxPagesToShow / 2));
+    let endPage = startPage + maxPagesToShow - 1;
+
+    if (endPage > this.totalPages) {
+      endPage = this.totalPages;
+      startPage = Math.max(1, endPage - maxPagesToShow + 1);
+    }
+
     const pages = [];
-    const maxPages = Math.min(this.totalPages, 5);
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
     return pages;
   }
 
-  openActionModal(action: 'add' | 'sell' | 'adjust' | 'return') {
+  openActionModal(action: 'add' | 'sell' | 'adjust' | 'return' | 'transfer') {
     this.actionModal = action;
     this.selectedProductId = '';
     this.selectedWarehouseId = '';
+    this.destinationWarehouseId = '';
     this.quantity = action === 'adjust' ? 0 : 1;
     this.notes = '';
     this.actionError = '';
@@ -211,19 +221,27 @@ export class InventoryComponent implements OnInit, OnDestroy {
           this.scanFeedback = `Scanned: ${decodedText}`;
           this.cdr.markForCheck();
 
-          const matched = this.products.find(p => p.barcode === decodedText || p.sku === decodedText);
-          if (matched) {
-            this.selectedProductId = matched.id;
-            this.scanFeedback = `Found: ${matched.name}`;
-            this.cdr.markForCheck();
-            
-            setTimeout(() => {
-              this.stopScanner();
-            }, 1500);
-          } else {
-            this.scanFeedback = `Code "${decodedText}" not matched.`;
-            this.cdr.markForCheck();
-          }
+          this.inventoryService.searchByBarcode(decodedText).subscribe({
+            next: (res) => {
+              const matched = res.data;
+              if (matched) {
+                this.selectedProductId = matched.id;
+                this.scanFeedback = `Found: ${matched.name}`;
+                this.cdr.markForCheck();
+                
+                setTimeout(() => {
+                  this.stopScanner();
+                }, 1500);
+              } else {
+                this.scanFeedback = `Code "${decodedText}" not matched.`;
+                this.cdr.markForCheck();
+              }
+            },
+            error: () => {
+              this.scanFeedback = `Code "${decodedText}" not matched.`;
+              this.cdr.markForCheck();
+            }
+          });
         },
         (errorMessage: string) => {
           // Silent
@@ -268,6 +286,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
       case 'sell': return 'INVENTORY.SELL_STOCK';
       case 'adjust': return 'INVENTORY.ADJUST_STOCK';
       case 'return': return 'INVENTORY.RETURN_STOCK';
+      case 'transfer': return 'Transfer Stock';
       default: return '';
     }
   }
@@ -278,6 +297,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
       case 'sell': return 'INVENTORY.QTY_TO_SELL';
       case 'adjust': return 'INVENTORY.NEW_QTY';
       case 'return': return 'INVENTORY.QTY_TO_RETURN';
+      case 'transfer': return 'Transfer Quantity';
       default: return 'INVENTORY.QUANTITY_LABEL';
     }
   }
@@ -317,6 +337,16 @@ export class InventoryComponent implements OnInit, OnDestroy {
           productId: payload.productId, warehouseId: payload.warehouseId, quantityToReturn: payload.quantity, notes: payload.notes
         }); 
         break;
+      case 'transfer':
+        if (!this.destinationWarehouseId) {
+          this.sweetAlert.error('Validation Error', 'Please select a destination warehouse.');
+          this.isSubmitting = false;
+          return;
+        }
+        actionObs = this.inventoryService.transferStock({
+          productId: payload.productId, sourceWarehouseId: payload.warehouseId, destinationWarehouseId: Number(this.destinationWarehouseId), quantity: payload.quantity, notes: payload.notes
+        });
+        break;
     }
 
     if (!actionObs) return;
@@ -339,18 +369,22 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel() {
-    const dataToExport = this.getFilteredLogs().map(log => ({
-      'ID': log.id,
-      'Date': new Date(log.actionDate).toLocaleString(),
-      'Product Name': log.productName,
-      'Action': log.action,
-      'Previous Qty': log.previousQuantity,
-      'Qty Change': log.quantityChanged,
-      'New Qty': log.newQuantity,
-      'Performed By': log.performedBy || log.userName || '—',
-      'Notes': log.notes || '—'
-    }));
-    this.exportExcel.export(dataToExport, 'Inventory_Logs_Report');
+    this.inventoryService.getLogs(1, 10000, this.searchQuery).subscribe({
+      next: (res) => {
+        const dataToExport = (res.data?.items || []).map((log: any) => ({
+          'ID': log.id,
+          'Date': new Date(log.actionDate).toLocaleString(),
+          'Product Name': log.productName,
+          'Action': log.action,
+          'Previous Qty': log.previousQuantity,
+          'Qty Change': log.quantityChanged,
+          'New Qty': log.newQuantity,
+          'Performed By': log.performedBy || log.userName || '—',
+          'Notes': log.notes || '—'
+        }));
+        this.exportExcel.export(dataToExport, 'Inventory_Logs');
+      }
+    });
   }
 
   exportToPdf() {
