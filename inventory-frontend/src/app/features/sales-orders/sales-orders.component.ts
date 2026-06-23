@@ -102,8 +102,8 @@ export class SalesOrdersComponent implements OnInit {
   }
 
   exportToExcel() {
-    this.salesOrderService.getOrders(1, 10000).subscribe({
-      next: (res) => {
+    this.soService.getSalesOrders(1, 10000, this.searchTerm).subscribe({
+      next: (res: any) => {
         const dataToExport = (res.data?.items || []).map((o: any) => ({
           'Order #': o.orderNumber,
           'Customer': o.customerName,

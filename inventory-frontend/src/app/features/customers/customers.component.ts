@@ -84,7 +84,7 @@ export class CustomersComponent implements OnInit {
         this.customers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
-        this.error = null;
+        this.error = '';
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -188,7 +188,7 @@ export class CustomersComponent implements OnInit {
     if (this.editingCustomer) {
       this.customerService.update(this.editingCustomer.id!, this.customerForm).subscribe({
         next: () => {
-          this.error = null;
+          this.error = '';
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -201,7 +201,7 @@ export class CustomersComponent implements OnInit {
     } else {
       this.customerService.create(this.customerForm).subscribe({
         next: () => {
-          this.error = null;
+          this.error = '';
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -219,7 +219,7 @@ export class CustomersComponent implements OnInit {
       if (result.isConfirmed) {
         this.customerService.delete(id).subscribe({
           next: () => {
-            this.error = null;
+            this.error = '';
             this.sweetAlert.success('Deleted', 'Customer has been deleted.');
             this.loadCustomers();
             this.cdr.markForCheck();

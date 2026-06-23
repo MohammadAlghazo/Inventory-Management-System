@@ -85,7 +85,7 @@ export class SuppliersComponent implements OnInit {
         this.suppliers = res?.data?.items || [];
         this.totalPages = Math.ceil((res?.data?.totalCount || 0) / this.pageSize) || 1;
         this.isLoading = false;
-        this.error = null;
+        this.error = '';
         this.cdr.markForCheck();
       },
       error: (err: any) => {
@@ -190,7 +190,7 @@ export class SuppliersComponent implements OnInit {
     if (this.editingSupplier) {
       this.supplierService.update(this.editingSupplier.id!, this.supplierForm).subscribe({
         next: () => {
-          this.error = null;
+          this.error = '';
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -203,7 +203,7 @@ export class SuppliersComponent implements OnInit {
     } else {
       this.supplierService.create(this.supplierForm).subscribe({
         next: () => {
-          this.error = null;
+          this.error = '';
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
@@ -221,7 +221,7 @@ export class SuppliersComponent implements OnInit {
       if (result.isConfirmed) {
         this.supplierService.delete(id).subscribe({
           next: () => {
-            this.error = null;
+            this.error = '';
             this.sweetAlert.success('Deleted', 'Supplier has been deleted.');
             this.loadSuppliers();
             this.cdr.markForCheck();

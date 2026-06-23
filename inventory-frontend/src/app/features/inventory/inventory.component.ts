@@ -369,8 +369,8 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   exportToExcel() {
-    this.inventoryService.getLogs(1, 10000, this.searchQuery).subscribe({
-      next: (res) => {
+    this.inventoryService.getInventoryLogs(1, 10000, '', this.searchQuery).subscribe({
+      next: (res: any) => {
         const dataToExport = (res.data?.items || []).map((log: any) => ({
           'ID': log.id,
           'Date': new Date(log.actionDate).toLocaleString(),
