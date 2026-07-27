@@ -10,7 +10,7 @@ import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { TranslateService, TranslatePipe } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { ProfileService } from '../../core/services/profile.service';
@@ -22,7 +22,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, EmptyStateComponent, SpinnerComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, EmptyStateComponent, SpinnerComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
