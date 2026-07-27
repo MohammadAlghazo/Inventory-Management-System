@@ -49,7 +49,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           } else if (error.error && error.error.errors) {
             // Validation errors
             const validationErrors = Object.values(error.error.errors).flat();
-            errorMessage = validationErrors.join('<br>');
+            errorMessage = validationErrors.join('\n');
           } else {
             errorMessage = 'Please check the submitted data and try again.';
           }

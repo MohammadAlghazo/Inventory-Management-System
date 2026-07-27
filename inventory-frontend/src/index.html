@@ -37,13 +37,33 @@
   <link rel="icon" type="image/jpeg" href="assets/logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet"></noscript>
   <link rel="manifest" href="manifest.webmanifest">
+  <style>
+    /* Prevent flash of unstyled content before fonts load */
+    html.fonts-loading { visibility: hidden; }
+    html.fonts-loading #ng-splash { visibility: visible !important; }
+  </style>
+  <script>
+    // Wait for fonts before showing content to prevent layout flash
+    document.documentElement.classList.add('fonts-loading');
+    function revealPage() {
+      document.documentElement.classList.remove('fonts-loading');
+    }
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(revealPage);
+    } else {
+      setTimeout(revealPage, 1500);
+    }
+    // Fallback safety: always reveal after 3s
+    setTimeout(revealPage, 3000);
+  </script>
 </head>
 <body>
   <app-root>
     <h1 style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">StockMaster - Enterprise Inventory Management & ERP System</h1>
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #100c0a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999;">
+    <div id="ng-splash" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #100c0a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999999;">
       <img src="assets/logo.jpg" alt="StockMaster Logo" style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
       <div style="width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #c84b2a; border-radius: 50%; animation: spin 1s linear infinite;"></div>
       <style>

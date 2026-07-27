@@ -57,8 +57,8 @@
 
 .hero-section {
   min-height: 100vh;
-  padding-top: 140px;
-  padding-bottom: 120px;
+  padding-top: 100px;
+  padding-bottom: 60px;
   background: #0f1c18; 
 }
 
@@ -361,3 +361,211 @@
 .footer-section a:hover {
   color: white !important;
 }
+
+/* ─── Contact Modal ────────────────────────────────────────────────────────── */
+.custom-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: overlayIn 0.2s ease;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.contact-modal {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.contact-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 28px 28px 20px;
+  background: linear-gradient(135deg, #1c2d27 0%, #2d4a3e 100%);
+}
+
+.contact-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  margin-bottom: 12px;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0.1); }
+}
+
+.contact-modal-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.contact-modal-subtitle {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.contact-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.contact-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.contact-items {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  text-decoration: none;
+  background: #f8f9fa;
+  border: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.contact-item:hover {
+  background: #f0f4f0;
+  border-color: #d2593b;
+  transform: translateX(4px);
+  text-decoration: none;
+}
+
+.contact-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contact-icon-phone {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.contact-icon-email {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.contact-icon-portfolio {
+  background: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.contact-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.contact-item-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9e9e9e;
+  margin-bottom: 2px;
+}
+
+.contact-item-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1c2d27;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-arrow {
+  color: #bdbdbd;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.contact-item:hover .contact-arrow {
+  transform: translateX(3px);
+  color: #d2593b;
+}
+
+.contact-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.contact-available-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.contact-available-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  animation: pulse-dot 2s infinite;
+}
+

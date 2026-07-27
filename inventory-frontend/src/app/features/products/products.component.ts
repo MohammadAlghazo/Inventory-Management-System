@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus } from 'lucide-angular';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
+import { SupplierService } from '../../core/services/supplier.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -26,7 +27,7 @@ import * as XLSX from 'xlsx';
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductsComponent implements OnInit {
+export class ProductsComponent implements OnInit, OnDestroy {
   readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus };
 
   products: any[] = [];
@@ -42,6 +43,8 @@ export class ProductsComponent implements OnInit {
   viewMode: 'table' | 'grid' = 'table';
 
   categories: any[] = [];
+  suppliers: any[] = [];
+  units: any[] = [];
 
   isDeleting = false;
 
@@ -55,6 +58,7 @@ export class ProductsComponent implements OnInit {
     private productService: ProductService,
     private authService: AuthService,
     private http: HttpClient,
+    private supplierService: SupplierService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
     private sweetAlert: SweetAlertService,
@@ -66,6 +70,8 @@ export class ProductsComponent implements OnInit {
   ngOnInit() {
     this.loadProducts();
     this.loadCategories();
+    this.loadSuppliers();
+    this.loadUnits();
 
     this.searchSubject.pipe(
       debounceTime(300),
@@ -77,10 +83,34 @@ export class ProductsComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.searchSubject.complete();
+  }
+
   loadCategories() {
     this.http.get<any>(`${environment.apiUrl}/lookup/categories`).subscribe({
       next: (res) => { 
         this.categories = res.data || [];
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
+  }
+
+  loadSuppliers() {
+    this.supplierService.getAll(1, 500).subscribe({
+      next: (res) => {
+        this.suppliers = res.data?.items || [];
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
+  }
+
+  loadUnits() {
+    this.http.get<any>(`${environment.apiUrl}/lookup/units`).subscribe({
+      next: (res) => {
+        this.units = res.data || [];
         this.cdr.markForCheck();
       },
       error: () => {}
@@ -108,7 +138,7 @@ export class ProductsComponent implements OnInit {
             this.closeImageModal();
             this.cdr.markForCheck();
           },
-          error: (err) => console.error('Image upload update failed:', err)
+          error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Image upload update failed')
         });
       }
     }
@@ -312,12 +342,12 @@ export class ProductsComponent implements OnInit {
   isSavingProduct = false;
   editProduct: any = null;
   productForm: any = {
-    name: '', sku: '', categoryId: null, price: 0, unit: '', minQuantity: 0, supplierId: null, description: ''
+    name: '', sku: '', categoryId: null, unitId: null, price: 0, minQuantity: 0, supplierId: null, description: ''
   };
 
   openAddProduct() {
     this.editProduct = null;
-    this.productForm = { name: '', sku: '', categoryId: null, price: 0, unit: '', minQuantity: 0, supplierId: null, description: '' };
+    this.productForm = { name: '', sku: '', categoryId: null, unitId: null, price: 0, minQuantity: 0, supplierId: null, description: '' };
     this.showProductModal = true;
   }
 
@@ -327,8 +357,8 @@ export class ProductsComponent implements OnInit {
       name: product.name,
       sku: product.sku,
       categoryId: product.categoryId,
+      unitId: product.unitId || null,
       price: product.price,
-      unit: product.unit || product.unitName,
       minQuantity: product.minQuantity,
       supplierId: product.supplierId,
       description: product.description || ''
@@ -337,14 +367,26 @@ export class ProductsComponent implements OnInit {
   }
 
   submitProduct() {
+    if (!this.productForm.name?.trim()) {
+      this.sweetAlert.error('Validation Error', 'Product name is required.');
+      return;
+    }
+    if (!this.productForm.sku?.trim()) {
+      this.sweetAlert.error('Validation Error', 'SKU is required.');
+      return;
+    }
+    if (!this.productForm.price || Number(this.productForm.price) <= 0) {
+      this.sweetAlert.error('Validation Error', 'Price must be greater than 0.');
+      return;
+    }
     this.isSavingProduct = true;
     const payload = {
-      name: this.productForm.name,
-      sku: this.productForm.sku,
+      name: this.productForm.name.trim(),
+      sku: this.productForm.sku.trim(),
       categoryId: this.productForm.categoryId ? Number(this.productForm.categoryId) : null,
       price: Number(this.productForm.price),
-      unitId: null,
-      minQuantity: Number(this.productForm.minQuantity),
+      unitId: this.productForm.unitId ? Number(this.productForm.unitId) : null,
+      minQuantity: Number(this.productForm.minQuantity) || 0,
       supplierId: this.productForm.supplierId ? Number(this.productForm.supplierId) : null,
       description: this.productForm.description || '',
       purchasePrice: 0
@@ -357,7 +399,7 @@ export class ProductsComponent implements OnInit {
       next: () => {
         this.isSavingProduct = false;
         this.showProductModal = false;
-        this.sweetAlert.success('Success', 'Product saved successfully');
+        this.sweetAlert.success('Success', this.editProduct ? 'Product updated successfully' : 'Product created successfully');
         this.loadProducts();
         this.cdr.markForCheck();
       },

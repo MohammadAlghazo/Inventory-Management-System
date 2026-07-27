@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PurchaseOrderService } from '../../core/services/purchase-order.service';
@@ -23,7 +23,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
   templateUrl: './purchase-orders.component.html',
   styleUrls: ['./purchase-orders.component.css']
 })
-export class PurchaseOrdersComponent implements OnInit {
+export class PurchaseOrdersComponent implements OnInit, OnDestroy {
   orders: PurchaseOrder[] = [];
   searchTerm: string = '';
   searchSubject = new Subject<string>();
@@ -85,6 +85,10 @@ export class PurchaseOrdersComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.searchSubject.complete();
+  }
+
   loadOrders(): void {
     this.loading = true;
     this.poService.getPurchaseOrders(this.currentPage, this.pageSize, this.searchTerm)
@@ -134,7 +138,7 @@ export class PurchaseOrdersComponent implements OnInit {
         productId: i.productId,
         productName: i.productName,
         quantityOrdered: i.quantityOrdered,
-        quantityReceived: i.quantityOrdered - i.quantityReceived // default to remaining
+        quantityReceived: Math.max(0, i.quantityOrdered - i.quantityReceived)
       }))
     };
     this.showReceiveModal = true;
@@ -177,10 +181,12 @@ export class PurchaseOrdersComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch(status?.toLowerCase()) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'draft': return 'badge-secondary';
+      case 'completed': return 'badge-success';
+      case 'received': return 'badge-success';
+      case 'cancelled': return 'badge-danger';
+      case 'pending': return 'badge-warning';
+      default: return 'badge-info';
     }
   }
 
@@ -234,7 +240,13 @@ export class PurchaseOrdersComponent implements OnInit {
       return;
     }
 
-    // Clean up empty items
+    const hasInvalidItems = this.newOrder.items.some((i: any) => !i.productId || i.productId <= 0);
+    if (hasInvalidItems) {
+      this.sweetAlert.error('Validation Error', 'Please select a product for all order items.');
+      return;
+    }
+
+    // Clean up empty items (though validated above)
     this.newOrder.items = this.newOrder.items.filter((i: any) => i.productId > 0 && i.quantity > 0);
     
     this.newOrder.supplierId = sId;

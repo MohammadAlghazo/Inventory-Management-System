@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -19,7 +19,7 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
   templateUrl: './customers.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomersComponent implements OnInit {
+export class CustomersComponent implements OnInit, OnDestroy {
   customers: Customer[] = [];
   searchQuery = '';
   searchSubject = new Subject<string>();
@@ -71,6 +71,10 @@ export class CustomersComponent implements OnInit {
       this.page = 1;
       this.loadCustomers();
     });
+  }
+
+  ngOnDestroy() {
+    this.searchSubject.complete();
   }
 
   loadCustomers() {
@@ -185,16 +189,22 @@ export class CustomersComponent implements OnInit {
   }
 
   saveCustomer() {
+    if (!this.customerForm.name?.trim()) {
+      this.sweetAlert.error('Validation Error', 'Customer name is required.');
+      return;
+    }
     if (this.editingCustomer) {
       this.customerService.update(this.editingCustomer.id!, this.customerForm).subscribe({
         next: () => {
           this.error = '';
+          this.sweetAlert.toast('Customer updated successfully');
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = 'Failed to update customer';
+          this.error = err.error?.message || 'Failed to update customer';
+          this.sweetAlert.error('Error', this.error);
           this.cdr.markForCheck();
         }
       });
@@ -202,12 +212,14 @@ export class CustomersComponent implements OnInit {
       this.customerService.create(this.customerForm).subscribe({
         next: () => {
           this.error = '';
+          this.sweetAlert.toast('Customer created successfully');
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = 'Failed to create customer';
+          this.error = err.error?.message || 'Failed to create customer';
+          this.sweetAlert.error('Error', this.error);
           this.cdr.markForCheck();
         }
       });
@@ -225,7 +237,8 @@ export class CustomersComponent implements OnInit {
             this.cdr.markForCheck();
           },
           error: (err: any) => {
-            this.error = 'Failed to delete customer';
+            this.error = err.error?.message || 'Failed to delete customer';
+            this.sweetAlert.error('Error', this.error);
             this.cdr.markForCheck();
           }
         });

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Plus, Edit2, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-angular';
@@ -19,7 +19,7 @@ import { HasPermissionDirective } from '../../shared/directives/has-permission.d
   templateUrl: './suppliers.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SuppliersComponent implements OnInit {
+export class SuppliersComponent implements OnInit, OnDestroy {
   suppliers: Supplier[] = [];
   searchQuery = '';
   searchSubject = new Subject<string>();
@@ -72,6 +72,10 @@ export class SuppliersComponent implements OnInit {
       this.page = 1;
       this.loadSuppliers();
     });
+  }
+
+  ngOnDestroy() {
+    this.searchSubject.complete();
   }
 
   loadSuppliers() {
@@ -187,16 +191,22 @@ export class SuppliersComponent implements OnInit {
   }
 
   saveSupplier() {
+    if (!this.supplierForm.name?.trim()) {
+      this.sweetAlert.error('Validation Error', 'Supplier name is required.');
+      return;
+    }
     if (this.editingSupplier) {
       this.supplierService.update(this.editingSupplier.id!, this.supplierForm).subscribe({
         next: () => {
           this.error = '';
+          this.sweetAlert.toast('Supplier updated successfully');
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = 'Failed to update supplier';
+          this.error = err.error?.message || 'Failed to update supplier';
+          this.sweetAlert.error('Error', this.error);
           this.cdr.markForCheck();
         }
       });
@@ -204,12 +214,14 @@ export class SuppliersComponent implements OnInit {
       this.supplierService.create(this.supplierForm).subscribe({
         next: () => {
           this.error = '';
+          this.sweetAlert.toast('Supplier created successfully');
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = 'Failed to create supplier';
+          this.error = err.error?.message || 'Failed to create supplier';
+          this.sweetAlert.error('Error', this.error);
           this.cdr.markForCheck();
         }
       });
@@ -227,7 +239,8 @@ export class SuppliersComponent implements OnInit {
             this.cdr.markForCheck();
           },
           error: (err: any) => {
-            this.error = 'Failed to delete supplier';
+            this.error = err.error?.message || 'Failed to delete supplier';
+            this.sweetAlert.error('Error', this.error);
             this.cdr.markForCheck();
           }
         });

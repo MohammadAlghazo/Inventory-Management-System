@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -10,7 +10,7 @@ import { UserService } from '../../core/services/user.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { ProfileService } from '../../core/services/profile.service';
@@ -22,11 +22,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
 @Component({
   selector: 'app-users',
-  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe, EmptyStateComponent, SpinnerComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule, EmptyStateComponent, SpinnerComponent],
   templateUrl: './users.component.html',
   styleUrl: './users.component.css'
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
   environment = environment;
   showProfilePictureModal = false;
   selectedUserIdForPicture: number | null = null;
@@ -85,6 +85,10 @@ export class UsersComponent implements OnInit {
       this.page = 1;
       this.loadUsers();
     });
+  }
+
+  ngOnDestroy() {
+    this.searchSubject.complete();
   }
 
   get currentUserId() {
@@ -197,7 +201,7 @@ export class UsersComponent implements OnInit {
 
   openRegister() {
     this.registerError = '';
-    this.newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'Employee' };
+    this.newUser = { username: '', email: '', password: '', firstName: '', lastName: '', role: 'WarehouseStaff' };
     this.showRegisterModal = true;
   }
 
@@ -236,6 +240,10 @@ export class UsersComponent implements OnInit {
   closeEdit() { this.editUser = null; }
 
   saveEdit() {
+    if (!this.editForm.firstName?.trim()) {
+      this.editError = this.translate.instant('PROFILE.ERR_REQUIRED_FIELDS');
+      return;
+    }
     if (!this.editForm.email?.trim()) {
       this.editError = this.translate.instant('PROFILE.ERR_REQUIRED_FIELDS');
       return;
@@ -278,7 +286,7 @@ export class UsersComponent implements OnInit {
           this.loadUsers();
           this.selectedUserIdForPicture = null;
         },
-        error: (err) => console.error(err)
+        error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Failed to update profile picture')
       });
     }
   }
@@ -298,7 +306,7 @@ export class UsersComponent implements OnInit {
             }
             this.loadUsers();
           },
-          error: (err) => console.error(err)
+          error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Failed to delete profile picture')
         });
       }
     });

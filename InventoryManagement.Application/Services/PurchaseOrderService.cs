@@ -77,6 +77,10 @@ namespace InventoryManagement.Application.Services
             if (productIds.Distinct().Count() != productIds.Count)
                 return ApiResponse<PurchaseOrderDto>.Fail("Duplicate products in the order are not allowed. Please combine quantities.");
 
+            var existingProductsCount = await _uow.Products.Query().CountAsync(p => productIds.Contains(p.Id));
+            if (existingProductsCount != productIds.Distinct().Count())
+                return ApiResponse<PurchaseOrderDto>.Fail("One or more selected products do not exist or are inactive.");
+
             var supplierExists = await _uow.Suppliers.Query().AnyAsync(s => s.Id == dto.SupplierId);
             if (!supplierExists)
                 return ApiResponse<PurchaseOrderDto>.Fail("Selected supplier does not exist or is inactive.");

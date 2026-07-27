@@ -229,7 +229,17 @@
         "FOOTER_DESC": "Premium enterprise management suite for high-velocity logistics and supply environments.",
         "COPYRIGHT": "© 2026 StockMaster. Engineered with excellence. All rights reserved.",
         "ERR_FILL_FIELDS": "Please enter both username and password",
-        "ERR_INVALID_CREDS": "Invalid credentials or server error"
+        "ERR_INVALID_CREDS": "Invalid credentials or server error",
+        "CONTACT_MODAL_TITLE": "Get in Touch",
+        "CONTACT_MODAL_SUBTITLE": "Have questions or need support? Reach out directly.",
+        "CONTACT_PHONE": "+962 77 291 3081",
+        "CONTACT_EMAIL": "mohammadalghazo2004m@gmail.com",
+        "CONTACT_PORTFOLIO": "mohammadalghazo.pages.dev",
+        "CONTACT_PORTFOLIO_URL": "https://mohammadalghazo.pages.dev/",
+        "CONTACT_LINKEDIN": "LinkedIn Profile",
+        "CONTACT_LINKEDIN_URL": "https://linkedin.com/in/mohammadalghazo",
+        "CONTACT_AVAILABLE": "Available for support & inquiries",
+        "CONTACT_CLOSE": "Close"
     },
     "PROFILE": {
         "PERSONAL_INFO": "Personal Information",

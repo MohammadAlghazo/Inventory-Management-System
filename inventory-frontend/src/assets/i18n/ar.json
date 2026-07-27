@@ -229,7 +229,17 @@
         "FOOTER_DESC": "مجموعة إدارة مؤسسية متميزة لبيئات اللوجستيات والتوريد عالية السرعة.",
         "COPYRIGHT": "© 2026 StockMaster. مصنوع بتميز. جميع الحقوق محفوظة.",
         "ERR_FILL_FIELDS": "يرجى إدخال اسم المستخدم وكلمة المرور",
-        "ERR_INVALID_CREDS": "بيانات الاعتماد غير صالحة أو خطأ في الخادم"
+        "ERR_INVALID_CREDS": "بيانات الاعتماد غير صالحة أو خطأ في الخادم",
+        "CONTACT_MODAL_TITLE": "تواصل معنا",
+        "CONTACT_MODAL_SUBTITLE": "هل لديك استفسار أو تحتاج دعماً؟ تواصل مباشرة.",
+        "CONTACT_PHONE": "+962 77 291 3081",
+        "CONTACT_EMAIL": "mohammadalghazo2004m@gmail.com",
+        "CONTACT_PORTFOLIO": "mohammadalghazo.pages.dev",
+        "CONTACT_PORTFOLIO_URL": "https://mohammadalghazo.pages.dev/",
+        "CONTACT_LINKEDIN": "ملف LinkedIn",
+        "CONTACT_LINKEDIN_URL": "https://linkedin.com/in/mohammadalghazo",
+        "CONTACT_AVAILABLE": "متاح للدعم والاستفسارات",
+        "CONTACT_CLOSE": "إغلاق"
     },
     "PROFILE": {
         "PERSONAL_INFO": "المعلومات الشخصية",

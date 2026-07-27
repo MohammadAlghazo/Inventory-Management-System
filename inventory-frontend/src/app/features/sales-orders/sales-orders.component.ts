@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SalesOrderService } from '../../core/services/sales-order.service';
@@ -22,7 +22,7 @@ import { ExportPdfService } from '../../core/services/export-pdf.service';
   templateUrl: './sales-orders.component.html',
   styleUrls: ['./sales-orders.component.css']
 })
-export class SalesOrdersComponent implements OnInit {
+export class SalesOrdersComponent implements OnInit, OnDestroy {
   orders: SalesOrder[] = [];
   searchTerm: string = '';
   searchSubject = new Subject<string>();
@@ -83,6 +83,10 @@ export class SalesOrdersComponent implements OnInit {
       this.currentPage = 1;
       this.loadOrders();
     });
+  }
+
+  ngOnDestroy(): void {
+    this.searchSubject.complete();
   }
 
   loadOrders(): void {
@@ -161,10 +165,12 @@ export class SalesOrdersComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch(status?.toLowerCase()) {
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'shipped': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'draft': return 'badge-secondary';
+      case 'shipped': return 'badge-success';
+      case 'delivered': return 'badge-success';
+      case 'cancelled': return 'badge-danger';
+      case 'pending': return 'badge-warning';
+      default: return 'badge-info';
     }
   }
 
@@ -218,7 +224,13 @@ export class SalesOrdersComponent implements OnInit {
       return;
     }
 
-    // Clean up empty items
+    const hasInvalidItems = this.newOrder.items.some((i: any) => !i.productId || i.productId <= 0);
+    if (hasInvalidItems) {
+      this.sweetAlert.error('Validation Error', 'Please select a product for all order items.');
+      return;
+    }
+
+    // Clean up empty items (though validated above)
     this.newOrder.items = this.newOrder.items.filter((i: any) => i.productId > 0 && i.quantity > 0);
 
     this.newOrder.customerId = cId;

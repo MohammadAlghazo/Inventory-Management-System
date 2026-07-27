@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل مشروع StockMaster الشامل للمناقشة</title>
+    <!-- استيراد خط تجوال لدعم اللغة العربية بشكل جميل -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- استيراد Bootstrap 5 النسخة العربية (RTL) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            line-height: 1.8;
+        }
+        
+        /* تنسيق الشريط الجانبي */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 300px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #f39c12;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+        
+        .sidebar a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: block;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .sidebar a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: #fff;
+            transform: translateX(-5px);
+        }
+        
+        /* تنسيق المحتوى الرئيسي */
+        .main-content {
+            margin-right: 300px;
+            padding: 40px 50px;
+        }
+        
+        .header-banner {
+            background: linear-gradient(135deg, #c84b2a 0%, #e67e22 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(200, 75, 42, 0.2);
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-top: 4px solid #c84b2a;
+        }
+        
+        h2.section-title {
+            color: #1e293b;
+            font-weight: 800;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        
+        h3.subsection-title {
+            color: #c84b2a;
+            font-weight: 700;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        /* تنسيقات الجداول والتفاصيل */
+        .btn-desc {
+            display: inline-block;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #d35400;
+            font-family: monospace;
+        }
+        
+        .role-badge {
+            font-size: 0.85em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .role-admin { background-color: #e74c3c; color: white; }
+        .role-manager { background-color: #3498db; color: white; }
+        .role-sales { background-color: #2ecc71; color: white; }
+        
+        .tech-box {
+            background-color: #f1f5f9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .highlight-box {
+            background-color: #fff3cd;
+            border-right: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- الشريط الجانبي للتنقل -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            📦 StockMaster ERP
+        </div>
+        <p class="text-center text-muted small mb-4">دليل المناقشة الشامل</p>
+        
+        <a href="#intro">1. مقدمة وفكرة المشروع</a>
+        <a href="#technologies">2. التقنيات المستخدمة</a>
+        <a href="#roles">3. نظام الصلاحيات والأدوار</a>
+        <a href="#workflow">4. دورة العمل (Workflow)</a>
+        
+        <div class="mt-4 mb-2 ms-2 text-white-50 small fw-bold">شرح الصفحات</div>
+        <a href="#page-login">- صفحة الدخول (Login)</a>
+        <a href="#page-dashboard">- لوحة القيادة (Dashboard)</a>
+        <a href="#page-products">- إدارة المنتجات</a>
+        <a href="#page-inventory">- إدارة المخزون (Logs)</a>
+        <a href="#page-purchase">- طلبات الشراء</a>
+        <a href="#page-sales">- طلبات البيع</a>
+        <a href="#page-partners">- الموردين والعملاء</a>
+        <a href="#page-users">- إدارة المستخدمين</a>
+        <a href="#page-settings">- الإعدادات العامة</a>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        
+        <!-- الترويسة -->
+        <div class="header-banner">
+            <h1 class="display-4 fw-bold mb-3">الدليل الشامل لمشروع StockMaster</h1>
+            <p class="lead">هذا الملف مصمم خصيصاً ليكون مرجعك الأساسي لفهم كل صغيرة وكبيرة في المشروع. يمكنك الاعتماد عليه كلياً في دراسة المشروع قبل مناقشته أمام الدكاترة والطلاب. تم تبسيط المعلومات وشرح الفوائد لكل صفحة وزر بدقة متناهية.</p>
+        </div>
+
+        <!-- 1. مقدمة -->
+        <section id="intro" class="section-card">
+            <h2 class="section-title">1. مقدمة وفكرة المشروع</h2>
+            <p><strong>ما هو StockMaster؟</strong><br>
+            هو نظام تخطيط موارد المؤسسات (ERP) ونظام إدارة مخزون متكامل (Inventory Management System). الهدف منه هو تحويل إدارة المستودعات والشركات من الطرق اليدوية أو الورقية إلى نظام رقمي سحابي متطور.</p>
+            
+            <p><strong>الفائدة الرئيسية للمشروع التي ستقولها للدكاترة:</strong><br>
+            "المشروع يحل مشكلة التتبع اليدوي للمخزون، حيث يقوم بأتمتة كاملة (Automation) لدورة حياة المنتج. من لحظة شرائه من المورد وإدخاله للمستودع، حتى لحظة بيعه للعميل. النظام يمنع الأخطاء البشرية، يمنع بيع منتجات غير متوفرة، ويقدم تقارير فورية لمتخذي القرار، كل ذلك ضمن نظام أمان عالٍ مبني على صلاحيات محددة لكل موظف."</p>
+        </section>
+
+        <!-- 2. التقنيات المستخدمة -->
+        <section id="technologies" class="section-card">
+            <h2 class="section-title">2. التقنيات المستخدمة (Technology Stack)</h2>
+            <p>إذا سألك الدكتور "بماذا بنيت المشروع ولماذا؟"، هذه هي إجابتك:</p>
+            <div class="row g-4 mt-2">
+                <div class="col-md-4">
+                    <div class="tech-box">
+                        <h4 class="text-primary fw-bold">الواجهة الأمامية (Frontend)</h4>
+                        <hr>
+                        <ul class="text-start mb-0">
+                            <li><strong>Angular 18:</strong> أحدث إصدار، استخدمته لأنه يعتمد على (Standalone Components) مما يجعل الكود أسرع وأخف.</li>
+                            <li><strong>Bootstrap 5 & CSS:</strong> لتصميم واجهات متجاوبة (Responsive) تعمل على الكمبيوتر والموبايل بسلاسة.</li>
+                            <li><strong>RxJS:</strong> لإدارة البيانات غير المتزامنة (Asynchronous Data) والتعامل مع الـ APIs.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tech-box">
+                        <h4 class="text-danger fw-bold">الواجهة الخلفية (Backend API)</h4>
+                        <hr>
+                        <ul class="text-start mb-0">
+                            <li><strong>.NET 8 (C#):</strong> إطار عمل قوي وسريع جداً لبناء الـ RESTful APIs. ومناسب جداً للأنظمة المؤسسية.</li>
+                            <li><strong>Entity Framework Core:</strong> للتعامل مع قاعدة البيانات كـ (ORM) لسهولة كتابة الاستعلامات وحماية النظام من ثغرات SQL Injection.</li>
+                            <li><strong>JWT (JSON Web Tokens):</strong> لنظام المصادقة (Authentication) لضمان أن المستخدمين المسجلين فقط هم من يمكنهم الدخول.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="tech-box">
+                        <h4 class="text-success fw-bold">قاعدة البيانات والأدوات</h4>
+                        <hr>
+                        <ul class="text-start mb-0">
+                            <li><strong>SQL Server:</strong> قاعدة بيانات علائقية قوية، تم اختيارها لأن المشروع يحتوي على علاقات كثيرة (منتجات، موردين، طلبات).</li>
+                            <li><strong>MediatR & CQRS:</strong> نمط برمجي تم استخدامه لفصل عمليات القراءة عن عمليات الكتابة، مما يسهل صيانة الكود.</li>
+                            <li><strong>AutoMapper:</strong> لتحويل البيانات بين قاعدة البيانات والواجهة الأمامية بأمان (DTOs).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. نظام الصلاحيات -->
+        <section id="roles" class="section-card">
+            <h2 class="section-title">3. نظام الصلاحيات والأدوار (Role-Based Access Control)</h2>
+            <p>المشروع ليس مفتوحاً للجميع، كل مستخدم يرى الشاشات والأزرار التي تخصه فقط:</p>
+            <ul>
+                <li><span class="role-badge role-admin">Admin (المدير)</span>: له الصلاحية المطلقة. يرى كل شيء، يضيف مستخدمين جدد، ويحذف أي بيانات.</li>
+                <li><span class="role-badge role-manager">WarehouseManager (مدير المستودع)</span>: مسؤوليته المخزون. يضيف منتجات، يقوم بعمليات الجرد، وينشئ طلبات شراء من الموردين. لا يمكنه التحكم بالمستخدمين.</li>
+                <li><span class="role-badge role-sales">Sales (مندوب المبيعات)</span>: يرى المنتجات فقط ولا يمكنه تعديلها. صلاحيته تقتصر على إنشاء "طلبات بيع" للعملاء.</li>
+            </ul>
+            <div class="highlight-box">
+                <strong>💡 ملاحظة للدكتور:</strong> "الواجهة الأمامية (Angular) تقوم بإخفاء الأزرار تلقائياً إذا لم يمتلك الموظف الصلاحية، وأيضاً الواجهة الخلفية (API) ترفض أي طلب اختراق غير مصرح به."
+            </div>
+        </section>
+        
+        <!-- 4. دورة العمل -->
+        <section id="workflow" class="section-card">
+            <h2 class="section-title">4. دورة العمل في المشروع (Business Logic Workflow)</h2>
+            <p>كيف يعمل النظام برمجياً ومنطقياً في أرض الواقع؟</p>
+            <ol>
+                <li><strong>الخطوة 1 (التعريفات الأساسية):</strong> يقوم المدير بفتح صفحة <strong>(الإعدادات)</strong> لتعريف (المستودعات، الفئات، الماركات، وحدات القياس).</li>
+                <li><strong>الخطوة 2 (تعريف الشركاء):</strong> يتم إضافة بيانات <strong>الموردين</strong> (الذين نشتري منهم) و<strong>العملاء</strong> (الذين نبيع لهم).</li>
+                <li><strong>الخطوة 3 (إنشاء المنتج):</strong> في صفحة <strong>(المنتجات)</strong>، يتم إنشاء بطاقة منتج جديد (بدون كمية).</li>
+                <li><strong>الخطوة 4 (شراء البضاعة):</strong> يتم عمل <strong>(طلب شراء - Purchase Order)</strong> من المورد. عند استلام البضاعة، تزيد الكمية في المخزون تلقائياً، ويتم تسجيل العملية في <strong>(سجل المخزون - Inventory Logs)</strong>.</li>
+                <li><strong>الخطوة 5 (بيع البضاعة):</strong> يتم عمل <strong>(طلب بيع - Sales Order)</strong> للعميل. النظام يفحص هل الكمية متوفرة؟ إذا نعم، يتم خصم الكمية من المخزون فوراً وتسجيل العملية.</li>
+            </ol>
+        </section>
+
+        <h1 class="text-center mt-5 mb-4 fw-bold" style="color: #c84b2a;">شرح صفحات النظام بالتفصيل الممل</h1>
+
+        <!-- صفحة الدخول -->
+        <section id="page-login" class="section-card">
+            <h2 class="section-title">🖥️ 1. صفحة تسجيل الدخول (Login Page)</h2>
+            <p><strong>الهدف من الصفحة:</strong> هي بوابة الحماية الأولى للنظام. تمنع أي شخص غير مصرح له من رؤية بيانات الشركة.</p>
+            <h3 class="subsection-title">مكونات الصفحة:</h3>
+            <ul>
+                <li><strong>حقل (Username or Email):</strong> يمكن للمستخدم الدخول إما باسم المستخدم أو بريده الإلكتروني.</li>
+                <li><strong>حقل (Password):</strong> محمي ومخفي، مع وجود زر (عين) لإظهار/إخفاء كلمة المرور.</li>
+                <li><strong>زر <span class="btn-desc">Login</span>:</strong> عند الضغط عليه، يقوم النظام بإرسال البيانات للـ API، إذا كانت صحيحة، يرسل الـ API مفتاحاً مشفراً يُسمى (JWT Token). هذا المفتاح يُخزن في المتصفح ويُستخدم كـ "هوية" للمستخدم في كل العمليات القادمة.</li>
+                <li><strong>تصميم الصفحة:</strong> تحتوي على خلفية احترافية، وشرح سريع لوحدات النظام الأربعة (المخزون، المبيعات، التقارير، الموردين) لتعطي طابعاً فخماً للنظام المؤسسي.</li>
+            </ul>
+        </section>
+
+        <!-- لوحة القيادة -->
+        <section id="page-dashboard" class="section-card">
+            <h2 class="section-title">📊 2. لوحة القيادة (Dashboard)</h2>
+            <p><strong>الهدف من الصفحة:</strong> تقديم ملخص سريع للإدارة عن وضع الشركة المالي والمخزني في شاشة واحدة دون الحاجة للبحث.</p>
+            <h3 class="subsection-title">ماذا تحتوي؟</h3>
+            <ul>
+                <li><strong>الإحصائيات العلوية (Cards):</strong>
+                    <ul>
+                        <li>إجمالي المنتجات (Total Products).</li>
+                        <li>قيمة المخزون الإجمالية (Total Value): تحسب بضرب كمية كل منتج بسعره.</li>
+                        <li>إجمالي المبيعات (Total Sales): مجموع مبالغ طلبات البيع.</li>
+                        <li>تنبيهات نقص المخزون (Low Stock Alerts): لمعرفة كم منتج قارب على الانتهاء.</li>
+                    </ul>
+                </li>
+                <li><strong>رسم بياني (Chart):</strong> يوضح حركة المخزون أو المبيعات خلال الأشهر، تم برمجته باستخدام مكتبة (ng2-charts).</li>
+                <li><strong>العمليات الأخيرة (Recent Activity):</strong> جدول يعرض آخر عمليات الشراء والبيع والإضافة التي تمت في النظام لغايات المراقبة.</li>
+            </ul>
+        </section>
+
+        <!-- إدارة المنتجات -->
+        <section id="page-products" class="section-card">
+            <h2 class="section-title">📦 3. إدارة المنتجات (Products)</h2>
+            <p><strong>الهدف من الصفحة:</strong> هي القلب النابض للنظام، حيث يتم تعريف كل ما تملكه الشركة من بضائع.</p>
+            <h3 class="subsection-title">المميزات والأزرار:</h3>
+            <ul>
+                <li><strong>زر <span class="btn-desc">Add New (إضافة جديد)</span>:</strong> يفتح نافذة لتعريف منتج (الاسم، SKU وهو الرمز الشريطي، السعر، التكلفة، الفئة، المورد).</li>
+                <li><strong>زر <span class="btn-desc">Import/Export Excel</span>:</strong> لو كانت الشركة تملك 1000 منتج، لا يعقل إدخالهم يدوياً. هذا الزر يسمح برفع ملف إكسل ليتم تخزينهم جميعاً في قاعدة البيانات بثانية واحدة. أو تصديرهم لملف إكسل.</li>
+                <li><strong>زر <span class="btn-desc">View (عرض)</span>:</strong> يعرض تفاصيل المنتج بالكامل، والأهم أنه يعرض (QR Code) أو (Barcode) يتم توليده برمجياً تلقائياً لتسهيل قراءته في المستودع بجهاز الليزر.</li>
+                <li><strong>زر <span class="btn-desc">Edit / Delete</span>:</strong> للتعديل أو الحذف (الحذف هنا هو Soft Delete، أي يتم إخفاؤه وليس حذفه نهائياً حفاظاً على الفواتير القديمة).</li>
+            </ul>
+        </section>
+
+        <!-- إدارة المخزون -->
+        <section id="page-inventory" class="section-card">
+            <h2 class="section-title">🔄 4. سجلات وحركات المخزون (Inventory Logs & Adjustments)</h2>
+            <p><strong>الهدف من الصفحة:</strong> مراقبة كل حركة تحدث للمنتجات "من أضاف؟ من باع؟ من نقل البضاعة؟ ومتى؟". (Audit Trail).</p>
+            <h3 class="subsection-title">الأزرار والعمليات المتاحة:</h3>
+            <p>في هذه الصفحة يوجد زر أساسي <span class="btn-desc">Stock Action</span> يفتح نافذة تحتوي على 4 عمليات مركزية لا يمكن الاستغناء عنها في أي مستودع:</p>
+            <ul>
+                <li><strong>إضافة مخزون (Add Stock):</strong> لزيادة الكمية يدوياً في مستودع معين (مثلاً بضاعة دخلت بدون فاتورة شراء).</li>
+                <li><strong>خصم/إتلاف (Deduct/Adjust):</strong> لتقليل الكمية (مثلاً: منتج انكسر أو انتهت صلاحيته).</li>
+                <li><strong>نقل (Transfer):</strong> لنقل 50 كرتونة من المستودع (أ) إلى المستودع (ب) دون تغيير الإجمالي العام للشركة.</li>
+            </ul>
+            <p>الجدول في هذه الصفحة يعرض التاريخ، نوع الحركة، الكمية السابقة، الكمية الجديدة، واسم الموظف الذي قام بالعملية، مما يمنع السرقات أو التلاعب.</p>
+        </section>
+
+        <!-- طلبات الشراء -->
+        <section id="page-purchase" class="section-card">
+            <h2 class="section-title">📥 5. طلبات الشراء من الموردين (Purchase Orders)</h2>
+            <p><strong>الهدف من الصفحة:</strong> توثيق عملية شراء البضائع من الموردين (المصانع أو تجار الجملة) وإدخالها للمستودع بشكل نظامي.</p>
+            <h3 class="subsection-title">كيف تعمل؟</h3>
+            <ul>
+                <li>يضغط المستخدم على <span class="btn-desc">Create Purchase Order</span>.</li>
+                <li>يختار <strong>المورد (Supplier)</strong> و<strong>المستودع (Warehouse)</strong> الذي ستنزل فيه البضاعة.</li>
+                <li>يبدأ بإضافة المنتجات (Items)، يحدد الكمية وسعر الشراء لكل منتج.</li>
+                <li>يقوم النظام تلقائياً بحساب (الإجمالي الكلي).</li>
+                <li><strong>حماية برمجية هامة:</strong> النظام يفحص إذا تم اختيار منتج غير صالح أو لم يتم اختياره، يمنع الحفظ ويظهر رسالة خطأ للحماية من انهيار قاعدة البيانات (Validation).</li>
+                <li>عند حفظ الطلب كـ (Completed)، يقوم النظام في الباك إند بالدخول إلى كل منتج و<strong>زيادة كميته تلقائياً</strong> في المستودع المختار.</li>
+            </ul>
+        </section>
+
+        <!-- طلبات البيع -->
+        <section id="page-sales" class="section-card">
+            <h2 class="section-title">📤 6. طلبات البيع للعملاء (Sales Orders)</h2>
+            <p><strong>الهدف من الصفحة:</strong> توثيق المبيعات وإصدار الفواتير للعملاء، وتخفيض المخزون بشكل آلي.</p>
+            <h3 class="subsection-title">الفرق بينها وبين الشراء برمجياً:</h3>
+            <ul>
+                <li>هنا يختار المستخدم <strong>العميل (Customer)</strong>.</li>
+                <li>عند إضافة منتجات للبيع، <strong>يوجد فحص صارم جداً (Strict Validation)</strong>:
+                    <br>الباك إند يقوم بفحص كمية المنتج في المستودع المختار.. إذا طلب العميل 10 قطع، والمستودع فيه 8 فقط، سيرفض النظام إتمام البيع ويُظهر رسالة خطأ ("الكمية غير كافية").
+                </li>
+                <li>هذه الميزة هي ما يميز أنظمة الـ ERP عن مجرد الإكسل، النظام هنا ذكي ويمنع الخطأ البشري.</li>
+                <li>عند إتمام البيع بنجاح، تُخصم الكميات فوراً، وتُسجل الحركة في الـ Inventory Logs كـ "بيع".</li>
+            </ul>
+        </section>
+
+        <!-- الموردين والعملاء -->
+        <section id="page-partners" class="section-card">
+            <h2 class="section-title">🤝 7. الموردون والعملاء (Suppliers & Customers)</h2>
+            <p><strong>الهدف من الصفحات:</strong> إدارة جهات الاتصال التجارية (CRM مبسط).</p>
+            <h3 class="subsection-title">التفاصيل:</h3>
+            <ul>
+                <li>شاشتين منفصلتين لكن بنفس المبدأ.</li>
+                <li>يتم حفظ بيانات (الاسم، الإيميل، رقم الهاتف، العنوان).</li>
+                <li>فائدتها تظهر في الفواتير (لا يمكنك عمل طلب بيع بدون اختيار عميل، ولا طلب شراء بدون مورد).</li>
+                <li>يوجد في الجدول زر <span class="btn-desc">Search</span> للبحث السريع عن اسم عميل محدد.</li>
+            </ul>
+        </section>
+
+        <!-- إدارة المستخدمين -->
+        <section id="page-users" class="section-card">
+            <h2 class="section-title">👥 8. إدارة المستخدمين والصلاحيات (User Management)</h2>
+            <p><strong>الهدف من الصفحة:</strong> لوحة تحكم حصرية للمدير (Admin) لإدارة الموظفين الذين يدخلون للنظام.</p>
+            <h3 class="subsection-title">ماذا يقدم هذا القسم؟</h3>
+            <ul>
+                <li><strong>زر <span class="btn-desc">Add User (تسجيل موظف جديد)</span>:</strong> يدخل المدير اسم المستخدم، الإيميل، كلمة المرور، و<strong>الأهم: الدور (Role)</strong>.</li>
+                <li>إذا اختار دور (Employee أو Sales)، فهذا الموظف مستقبلاً لن يتمكن من الدخول لصفحة المستخدمين أصلاً ولن يراها!</li>
+                <li><strong>زر <span class="btn-desc">Active / Inactive</span>:</strong> لو استقال الموظف، لا نقوم بحذفه (لأن اسمه مرتبط بفواتير قديمة)، بل نقوم بتحويل حالته إلى Inactive (غير فعال)، مما يمنعه من تسجيل الدخول نهائياً.</li>
+            </ul>
+        </section>
+
+        <!-- الإعدادات -->
+        <section id="page-settings" class="section-card">
+            <h2 class="section-title">⚙️ 9. الإعدادات العامة (Settings & Lookups)</h2>
+            <p><strong>الهدف من الصفحة:</strong> تعريف الثوابت في النظام (Lookups) التي تُستخدم كقوائم منسدلة (Dropdowns) في باقي الصفحات.</p>
+            <h3 class="subsection-title">ماذا تحتوي؟ (نظام الـ Tabs):</h3>
+            <ul>
+                <li><strong>الفئات (Categories):</strong> لتقسيم المنتجات (مثلاً: إلكترونيات، ألبسة، مواد غذائية).</li>
+                <li><strong>الماركات (Brands):</strong> (مثلاً: أبل، سامسونج).</li>
+                <li><strong>وحدات القياس (Units):</strong> (مثلاً: قطعة، كرتونة، كجم، لتر) وتطلب رمزاً (Abbreviation) مثل (Kg).</li>
+                <li><strong>المستودعات (Warehouses):</strong> النظام يدعم تعدد المستودعات (Multi-Warehousing). يمكنك تعريف (المستودع الرئيسي، مستودع الفرع الثاني).</li>
+            </ul>
+            <p>هذه الصفحة توفر الجهد، فبدل كتابة "إلكترونيات" يدوياً لكل منتج، يتم اختيارها من القائمة لضمان عدم وجود أخطاء إملائية تضر بالبحث والتقارير.</p>
+        </section>
+
+        <!-- الختام -->
+        <section class="section-card" style="background-color: #2c3e50; color: white;">
+            <h2 class="section-title" style="color: #f39c12; border-bottom: none;">💡 نصيحة للمناقشة (كيف ترد على الأسئلة الصعبة)</h2>
+            <ul>
+                <li class="mb-3"><strong>سؤال:</strong> ماذا يحدث لو قام موظف بحذف منتج تم بيعه مسبقاً في فاتورة؟<br>
+                <strong>جوابك:</strong> "النظام مصمم بذكاء باستخدام مفهوم الـ Soft Delete. زر الحذف لا يقوم بمسح المنتج من الداتابيز فعلياً لتجنب تدمير الفواتير القديمة (Foreign Key Errors)، بل يقوم بتغيير حالته إلى `IsActive = false` فيختفي من النظام ولكنه يبقى محفوظاً للأرشفة."</li>
+                <li class="mb-3"><strong>سؤال:</strong> ماذا لو حاول موظف المبيعات الدخول لرابط الإعدادات مباشرة `http://localhost/settings`؟<br>
+                <strong>جوابك:</strong> "سيتم طرده فوراً! لدينا خطي دفاع: الواجهة الأمامية (Route Guards) تمنع فتح الصفحة، وحتى لو استخدم أداة مثل Postman لطلب البيانات مباشرة من السيرفر، فإن الـ API سيتحقق من التوكن (JWT Token) ويرفض الطلب بـ 403 Forbidden لأن صلاحيته Sales فقط."</li>
+                <li><strong>سؤال:</strong> كيف تتعاملون مع الأخطاء البرمجية (Errors) لكي لا ينهار النظام؟<br>
+                <strong>جوابك:</strong> "يوجد في الباك إند ملف يسمى `GlobalExceptionHandlerMiddleware` يقوم باصطياد أي خطأ غير متوقع، ويحوله إلى رسالة مفهومة ترسل للواجهة الأمامية لتعرض للمستخدم بدلاً من ظهور شاشة الانهيار (500 Server Error)."</li>
+            </ul>
+        </section>
+
+        <div class="text-center mt-5 text-muted fw-bold">
+            تم إعداد هذا الدليل لضمان أعلى درجات الفهم والاستيعاب للمشروع. بالتوفيق في المناقشة! 🎓
+        </div>
+    </div>
+
+</body>
+</html>

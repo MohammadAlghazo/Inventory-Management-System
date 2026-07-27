@@ -73,6 +73,12 @@ export class ProfileComponent implements OnInit {
       return;
     }
 
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailPattern.test(this.infoForm.email.trim())) {
+      this.infoError = 'Invalid email format';
+      return;
+    }
+
     this.isSavingInfo = true;
     this.profileService.updateProfile(this.infoForm).subscribe({
       next: (res) => {
@@ -147,7 +153,7 @@ export class ProfileComponent implements OnInit {
         this.profileService.updateProfilePictureInState(url);
       },
       error: (err) => {
-        console.error('Failed to update profile picture in database', err);
+        this.sweetAlert.error('Error', err.error?.message || 'Failed to update profile picture in database');
       }
     });
   }
@@ -166,7 +172,7 @@ export class ProfileComponent implements OnInit {
             this.sweetAlert.toast('Profile picture deleted successfully');
           },
           error: (err) => {
-            console.error('Failed to delete profile picture', err);
+            this.sweetAlert.error('Error', err.error?.message || 'Failed to delete profile picture');
           }
         });
       }

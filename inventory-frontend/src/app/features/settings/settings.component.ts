@@ -14,43 +14,46 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class SettingsComponent implements OnInit {
   activeTab: 'categories' | 'brands' | 'units' | 'warehouses' = 'categories';
-  
   categories: Category[] = [];
   brands: Brand[] = [];
   units: Unit[] = [];
   warehouses: Warehouse[] = [];
-
   showModal = false;
   modalType: 'category' | 'brand' | 'unit' | 'warehouse' = 'category';
   isEditing = false;
-  
+  isSaving = false;
   formData: any = {};
-  
   icons = { Edit2, Trash2 };
 
-  constructor(
-    private settingsService: SettingsService,
-    private sweetAlert: SweetAlertService
-  ) {}
+  constructor(private settingsService: SettingsService, private sweetAlert: SweetAlertService) {}
 
-  ngOnInit() {
-    this.loadData();
-  }
+  ngOnInit() { this.loadData(); }
 
   loadData() {
-    this.settingsService.getCategories().subscribe((res: any) => this.categories = res.data);
-    this.settingsService.getBrands().subscribe((res: any) => this.brands = res.data);
-    this.settingsService.getUnits().subscribe((res: any) => this.units = res.data);
-    this.settingsService.getWarehouses().subscribe((res: any) => this.warehouses = res.data);
+    this.settingsService.getCategories().subscribe({
+      next: (res: any) => this.categories = res.data || [],
+      error: () => {}
+    });
+    this.settingsService.getBrands().subscribe({
+      next: (res: any) => this.brands = res.data || [],
+      error: () => {}
+    });
+    this.settingsService.getUnits().subscribe({
+      next: (res: any) => this.units = res.data || [],
+      error: () => {}
+    });
+    this.settingsService.getWarehouses().subscribe({
+      next: (res: any) => this.warehouses = res.data || [],
+      error: () => {}
+    });
   }
 
-  setTab(tab: 'categories' | 'brands' | 'units' | 'warehouses') {
-    this.activeTab = tab;
-  }
+  setTab(tab: 'categories' | 'brands' | 'units' | 'warehouses') { this.activeTab = tab; }
 
   openModal(type: 'category' | 'brand' | 'unit' | 'warehouse') {
     this.modalType = type;
     this.isEditing = false;
+    this.isSaving = false;
     this.formData = type === 'warehouse' ? { isActive: true } : {};
     this.showModal = true;
   }
@@ -58,27 +61,36 @@ export class SettingsComponent implements OnInit {
   editItem(item: any, type: 'category' | 'brand' | 'unit' | 'warehouse') {
     this.modalType = type;
     this.isEditing = true;
+    this.isSaving = false;
     this.formData = { ...item };
     this.showModal = true;
   }
 
   closeModal() {
     this.showModal = false;
+    this.isSaving = false;
   }
 
   save() {
-    const isUpdate = this.isEditing;
-    const req = isUpdate ? this.getUpdateRequest() : this.getCreateRequest();
-
+    if (!this.formData.name?.trim()) {
+      this.sweetAlert.error('Validation Error', 'Name is required.');
+      return;
+    }
+    if (this.modalType === 'unit' && !this.formData.abbreviation?.trim()) {
+      this.sweetAlert.error('Validation Error', 'Abbreviation is required for units.');
+      return;
+    }
+    if (this.isSaving) return;
+    this.isSaving = true;
+    const req = this.isEditing ? this.getUpdateRequest() : this.getCreateRequest();
     req.subscribe({
       next: () => {
+        this.isSaving = false;
         this.sweetAlert.success('Success', `${this.modalType} saved successfully.`);
         this.loadData();
         this.closeModal();
       },
-      error: () => {
-        // Error handled by interceptor
-      }
+      error: () => { this.isSaving = false; }
     });
   }
 
@@ -97,20 +109,18 @@ export class SettingsComponent implements OnInit {
   }
 
   deleteItem(id: number, type: 'category' | 'brand' | 'unit' | 'warehouse') {
-    if (confirm(`Are you sure you want to delete this ${type}?`)) {
-      let req;
-      if (type === 'category') req = this.settingsService.deleteCategory(id);
-      else if (type === 'brand') req = this.settingsService.deleteBrand(id);
-      else if (type === 'unit') req = this.settingsService.deleteUnit(id);
-      else req = this.settingsService.deleteWarehouse(id);
-
-      req.subscribe({
-        next: () => {
-          this.sweetAlert.success('Deleted', `${type} has been deleted.`);
-          this.loadData();
-        },
-        error: () => {}
-      });
-    }
+    this.sweetAlert.confirmDelete(type).then((result) => {
+      if (result.isConfirmed) {
+        let req;
+        if (type === 'category') req = this.settingsService.deleteCategory(id);
+        else if (type === 'brand') req = this.settingsService.deleteBrand(id);
+        else if (type === 'unit') req = this.settingsService.deleteUnit(id);
+        else req = this.settingsService.deleteWarehouse(id);
+        req.subscribe({
+          next: () => { this.sweetAlert.success('Deleted', type + ' has been deleted.'); this.loadData(); },
+          error: () => {}
+        });
+      }
+    });
   }
 }

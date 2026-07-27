@@ -303,7 +303,18 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   submitAction() {
-    if (!this.selectedProductId) return;
+    if (!this.selectedProductId) {
+      this.sweetAlert.error('Validation Error', 'Please select a product.');
+      return;
+    }
+    if (this.quantity === null || this.quantity === undefined || this.quantity < 0) {
+      this.sweetAlert.error('Validation Error', 'Quantity cannot be negative.');
+      return;
+    }
+    if (this.actionModal !== 'adjust' && this.quantity <= 0) {
+      this.sweetAlert.error('Validation Error', 'Quantity must be greater than 0.');
+      return;
+    }
     
     this.isSubmitting = true;
     this.actionError = '';
