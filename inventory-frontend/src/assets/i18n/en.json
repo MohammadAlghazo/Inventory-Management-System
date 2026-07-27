@@ -25,7 +25,10 @@
         "DARK_MODE": "Dark Mode",
         "NOTIFICATIONS": "Notifications",
         "MARK_ALL_READ": "Mark all as read",
-        "MARK_AS_READ": "Mark as Read"
+        "MARK_AS_READ": "Mark as Read",
+        "IMPORT": "Bulk Import",
+        "GENERATE": "Generate",
+        "OPTIONAL": "Optional"
     },
     "SIDEBAR": {
         "DASHBOARD": "Dashboard",
@@ -131,6 +134,8 @@
         "NOTES": "Notes",
         "NO_MOVEMENTS": "No inventory movements found",
         "SELECT_PRODUCT": "-- Select Product --",
+        "WAREHOUSE": "Warehouse",
+        "DEFAULT_WAREHOUSE": "Default (Primary) Warehouse",
         "QUANTITY_LABEL": "Quantity",
         "QTY_TO_ADD": "Quantity to Add",
         "QTY_TO_SELL": "Quantity to Sell",

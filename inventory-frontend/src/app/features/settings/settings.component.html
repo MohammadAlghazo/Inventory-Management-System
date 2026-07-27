@@ -183,7 +183,7 @@
   </div>
 </div>
 
-<div class="custom-modal-overlay" *ngIf="showModal" (click)="closeModal()" (window:keydown.escape)="closeModal()">
+<div class="custom-modal-overlay" *ngIf="showModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeModal()">
   <div class="custom-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
       <h3 class="custom-modal-title">

@@ -1,4 +1,4 @@
-<div style="display: flex; flex-direction: column; gap: 20px;">
+﻿<div style="display: flex; flex-direction: column; gap: 20px;">
   
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
      <div>
@@ -223,7 +223,7 @@
 
 
 
-  <div class="custom-modal-overlay" *ngIf="showProductModal" (click)="showProductModal = false" (window:keydown.escape)="showProductModal = false">
+  <div class="custom-modal-overlay" *ngIf="showProductModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="showProductModal = false">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
@@ -232,15 +232,20 @@
         </h3>
       </div>
       <div class="custom-modal-body">
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 12px;">
           <label class="form-label">{{ 'PRODUCTS.PRODUCT_NAME' | translate }} *</label>
-          <input class="form-input" [(ngModel)]="productForm.name" />
+          <input class="form-input" name="productName" autocomplete="on" [(ngModel)]="productForm.name" />
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-          <div class="form-group">
-            <label class="form-label">{{ 'PRODUCTS.SKU' | translate }}</label>
-            <input class="form-input" [(ngModel)]="productForm.sku" />
-          </div>
+        <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">{{ 'PRODUCTS.SKU' | translate }}</label>
+              <div style="display: flex; gap: 8px;">
+                <input class="form-input" style="flex: 1;" [(ngModel)]="productForm.sku" autocomplete="off" />
+                <button type="button" class="btn btn-secondary" (click)="generateSKU()" [title]="'COMMON.GENERATE' | translate || 'Generate'" style="padding: 0 10px; display: flex; align-items: center; justify-content: center;">
+                  <lucide-icon [img]="icons.Wand2" [size]="16"></lucide-icon>
+                </button>
+              </div>
+            </div>
           <div class="form-group">
             <label class="form-label">{{ 'PRODUCTS.CATEGORY' | translate }} *</label>
             <select class="form-select" [(ngModel)]="productForm.categoryId">
@@ -249,7 +254,7 @@
             </select>
           </div>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+        <div class="grid-3">
           <div class="form-group">
             <label class="form-label">{{ 'PRODUCTS.PRICE' | translate }} *</label>
             <input class="form-input" type="number" step="0.01" [(ngModel)]="productForm.price" />
@@ -263,9 +268,9 @@
             <input class="form-input" type="number" [(ngModel)]="productForm.minQuantity" />
           </div>
         </div>
-        <div class="form-group" style="margin-bottom: 0;">
+        <div class="form-group" style="margin-top: 12px;">
           <label class="form-label">{{ 'COMMON.DESCRIPTION' | translate }}</label>
-          <textarea class="form-textarea" rows="2" [(ngModel)]="productForm.description"></textarea>
+          <textarea class="form-input" rows="3" name="productDescription" autocomplete="on" [(ngModel)]="productForm.description"></textarea>
         </div>
       </div>
       <div class="custom-modal-footer">
@@ -286,7 +291,7 @@
   </app-profile-picture-modal>
 
   <!-- Import Modal -->
-  <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="closeImportModal()" (window:keydown.escape)="closeImportModal()">
+  <div class="custom-modal-overlay" *ngIf="showImportModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeImportModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">Bulk Import Products</h3>

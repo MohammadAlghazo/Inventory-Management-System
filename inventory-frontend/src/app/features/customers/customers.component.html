@@ -1,4 +1,4 @@
-<div style="display: flex; flex-direction: column; gap: 20px;">
+﻿<div style="display: flex; flex-direction: column; gap: 20px;">
   
   <div class="page-header">
     <div>
@@ -127,7 +127,7 @@
   </div>
 </div>
 
-<div *ngIf="showModal" class="custom-modal-overlay" (click)="closeModal()" (window:keydown.escape)="closeModal()">
+<div *ngIf="showModal" class="custom-modal-overlay" (mousedown)="$event.target === $event.currentTarget ? closeModal() : null" (window:keydown.escape)="closeModal()">
   <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
       <h3 class="custom-modal-title">
@@ -138,10 +138,10 @@
     <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
       <div class="form-group">
         <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
-        <input type="text" [(ngModel)]="customerForm.name" class="form-input">
+        <input type="text" name="customerName" autocomplete="on" [(ngModel)]="customerForm.name" class="form-input">
       </div>
       
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="grid-2">
         <div class="form-group">
           <label class="form-label">{{ 'COMMON.EMAIL' | translate }}</label>
           <input type="email" [(ngModel)]="customerForm.email" class="form-input">
@@ -173,5 +173,6 @@
     </div>
   </div>
 </div>
+
 
 

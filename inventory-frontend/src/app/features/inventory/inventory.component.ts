@@ -390,8 +390,8 @@ export class InventoryComponent implements OnInit, OnDestroy {
           'Previous Qty': log.previousQuantity,
           'Qty Change': log.quantityChanged,
           'New Qty': log.newQuantity,
-          'Performed By': log.performedBy || log.userName || '—',
-          'Notes': log.notes || '—'
+          'Performed By': log.performedBy || log.userName || 'N/A',
+          'Notes': log.notes || 'N/A'
         }));
         this.exportExcel.export(dataToExport, 'Inventory_Logs');
       }

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   inject,
@@ -55,7 +55,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     if (this.messages.length === 0) {
       this.messages.push({
         role: 'assistant',
-        content: "**Hello! I'm Inventory-AI**. How can I help you manage your stock today?",
+        content: "**Hello! I'm Inventory-AI**. How can I help you manage your stock todayN/A,
         timestamp: new Date(),
       });
       this.saveChat();
@@ -253,3 +253,4 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     this.aiMode = mode;
   }
 }
+

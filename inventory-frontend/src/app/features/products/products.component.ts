@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus } from 'lucide-angular';
+import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus, Wand2 } from 'lucide-angular';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SupplierService } from '../../core/services/supplier.service';
@@ -28,7 +28,7 @@ import * as XLSX from 'xlsx';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductsComponent implements OnInit, OnDestroy {
-  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus };
+  readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus, Wand2 };
 
   products: any[] = [];
   totalCount = 0;
@@ -364,6 +364,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
       description: product.description || ''
     };
     this.showProductModal = true;
+  }
+
+  generateSKU() {
+    const randomChars = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const randomNums = Math.floor(1000 + Math.random() * 9000);
+    this.productForm.sku = `PRD-${randomChars}-${randomNums}`;
   }
 
   submitProduct() {

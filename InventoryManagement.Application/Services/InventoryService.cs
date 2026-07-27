@@ -257,7 +257,12 @@ namespace InventoryManagement.Application.Services
 
         public async Task<ApiResponse<object>> TransferStockAsync(TransferStockDto dto, int userId)
         {
-            if (dto.SourceWarehouseId == dto.DestinationWarehouseId)
+            var sourceWarehouseId = dto.SourceWarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
+            var destWarehouseId = dto.DestinationWarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
+
+            if (sourceWarehouseId == 0 || destWarehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
+
+            if (sourceWarehouseId == destWarehouseId)
                 return ApiResponse<object>.Fail("Source and destination warehouses cannot be the same.");
 
             if (dto.Quantity <= 0)
@@ -270,14 +275,14 @@ namespace InventoryManagement.Application.Services
             if (product == null || !product.IsActive)
                 return ApiResponse<object>.NotFound("Product not found.");
 
-            var sourceStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == dto.SourceWarehouseId);
+            var sourceStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == sourceWarehouseId);
             if (sourceStock == null || sourceStock.Quantity < dto.Quantity)
                 return ApiResponse<object>.Fail($"Insufficient stock in source warehouse. Available: {sourceStock?.Quantity ?? 0}");
 
-            var destStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == dto.DestinationWarehouseId);
+            var destStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == destWarehouseId);
             if (destStock == null)
             {
-                destStock = new ProductStock { WarehouseId = dto.DestinationWarehouseId, ProductId = product.Id };
+                destStock = new ProductStock { WarehouseId = destWarehouseId, ProductId = product.Id };
                 destStock.InitializeStock(0, 0);
                 product.ProductStocks.Add(destStock);
             }
@@ -297,20 +302,20 @@ namespace InventoryManagement.Application.Services
                 QuantityChanged = -dto.Quantity,
                 PreviousQuantity = previousSource,
                 NewQuantity = sourceStock.Quantity,
-                Notes = $"Transferred to Warehouse {dto.DestinationWarehouseId}. {dto.Notes}",
+                Notes = $"Transferred to Warehouse {destWarehouseId}. {dto.Notes}",
                 ActionDate = DateTime.UtcNow
             });
 
             _uow.InventoryLogs.Add(new InventoryLog
             {
                 ProductId = product.Id,
-                WarehouseId = dto.DestinationWarehouseId,
+                WarehouseId = destWarehouseId,
                 UserId = userId,
                 Action = InventoryAction.Adjust,
                 QuantityChanged = dto.Quantity,
                 PreviousQuantity = previousDest,
                 NewQuantity = destStock.Quantity,
-                Notes = $"Transferred from Warehouse {dto.SourceWarehouseId}. {dto.Notes}",
+                Notes = $"Transferred from Warehouse {sourceWarehouseId}. {dto.Notes}",
                 ActionDate = DateTime.UtcNow
             });
 

@@ -84,7 +84,7 @@ namespace InventoryManagement.Application.Services
                 OrderNumber = orderNumber,
                 CustomerId = dto.CustomerId,
                 WarehouseId = dto.WarehouseId,
-                ExpectedShipDate = dto.ExpectedShipDate,
+                ExpectedShipDate = dto.ExpectedShipDate?.ToUniversalTime(),
                 CreatedById = userId,
                 Status = OrderStatus.Draft,
                 OrderDate = DateTime.UtcNow

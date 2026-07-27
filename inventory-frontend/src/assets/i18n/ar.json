@@ -25,7 +25,10 @@
         "DARK_MODE": "الوضع الداكن",
         "NOTIFICATIONS": "الإشعارات",
         "MARK_ALL_READ": "تعيين الكل كمقروء",
-        "MARK_AS_READ": "تعيين كمقروء"
+        "MARK_AS_READ": "تعيين كمقروء",
+        "IMPORT": "استيراد ملف",
+        "GENERATE": "توليد",
+        "OPTIONAL": "اختياري"
     },
     "SIDEBAR": {
         "DASHBOARD": "لوحة التحكم",
@@ -131,6 +134,8 @@
         "NOTES": "ملاحظات",
         "NO_MOVEMENTS": "لم يتم العثور على حركات مخزون",
         "SELECT_PRODUCT": "-- اختر المنتج --",
+        "WAREHOUSE": "المستودع",
+        "DEFAULT_WAREHOUSE": "المستودع الافتراضي (الرئيسي)",
         "QUANTITY_LABEL": "الكمية",
         "QTY_TO_ADD": "الكمية المضافة",
         "QTY_TO_SELL": "الكمية المباعة",
