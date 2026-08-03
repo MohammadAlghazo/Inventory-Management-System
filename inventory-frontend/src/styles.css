@@ -1,4 +1,4 @@
-﻿
+
 
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
@@ -380,12 +380,9 @@ body.is-resizing .main-content {
 }
 
 .form-label {
-  margin-bottom: 6px;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .form-input, .form-select, .form-textarea {

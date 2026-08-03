@@ -12,7 +12,9 @@ import { provideServiceWorker } from '@angular/service-worker';
 export class TranslateCacheBusterLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
   getTranslation(lang: string): Observable<any> {
-    return this.http.get(`./assets/i18n/${lang}.json?cb=${new Date().getTime()}`);
+    return this.http.get(`/assets/i18n/${lang}.json?cb=${new Date().getTime()}`, {
+      headers: { 'X-Skip-Error-Alert': 'true' }
+    });
   }
 }
 

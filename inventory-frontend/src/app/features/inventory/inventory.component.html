@@ -194,7 +194,12 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">{{ actionModal === 'transfer' ? 'Source Warehouse *' : ('INVENTORY.WAREHOUSE' | translate) + ' (' + ('COMMON.OPTIONAL' | translate) + ')' }}</label>
+          <label class="form-label">
+            <ng-container *ngIf="actionModal === 'transfer'">Source Warehouse *</ng-container>
+            <ng-container *ngIf="actionModal !== 'transfer'">
+              {{ 'INVENTORY.WAREHOUSE' | translate }} ({{ 'COMMON.OPTIONAL' | translate }})
+            </ng-container>
+          </label>
           <select class="form-select" [(ngModel)]="selectedWarehouseId">
             <option value="">{{ 'INVENTORY.DEFAULT_WAREHOUSE' | translate }}</option>
             <option *ngFor="let w of warehouses" [value]="w.id">
