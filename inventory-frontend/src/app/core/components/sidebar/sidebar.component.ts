@@ -64,20 +64,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get filteredMenuItems() {
     const role = this.userRole;
     if (role === 'SuperAdmin') return this.menuItems;
-    if (role === 'Manager') return this.menuItems.filter(item => item.route !== '/audit-log');
-    
     let allowedRoutes: string[] = ['/dashboard', '/products', '/inventory', '/profile', '/ai-assistant'];
 
     if (role === 'InventoryManager') {
       allowedRoutes.push('/suppliers', '/customers', '/purchase-orders', '/sales-orders', '/low-stock', '/reports', '/settings');
     } else if (role === 'PurchasingOfficer') {
-      allowedRoutes.push('/suppliers', '/purchase-orders', '/low-stock');
+      allowedRoutes.push('/suppliers', '/purchase-orders');
     } else if (role === 'Sales') {
       allowedRoutes.push('/customers', '/sales-orders');
     } else if (role === 'WarehouseStaff' || role === 'Employee') {
-      allowedRoutes.push('/low-stock');
-    } else if (role === 'Accountant' || role === 'Auditor') {
-      allowedRoutes.push('/reports');
+      // These roles can use inventory, but low-stock reports are restricted by the API.
     }
 
     return this.menuItems.filter(item => allowedRoutes.includes(item.route));

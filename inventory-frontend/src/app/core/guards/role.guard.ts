@@ -13,7 +13,7 @@ export class RoleGuard implements CanActivate {
     const user = this.authService.getCurrentUser();
 
     if (!user) {
-      this.router.navigate(['/auth/login']);
+      this.router.navigate(['/login']);
       return false;
     }
 

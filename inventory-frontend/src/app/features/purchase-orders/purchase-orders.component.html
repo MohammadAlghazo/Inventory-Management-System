@@ -123,7 +123,7 @@
   </div>
 
   <!-- Create Modal -->
-  <div class="custom-modal-overlay" *ngIf="showCreateModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeCreateModal()">
+  <div class="custom-modal-overlay" *ngIf="showCreateModal" (click)="$event.target === $event.currentTarget ? closeCreateModal() : null" (window:keydown.escape)="closeCreateModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
@@ -199,7 +199,7 @@
     </div>
   </div>
   <!-- Receive Modal -->
-  <div class="custom-modal-overlay" *ngIf="showReceiveModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeReceiveModal()">
+  <div class="custom-modal-overlay" *ngIf="showReceiveModal" (click)="$event.target === $event.currentTarget ? closeReceiveModal() : null" (window:keydown.escape)="closeReceiveModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">

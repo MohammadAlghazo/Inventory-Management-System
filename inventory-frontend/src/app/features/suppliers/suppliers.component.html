@@ -129,7 +129,7 @@
   </div>
 </div>
 
-<div *ngIf="showModal" class="custom-modal-overlay" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeModal()">
+<div *ngIf="showModal" class="custom-modal-overlay" (click)="$event.target === $event.currentTarget ? closeModal() : null" (window:keydown.escape)="closeModal()">
   <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
       <h3 class="custom-modal-title">

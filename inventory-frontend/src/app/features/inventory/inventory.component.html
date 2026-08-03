@@ -158,7 +158,7 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="actionModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeActionModal()">
+  <div class="custom-modal-overlay" *ngIf="actionModal" (click)="$event.target === $event.currentTarget ? closeActionModal() : null" (window:keydown.escape)="closeActionModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 440px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ getModalTitle() | translate }}</h3>

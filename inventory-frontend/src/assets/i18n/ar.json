@@ -43,7 +43,9 @@
         "LOW_STOCK": "تنبيهات نقص المخزون",
         "REPORTS": "التقارير",
         "PURCHASE_ORDERS": "طلبات الشراء",
-        "SALES_ORDERS": "طلبات البيع"
+        "SALES_ORDERS": "طلبات البيع",
+        "AUDIT_LOG": "سجل التدقيق",
+        "AI_ASSISTANT": "المساعد الذكي"
     },
     "LANGUAGES": {
         "EN": "English",

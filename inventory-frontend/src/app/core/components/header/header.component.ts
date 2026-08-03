@@ -66,7 +66,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
-      takeUntilDestroyed()
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.updateTitle();
       this.showNotifications = false; 
@@ -89,6 +89,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
     else if (url.includes('/users'))      this.pageTitle = 'SIDEBAR.USERS';
     else if (url.includes('/settings'))   this.pageTitle = 'SIDEBAR.SETTINGS';
     else if (url.includes('/profile'))    this.pageTitle = 'SIDEBAR.PROFILE';
+    else if (url.includes('/purchase-orders')) this.pageTitle = 'SIDEBAR.PURCHASE_ORDERS';
+    else if (url.includes('/sales-orders')) this.pageTitle = 'SIDEBAR.SALES_ORDERS';
+    else if (url.includes('/low-stock')) this.pageTitle = 'SIDEBAR.LOW_STOCK';
+    else if (url.includes('/reports')) this.pageTitle = 'SIDEBAR.REPORTS';
+    else if (url.includes('/audit-log')) this.pageTitle = 'SIDEBAR.AUDIT_LOG';
+    else if (url.includes('/ai-assistant')) this.pageTitle = 'SIDEBAR.AI_ASSISTANT';
     else                                  this.pageTitle = 'SIDEBAR.DASHBOARD';
   }
 
@@ -129,8 +135,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (!item.isRead) {
       this.notificationService.markAsRead(item.id).subscribe({ next: () => this.loadNotifications() });
     }
-    const title = item.title.toLowerCase();
-    const msg = item.message.toLowerCase();
+    const title = (item.title || '').toLowerCase();
+    const msg = (item.message || '').toLowerCase();
     const full = (title + ' ' + msg);
 
     if (full.includes('supplier')) {

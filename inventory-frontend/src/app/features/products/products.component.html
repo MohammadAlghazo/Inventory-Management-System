@@ -1,4 +1,4 @@
-﻿<div style="display: flex; flex-direction: column; gap: 20px;">
+<div style="display: flex; flex-direction: column; gap: 20px;">
   
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
      <div>
@@ -113,7 +113,7 @@
                 <code class="sku-code">{{ p.sku || '—' }}</code>
               </td>
               <td [attr.data-label]="'PRODUCTS.CATEGORY' | translate">
-                <span class="badge badge-info">{{ p.category }}</span>
+                <span class="badge badge-info" *ngIf="p.categoryName">{{ p.categoryName }}</span>
               </td>
               <td [attr.data-label]="'PRODUCTS.PRICE' | translate">
                 <span style="font-weight: 600; color: var(--success);">
@@ -200,7 +200,7 @@
             <span class="product-card-price">{{ p.price | currency }}</span>
             <span class="product-card-unit">/ {{ p.unit }}</span>
           </div>
-          <span class="badge badge-info">{{ p.category }}</span>
+          <span class="badge badge-info" *ngIf="p.categoryName">{{ p.categoryName }}</span>
         </div>
         <div class="product-card-qty">
           <span>{{ 'PRODUCTS.QUANTITY' | translate }}: <strong>{{ p.quantity }}</strong></span>
@@ -223,7 +223,7 @@
 
 
 
-  <div class="custom-modal-overlay" *ngIf="showProductModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="showProductModal = false">
+  <div class="custom-modal-overlay" *ngIf="showProductModal" (click)="$event.target === $event.currentTarget ? showProductModal = false : null" (window:keydown.escape)="showProductModal = false">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
@@ -241,7 +241,7 @@
               <label class="form-label">{{ 'PRODUCTS.SKU' | translate }}</label>
               <div style="display: flex; gap: 8px;">
                 <input class="form-input" style="flex: 1;" [(ngModel)]="productForm.sku" autocomplete="off" />
-                <button type="button" class="btn btn-secondary" (click)="generateSKU()" [title]="'COMMON.GENERATE' | translate || 'Generate'" style="padding: 0 10px; display: flex; align-items: center; justify-content: center;">
+                <button type="button" class="btn btn-secondary" (click)="generateSKU()" [title]="'COMMON.GENERATE' | translate" style="padding: 0 10px; display: flex; align-items: center; justify-content: center;">
                   <lucide-icon [img]="icons.Wand2" [size]="16"></lucide-icon>
                 </button>
               </div>
@@ -291,7 +291,7 @@
   </app-profile-picture-modal>
 
   <!-- Import Modal -->
-  <div class="custom-modal-overlay" *ngIf="showImportModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeImportModal()">
+  <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="$event.target === $event.currentTarget ? closeImportModal() : null" (window:keydown.escape)="closeImportModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">Bulk Import Products</h3>

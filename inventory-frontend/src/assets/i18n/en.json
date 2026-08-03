@@ -43,7 +43,9 @@
         "LOW_STOCK": "Low Stock Alerts",
         "REPORTS": "Reports",
         "PURCHASE_ORDERS": "Purchase Orders",
-        "SALES_ORDERS": "Sales Orders"
+        "SALES_ORDERS": "Sales Orders",
+        "AUDIT_LOG": "Audit Logs",
+        "AI_ASSISTANT": "AI Assistant"
     },
     "LANGUAGES": {
         "EN": "English",

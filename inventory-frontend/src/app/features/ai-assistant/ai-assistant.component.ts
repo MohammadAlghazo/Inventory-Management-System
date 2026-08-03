@@ -55,7 +55,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     if (this.messages.length === 0) {
       this.messages.push({
         role: 'assistant',
-        content: "**Hello! I'm Inventory-AI**. How can I help you manage your stock todayN/A,
+        content: "**Hello! I'm Inventory-AI**. How can I help you manage your stock today?",
         timestamp: new Date(),
       });
       this.saveChat();

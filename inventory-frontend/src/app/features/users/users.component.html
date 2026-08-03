@@ -166,7 +166,7 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="viewUser" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeView()">
+  <div class="custom-modal-overlay" *ngIf="viewUser" (click)="$event.target === $event.currentTarget ? closeView() : null" (window:keydown.escape)="closeView()">
     <div class="custom-modal view-modal" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">User Details</h3>
@@ -218,7 +218,7 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="editUser" event.target === event.currentTarget ?  : null (window:keydown.escape)="closeEdit()">
+  <div class="custom-modal-overlay" *ngIf="editUser" (click)="$event.target === $event.currentTarget ? closeEdit() : null" (window:keydown.escape)="closeEdit()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
@@ -291,7 +291,7 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="deleteConfirm" event.target === event.currentTarget ?  : null (window:keydown.escape)="deleteConfirm = null">
+  <div class="custom-modal-overlay" *ngIf="deleteConfirm" (click)="$event.target === $event.currentTarget ? deleteConfirm = null : null" (window:keydown.escape)="deleteConfirm = null">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:400px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title" style="color:var(--danger);">{{ 'USERS.DELETE_USER' | translate }}</h3>
@@ -312,7 +312,7 @@
     </div>
   </div>
 
-  <div class="custom-modal-overlay" *ngIf="showRegisterModal" event.target === event.currentTarget ?  : null (window:keydown.escape)="showRegisterModal = false">
+  <div class="custom-modal-overlay" *ngIf="showRegisterModal" (click)="$event.target === $event.currentTarget ? showRegisterModal = false : null" (window:keydown.escape)="showRegisterModal = false">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ 'USERS.REGISTER_NEW_USER' | translate }}</h3>
