@@ -1,7 +1,7 @@
 <header class="header">
   
   <div class="header-left">
-    <button class="header-menu-btn" aria-label="Toggle sidebar" (click)="layoutService.toggleSidebar()">
+    <button class="header-menu-btn" [attr.aria-label]="'COMMON.TOGGLE_SIDEBAR' | translate" (click)="layoutService.toggleSidebar()">
       <lucide-icon [img]="icons.Menu" [size]="20"></lucide-icon>
     </button>
     <h1 class="header-title">{{ pageTitle | translate }}</h1>
@@ -19,13 +19,13 @@
     </button>
 
         <div class="position-relative">
-      <button class="header-icon-btn theme-btn" title="Themes" (click)="toggleThemesMenu()">
+      <button class="header-icon-btn theme-btn" [title]="'COMMON.THEMES' | translate" (click)="toggleThemesMenu()">
         <lucide-icon [img]="icons.Palette" [size]="18" style="color: #ec4899;"></lucide-icon>
       </button>
 
       <div *ngIf="showThemes" class="themes-dropdown shadow-lg">
         <div class="themes-header">
-          <h6>Themes</h6>
+          <h6>{{ 'COMMON.THEMES' | translate }}</h6>
         </div>
         <div class="themes-body">
           <div *ngFor="let scheme of availableSchemes"
@@ -82,7 +82,7 @@
       </div>
     </div>
 
-    <div class="header-user" routerLink="/profile" style="cursor:pointer;" title="My Profile">
+    <div class="header-user" routerLink="/profile" style="cursor:pointer;" [title]="'COMMON.MY_PROFILE' | translate">
       <div class="avatar" style="padding: 0; overflow: hidden;">
         <img *ngIf="dbProfile?.profilePicture" [src]="dbProfile.profilePicture" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover;">
         <span *ngIf="!dbProfile?.profilePicture" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
@@ -91,7 +91,7 @@
       </div>
       <div class="header-user-info">
         <span class="header-user-name">{{ userName }}</span>
-        <span class="header-user-role">{{ userRole }}</span>
+        <span class="header-user-role">{{ userRoleLabel }}</span>
       </div>
     </div>
   </div>

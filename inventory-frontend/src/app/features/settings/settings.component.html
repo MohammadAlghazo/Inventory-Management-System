@@ -187,11 +187,11 @@
   <div class="custom-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
     <div class="custom-modal-header">
       <h3 class="custom-modal-title">
-        <ng-container *ngIf="!isEditing">{{ 'SETTINGS.ADD_TYPE' | translate:{type: (modalType | titlecase)} }}</ng-container>
-        <ng-container *ngIf="isEditing">{{ 'COMMON.EDIT' | translate }} {{ modalType | titlecase }}</ng-container>
+        <ng-container *ngIf="!isEditing">{{ 'SETTINGS.ADD_TYPE' | translate:{type: (getModalTypeKey() | translate)} }}</ng-container>
+        <ng-container *ngIf="isEditing">{{ 'SETTINGS.EDIT_TYPE' | translate:{type: (getModalTypeKey() | translate)} }}</ng-container>
       </h3>
     </div>
-    <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+    <div class="custom-modal-body">
 
       <ng-container *ngIf="modalType === 'category' || modalType === 'brand'">
         <div class="form-group">

@@ -5,7 +5,7 @@ import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, Chevro
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SupplierService } from '../../core/services/supplier.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -62,7 +62,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
     private sweetAlert: SweetAlertService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translate: TranslateService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -138,7 +139,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
             this.closeImageModal();
             this.cdr.markForCheck();
           },
-          error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Image upload update failed')
+          error: (err) => this.sweetAlert.error(
+            this.translate.instant('COMMON.ERROR'),
+            err.error?.message || this.translate.instant('PROFILE.PICTURE_UPDATE_FAILED')
+          )
         });
       }
     }
@@ -259,7 +263,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
         this.productService.deleteProduct(product.id).subscribe({
           next: () => {
             this.isDeleting = false;
-            this.sweetAlert.success('Success', 'Product deleted successfully');
+            this.sweetAlert.success(
+              this.translate.instant('COMMON.SUCCESS'),
+              this.translate.instant('PRODUCTS.DELETE_SUCCESS')
+            );
             this.loadProducts();
             this.cdr.markForCheck();
           },
@@ -306,13 +313,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
     this.productService.importProducts(this.selectedImportFile).subscribe({
       next: (res: any) => {
         this.importing = false;
-        this.importSuccess = res.message || 'Import completed successfully.';
+        this.importSuccess = res.message || this.translate.instant('PRODUCTS.IMPORT_SUCCESS');
         this.loadProducts();
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.importing = false;
-        this.importError = err.error?.message || 'Failed to import products.';
+        this.importError = err.error?.message || this.translate.instant('PRODUCTS.IMPORT_FAILED');
         this.cdr.markForCheck();
       }
     });
@@ -374,15 +381,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   submitProduct() {
     if (!this.productForm.name?.trim()) {
-      this.sweetAlert.error('Validation Error', 'Product name is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('PRODUCTS.NAME_REQUIRED'));
       return;
     }
     if (!this.productForm.sku?.trim()) {
-      this.sweetAlert.error('Validation Error', 'SKU is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('PRODUCTS.SKU_REQUIRED'));
       return;
     }
     if (!this.productForm.price || Number(this.productForm.price) <= 0) {
-      this.sweetAlert.error('Validation Error', 'Price must be greater than 0.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('PRODUCTS.PRICE_POSITIVE'));
       return;
     }
     this.isSavingProduct = true;
@@ -405,7 +412,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
       next: () => {
         this.isSavingProduct = false;
         this.showProductModal = false;
-        this.sweetAlert.success('Success', this.editProduct ? 'Product updated successfully' : 'Product created successfully');
+        this.sweetAlert.success(
+          this.translate.instant('COMMON.SUCCESS'),
+          this.translate.instant(this.editProduct ? 'PRODUCTS.UPDATE_SUCCESS' : 'PRODUCTS.CREATE_SUCCESS')
+        );
         this.loadProducts();
         this.cdr.markForCheck();
       },

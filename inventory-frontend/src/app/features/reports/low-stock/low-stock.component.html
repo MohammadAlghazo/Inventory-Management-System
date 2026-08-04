@@ -4,13 +4,6 @@
       <h1 class="page-title">{{ 'SIDEBAR.LOW_STOCK' | translate }}</h1>
       <p class="page-subtitle">{{ 'DASHBOARD.BELOW_MINIMUM' | translate }}</p>
     </div>
-    <div style="display: flex; gap: 12px; align-items: center;">
-      <button class="btn btn-secondary" (click)="loadAlerts()" style="display: flex; align-items: center; gap: 6px;" [disabled]="loading">
-        <lucide-icon [img]="AlertCircleIcon" [size]="16" *ngIf="!loading"></lucide-icon>
-        <span class="spinner" *ngIf="loading"></span>
-        {{ 'LOW_STOCK.REFRESH' | translate }}
-      </button>
-    </div>
   </div>
 
   <div *ngIf="error" class="card" style="background-color: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 16px; display: flex; align-items: center; gap: 10px;">
@@ -23,12 +16,12 @@
       <table>
         <thead>
           <tr>
-            <th>Product</th>
-            <th>SKU</th>
-            <th>Warehouse</th>
-            <th>Current Qty</th>
-            <th>Min Qty</th>
-            <th>Status</th>
+            <th>{{ 'LOW_STOCK.PRODUCT' | translate }}</th>
+            <th>{{ 'PRODUCTS.SKU' | translate }}</th>
+            <th>{{ 'LOW_STOCK.WAREHOUSE' | translate }}</th>
+            <th>{{ 'LOW_STOCK.CURRENT_QTY' | translate }}</th>
+            <th>{{ 'LOW_STOCK.MIN_QTY' | translate }}</th>
+            <th>{{ 'COMMON.STATUS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -45,7 +38,7 @@
               <div class="empty-state">
                 <lucide-icon [img]="AlertTriangleIcon" [size]="40" style="color: var(--success);"></lucide-icon>
                 <p style="color: var(--success); font-weight: 600; font-size: 16px; margin-bottom: 4px;">{{ 'DASHBOARD.ALL_GOOD' | translate }}</p>
-                <p style="font-size: 13px;">No products are currently low on stock.</p>
+                <p style="font-size: 13px;">{{ 'LOW_STOCK.NO_ALERTS' | translate }}</p>
               </div>
             </td>
           </tr>

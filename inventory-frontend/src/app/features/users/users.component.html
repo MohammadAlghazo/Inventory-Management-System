@@ -27,13 +27,13 @@
         
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedRole" (ngModelChange)="onFilterChange()">
           <option value="">{{ 'USERS.ROLE' | translate }} ({{ 'COMMON.ALL' | translate }})</option>
-          <option value="SuperAdmin">Super Admin</option>
-          <option value="InventoryManager">Inventory Manager</option>
-          <option value="WarehouseStaff">Warehouse Staff</option>
-          <option value="PurchasingOfficer">Purchasing Officer</option>
-          <option value="Sales">Sales</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Auditor">Auditor</option>
+          <option value="SuperAdmin">{{ 'USERS.ROLE_SUPER_ADMIN' | translate }}</option>
+          <option value="InventoryManager">{{ 'USERS.ROLE_INVENTORY_MANAGER' | translate }}</option>
+          <option value="WarehouseStaff">{{ 'USERS.ROLE_WAREHOUSE_STAFF' | translate }}</option>
+          <option value="PurchasingOfficer">{{ 'USERS.ROLE_PURCHASING_OFFICER' | translate }}</option>
+          <option value="Sales">{{ 'USERS.ROLE_SALES' | translate }}</option>
+          <option value="Accountant">{{ 'USERS.ROLE_ACCOUNTANT' | translate }}</option>
+          <option value="Auditor">{{ 'USERS.ROLE_AUDITOR' | translate }}</option>
         </select>
 
         <select class="form-select filter-select" style="width: 160px;" [(ngModel)]="selectedStatus" (ngModelChange)="onFilterChange()">
@@ -43,10 +43,10 @@
         </select>
 
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredUsers().length === 0">
-          Excel
+          {{ 'COMMON.EXCEL' | translate }}
         </button>
         <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredUsers().length === 0">
-          PDF
+          {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
     </div>
@@ -102,7 +102,7 @@
               <td [attr.data-label]="'COMMON.EMAIL' | translate">{{ u.email || '—' }}</td>
               <td [attr.data-label]="'USERS.ROLE' | translate">
                 <span class="badge" [ngClass]="u.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info'">
-                  {{ u.role }}
+                  {{ getRoleKey(u.role) | translate }}
                 </span>
               </td>
               <td [attr.data-label]="'COMMON.STATUS' | translate">
@@ -114,11 +114,11 @@
               <td [attr.data-label]="'COMMON.ACTIONS' | translate">
                 <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center;">
 
-                  <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" title="View Details">
+                  <button class="btn btn-sm btn-ghost user-action-btn" (click)="openView(u)" [title]="'COMMON.VIEW_DETAILS' | translate">
                     <lucide-icon [img]="icons.Eye" [size]="13"></lucide-icon>
                   </button>
                   
-                  <button class="btn btn-sm btn-secondary user-action-btn" (click)="openEdit(u)" title="Edit Details">
+                  <button class="btn btn-sm btn-secondary user-action-btn" (click)="openEdit(u)" [title]="'COMMON.EDIT_DETAILS' | translate">
                     <lucide-icon [img]="icons.Pencil" [size]="13"></lucide-icon>
                   </button>
                   
@@ -153,13 +153,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" [attr.aria-label]="'COMMON.PREVIOUS_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" [attr.aria-label]="'COMMON.NEXT_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -169,7 +169,7 @@
   <div class="custom-modal-overlay" *ngIf="viewUser" (click)="$event.target === $event.currentTarget ? closeView() : null" (window:keydown.escape)="closeView()">
     <div class="custom-modal view-modal" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
-        <h3 class="custom-modal-title">User Details</h3>
+        <h3 class="custom-modal-title">{{ 'USERS.USER_DETAILS' | translate }}</h3>
         <button class="btn btn-ghost btn-sm btn-icon" (click)="closeView()">
           <lucide-icon [img]="icons.X" [size]="16"></lucide-icon>
         </button>
@@ -182,7 +182,7 @@
             <div style="font-size:18px;font-weight:700;">{{ viewUser?.firstName }} {{ viewUser?.lastName }}</div>
             <div style="font-size:13px;color:var(--text-muted);">&#64;{{ viewUser?.username }}</div>
             <span class="badge" style="margin-top:6px;" [ngClass]="viewUser?.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info'">
-              {{ viewUser?.role }}
+              {{ getRoleKey(viewUser?.role) | translate }}
             </span>
           </div>
         </div>
@@ -204,7 +204,7 @@
           </div>
           <div class="view-field">
             <span class="view-field-label">{{ 'USERS.ROLE' | translate }}</span>
-            <span class="view-field-value">{{ viewUser?.role }}</span>
+            <span class="view-field-value">{{ getRoleKey(viewUser?.role) | translate }}</span>
           </div>
         </div>
       </div>
@@ -237,10 +237,10 @@
             </div>
             <div style="display: flex; flex-direction: column; gap: 6px;">
               <button class="btn btn-sm btn-secondary" (click)="openProfilePictureModal(editUser)" style="display: flex; align-items: center; gap: 6px;">
-                <lucide-icon [img]="icons.UploadCloud" [size]="14"></lucide-icon> Upload Picture
+                <lucide-icon [img]="icons.UploadCloud" [size]="14"></lucide-icon> {{ 'USERS.UPLOAD_PICTURE' | translate }}
               </button>
               <button *ngIf="editUser?.profilePicture" class="btn btn-sm btn-ghost text-error" (click)="deleteProfilePicture(editUser)" style="display: flex; align-items: center; gap: 6px; padding: 0 10px;">
-                <lucide-icon [img]="icons.Trash2" [size]="14"></lucide-icon> Remove Picture
+                <lucide-icon [img]="icons.Trash2" [size]="14"></lucide-icon> {{ 'USERS.REMOVE_PICTURE' | translate }}
               </button>
             </div>
           </div>
@@ -270,13 +270,13 @@
         <div class="form-group">
           <label class="form-label">{{ 'USERS.ROLE' | translate }}</label>
           <select class="form-select" [(ngModel)]="editForm.role">
-            <option value="SuperAdmin">Super Admin</option>
-            <option value="InventoryManager">Inventory Manager</option>
-            <option value="WarehouseStaff">Warehouse Staff</option>
-            <option value="PurchasingOfficer">Purchasing Officer</option>
-            <option value="Sales">Sales</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Auditor">Auditor</option>
+            <option value="SuperAdmin">{{ 'USERS.ROLE_SUPER_ADMIN' | translate }}</option>
+            <option value="InventoryManager">{{ 'USERS.ROLE_INVENTORY_MANAGER' | translate }}</option>
+            <option value="WarehouseStaff">{{ 'USERS.ROLE_WAREHOUSE_STAFF' | translate }}</option>
+            <option value="PurchasingOfficer">{{ 'USERS.ROLE_PURCHASING_OFFICER' | translate }}</option>
+            <option value="Sales">{{ 'USERS.ROLE_SALES' | translate }}</option>
+            <option value="Accountant">{{ 'USERS.ROLE_ACCOUNTANT' | translate }}</option>
+            <option value="Auditor">{{ 'USERS.ROLE_AUDITOR' | translate }}</option>
           </select>
         </div>
       </div>
@@ -349,13 +349,13 @@
         <div class="form-group">
           <label class="form-label">{{ 'USERS.ROLE' | translate }} *</label>
           <select class="form-select" [(ngModel)]="newUser.role">
-            <option value="SuperAdmin">Super Admin</option>
-            <option value="InventoryManager">Inventory Manager</option>
-            <option value="WarehouseStaff">Warehouse Staff</option>
-            <option value="PurchasingOfficer">Purchasing Officer</option>
-            <option value="Sales">Sales</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Auditor">Auditor</option>
+            <option value="SuperAdmin">{{ 'USERS.ROLE_SUPER_ADMIN' | translate }}</option>
+            <option value="InventoryManager">{{ 'USERS.ROLE_INVENTORY_MANAGER' | translate }}</option>
+            <option value="WarehouseStaff">{{ 'USERS.ROLE_WAREHOUSE_STAFF' | translate }}</option>
+            <option value="PurchasingOfficer">{{ 'USERS.ROLE_PURCHASING_OFFICER' | translate }}</option>
+            <option value="Sales">{{ 'USERS.ROLE_SALES' | translate }}</option>
+            <option value="Accountant">{{ 'USERS.ROLE_ACCOUNTANT' | translate }}</option>
+            <option value="Auditor">{{ 'USERS.ROLE_AUDITOR' | translate }}</option>
           </select>
         </div>
       </div>

@@ -13,7 +13,7 @@
         {{ 'INVENTORY.ADJUST_STOCK' | translate }}
       </button>
       <button *appHasPermission="'Manage_Inventory'" class="btn btn-secondary" (click)="openActionModal('transfer')">
-        Transfer Stock
+        {{ 'INVENTORY.TRANSFER_STOCK' | translate }}
       </button>
       <button class="btn btn-danger" style="background: var(--danger-light); color: var(--danger); border: 1px solid rgba(239,68,68,0.2);" (click)="openActionModal('sell')">
         {{ 'INVENTORY.SELL_STOCK' | translate }}
@@ -49,10 +49,10 @@
         </select>
 
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredLogs().length === 0">
-          Excel
+          {{ 'COMMON.EXCEL' | translate }}
         </button>
         <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredLogs().length === 0">
-          PDF
+          {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
     </div>
@@ -107,7 +107,7 @@
                         'badge-warning': log.action === 'Adjust',
                         'badge-info': log.action === 'Return'
                       }">
-                  {{ ('INVENTORY.' + log.action.toUpperCase()) | translate }}
+                  {{ getActionLabel(log.action) | translate }}
                 </span>
               </td>
               <td [attr.data-label]="'INVENTORY.PREVIOUS' | translate">{{ log.previousQuantity }}</td>
@@ -145,13 +145,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" [attr.aria-label]="'COMMON.PREVIOUS_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" [attr.aria-label]="'COMMON.NEXT_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -163,17 +163,17 @@
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">{{ getModalTitle() | translate }}</h3>
       </div>
-      <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+      <div class="custom-modal-body">
         
         <div class="badge badge-danger" *ngIf="actionError" style="padding: 10px; border-radius: 8px; font-size: 13px;">
           {{ actionError }}
         </div>
 
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label class="form-label" style="margin-bottom: 0;">{{ 'INVENTORY.PRODUCT' | translate }} *</label>
+          <div class="form-label-row">
+            <label class="form-label">{{ 'INVENTORY.PRODUCT' | translate }} *</label>
             <button class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 11px; display: flex; align-items: center; gap: 4px; cursor: pointer;" (click)="toggleScanner()">
-              📷 {{ scanning ? 'Stop Scan' : 'Scan Barcode' }}
+              {{ (scanning ? 'INVENTORY.STOP_SCAN' : 'INVENTORY.SCAN_BARCODE') | translate }}
             </button>
           </div>
 
@@ -195,7 +195,7 @@
 
         <div class="form-group">
           <label class="form-label">
-            <ng-container *ngIf="actionModal === 'transfer'">Source Warehouse *</ng-container>
+            <ng-container *ngIf="actionModal === 'transfer'">{{ 'INVENTORY.SOURCE_WAREHOUSE' | translate }} *</ng-container>
             <ng-container *ngIf="actionModal !== 'transfer'">
               {{ 'INVENTORY.WAREHOUSE' | translate }} ({{ 'COMMON.OPTIONAL' | translate }})
             </ng-container>
@@ -209,9 +209,9 @@
         </div>
 
         <div class="form-group" *ngIf="actionModal === 'transfer'">
-          <label class="form-label">Destination Warehouse *</label>
+          <label class="form-label">{{ 'INVENTORY.DESTINATION_WAREHOUSE' | translate }} *</label>
           <select class="form-select" [(ngModel)]="destinationWarehouseId">
-            <option value="">Select Destination</option>
+            <option value="">{{ 'INVENTORY.SELECT_DESTINATION' | translate }}</option>
             <option *ngFor="let w of warehouses" [value]="w.id" [disabled]="w.id == selectedWarehouseId">
               {{ w.name }}
             </option>

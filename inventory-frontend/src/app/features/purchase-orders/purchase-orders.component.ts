@@ -8,7 +8,7 @@ import { LookupService } from '../../core/services/lookup.service';
 import { SupplierService } from '../../core/services/supplier.service';
 import { ProductService } from '../../core/services/product.service';
 import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Package, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -69,7 +69,8 @@ export class PurchaseOrdersComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private sweetAlert: SweetAlertService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -168,7 +169,10 @@ export class PurchaseOrdersComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.submitting = false;
-          this.sweetAlert.success('Purchase Order Received Successfully', 'Inventory has been updated.');
+          this.sweetAlert.success(
+            this.translate.instant('PURCHASE_ORDERS.RECEIVE_SUCCESS_TITLE'),
+            this.translate.instant('PURCHASE_ORDERS.RECEIVE_SUCCESS_MESSAGE')
+          );
           this.closeReceiveModal();
           this.loadOrders();
         },
@@ -188,6 +192,13 @@ export class PurchaseOrdersComponent implements OnInit, OnDestroy {
       case 'pending': return 'badge-warning';
       default: return 'badge-info';
     }
+  }
+
+  getStatusLabel(status: string): string {
+    const key = status?.toUpperCase();
+    return ['DRAFT', 'PENDING', 'COMPLETED', 'RECEIVED', 'CANCELLED'].includes(key)
+      ? `PURCHASE_ORDERS.STATUS_${key}`
+      : status;
   }
 
   // --- Create PO Flow ---
@@ -236,13 +247,13 @@ export class PurchaseOrdersComponent implements OnInit, OnDestroy {
     const wId = Number(this.newOrder.warehouseId);
     
     if (!sId || !wId || this.newOrder.items.length === 0) {
-      this.sweetAlert.error('Validation Error', 'Please select supplier, warehouse, and add at least one item.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('PURCHASE_ORDERS.ORDER_REQUIRED'));
       return;
     }
 
     const hasInvalidItems = this.newOrder.items.some((i: any) => !i.productId || i.productId <= 0);
     if (hasInvalidItems) {
-      this.sweetAlert.error('Validation Error', 'Please select a product for all order items.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('PURCHASE_ORDERS.PRODUCTS_REQUIRED'));
       return;
     }
 
@@ -260,7 +271,7 @@ export class PurchaseOrdersComponent implements OnInit, OnDestroy {
     this.poService.createPurchaseOrder(this.newOrder).subscribe({
       next: () => {
         this.submitting = false;
-        this.sweetAlert.success('Success', 'Purchase Order created successfully');
+        this.sweetAlert.success(this.translate.instant('COMMON.SUCCESS'), this.translate.instant('PURCHASE_ORDERS.CREATE_SUCCESS'));
         this.closeCreateModal();
         this.loadOrders();
       },

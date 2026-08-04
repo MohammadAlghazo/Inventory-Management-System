@@ -2,7 +2,7 @@
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
     <div>
       <h1 class="page-title">{{ 'SIDEBAR.SALES_ORDERS' | translate }}</h1>
-      <p class="page-subtitle">Manage outbound shipments to customers</p>
+      <p class="page-subtitle">{{ 'SALES_ORDERS.SUBTITLE' | translate }}</p>
     </div>
     
     <div style="display: flex; gap: 12px; align-items: center;">
@@ -11,18 +11,18 @@
         <input 
           class="search-input"
           type="text" 
-          placeholder="Search SOs..." 
+          [placeholder]="'SALES_ORDERS.SEARCH' | translate"
           (keyup)="onSearch($event)"
         >
       </div>
       <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="loading || orders.length === 0">
-        Excel
+        {{ 'COMMON.EXCEL' | translate }}
       </button>
       <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="loading || orders.length === 0">
-        PDF
+        {{ 'COMMON.PDF' | translate }}
       </button>
       <button (click)="openCreateModal()" class="btn btn-primary" style="display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-        <lucide-icon [img]="PlusIcon" [size]="16"></lucide-icon> Create SO
+        <lucide-icon [img]="PlusIcon" [size]="16"></lucide-icon> {{ 'SALES_ORDERS.CREATE_SHORT' | translate }}
       </button>
     </div>
   </div>
@@ -38,7 +38,7 @@
             <th>{{ 'SALES_ORDERS.DATE' | translate }}</th>
             <th>{{ 'SALES_ORDERS.TOTAL' | translate }}</th>
             <th>{{ 'COMMON.STATUS' | translate }}</th>
-            <th style="text-align: right;">Actions</th>
+            <th style="text-align: right;">{{ 'COMMON.ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -75,7 +75,7 @@
               <td style="font-weight: 600;">{{ order.totalAmount | currency }}</td>
               <td>
                 <span class="badge" [ngClass]="getStatusClass(order.status)">
-                  {{ order.status }}
+                  {{ getStatusLabel(order.status) | translate }}
                 </span>
               </td>
               <td style="text-align: right;">
@@ -85,7 +85,7 @@
                     (click)="openShipModal(order.id)"
                     class="btn btn-ghost btn-icon btn-sm"
                     style="color: var(--primary);"
-                    title="Ship Items">
+                    [title]="'SALES_ORDERS.SHIP_ITEMS' | translate">
                     <lucide-icon [img]="TruckIcon" [size]="14"></lucide-icon>
                   </button>
                 </div>
@@ -98,7 +98,7 @@
 
     <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 16px 24px;">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <span class="pagination-info" style="margin: 0;">Page {{ currentPage }} / {{ totalPages }}</span>
+        <span class="pagination-info" style="margin: 0;">{{ 'PRODUCTS.PAGE' | translate }} {{ currentPage }} / {{ totalPages }}</span>
         <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
           <option [value]="5">5</option>
           <option [value]="10">10</option>
@@ -109,13 +109,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()" aria-label="Previous Page">
+        <button class="page-btn" [disabled]="currentPage === 1" (click)="prevPage()" [attr.aria-label]="'COMMON.PREVIOUS_PAGE' | translate">
           <lucide-icon [img]="ChevronLeftIcon" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: currentPage === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()" aria-label="Next Page">
+        <button class="page-btn" [disabled]="currentPage === totalPages" (click)="nextPage()" [attr.aria-label]="'COMMON.NEXT_PAGE' | translate">
           <lucide-icon [img]="ChevronRightIcon" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -133,71 +133,71 @@
       </div>
 
       <div class="custom-modal-body" style="overflow-y: auto; flex: 1;">
-        <div class="grid-3" style="margin-bottom: 24px;">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Customer *</label>
+        <div class="form-grid form-grid-3" style="margin-bottom: 8px;">
+          <div class="form-group">
+            <label class="form-label">{{ 'SALES_ORDERS.CUSTOMER' | translate }} *</label>
             <select [(ngModel)]="newOrder.customerId" class="form-select">
-              <option [value]="0" disabled>Select Customer</option>
+              <option [value]="0" disabled>{{ 'SALES_ORDERS.SELECT_CUSTOMER' | translate }}</option>
               <option *ngFor="let c of customers" [value]="c.id">{{c.name}}</option>
             </select>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Warehouse *</label>
+          <div class="form-group">
+            <label class="form-label">{{ 'SALES_ORDERS.WAREHOUSE' | translate }} *</label>
             <select [(ngModel)]="newOrder.warehouseId" class="form-select">
-              <option [value]="0" disabled>Select Warehouse</option>
+              <option [value]="0" disabled>{{ 'SALES_ORDERS.SELECT_WAREHOUSE' | translate }}</option>
               <option *ngFor="let w of warehouses" [value]="w.id">{{w.name}}</option>
             </select>
           </div>
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Expected Ship Date</label>
+          <div class="form-group">
+            <label class="form-label">{{ 'SALES_ORDERS.EXPECTED_SHIP_DATE' | translate }}</label>
             <input type="date" [(ngModel)]="newOrder.expectedShipDate" class="form-input">
           </div>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <h3 style="font-size: 16px; font-weight: 600; color: var(--text-primary); margin: 0;">Order Items</h3>
+        <div class="form-section-header">
+          <h3 class="form-section-title">{{ 'SALES_ORDERS.ORDER_ITEMS' | translate }}</h3>
           <button (click)="addItem()" class="btn btn-secondary btn-sm" style="display: flex; align-items: center; gap: 6px;">
-            <lucide-icon [img]="PlusIcon" [size]="14"></lucide-icon> Add Item
+            <lucide-icon [img]="PlusIcon" [size]="14"></lucide-icon> {{ 'SALES_ORDERS.ADD_ITEM' | translate }}
           </button>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div *ngFor="let item of newOrder.items; let i = index" class="card" style="padding: 12px; background-color: var(--bg-body); border-radius: 8px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
-            <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+        <div class="form-item-list">
+          <div *ngFor="let item of newOrder.items; let i = index" class="form-item-row with-discount">
+            <div class="form-group">
               <label class="form-label">{{ 'SALES_ORDERS.PRODUCT' | translate }}</label>
               <select [ngModel]="item.productId" (ngModelChange)="onProductSelect(item, $event)" class="form-select">
-                <option [value]="0" disabled>Select Product</option>
+                <option [value]="0" disabled>{{ 'SALES_ORDERS.SELECT_PRODUCT' | translate }}</option>
                 <option *ngFor="let p of products" [value]="p.id">{{p.name}} (SKU: {{p.sku}})</option>
               </select>
             </div>
-            <div class="form-group" style="width: 90px; margin-bottom: 0;">
-              <label class="form-label">Quantity</label>
+            <div class="form-group">
+              <label class="form-label">{{ 'SALES_ORDERS.QUANTITY' | translate }}</label>
               <input type="number" [(ngModel)]="item.quantity" min="1" class="form-input">
             </div>
-            <div class="form-group" style="width: 110px; margin-bottom: 0;">
-              <label class="form-label">Unit Price (JOD)</label>
+            <div class="form-group">
+              <label class="form-label">{{ 'SALES_ORDERS.UNIT_PRICE_JOD' | translate }}</label>
               <input type="number" [(ngModel)]="item.unitPrice" min="0" step="0.01" class="form-input">
             </div>
-            <div class="form-group" style="width: 100px; margin-bottom: 0;">
-              <label class="form-label">Discount (JOD)</label>
+            <div class="form-group">
+              <label class="form-label">{{ 'SALES_ORDERS.DISCOUNT_JOD' | translate }}</label>
               <input type="number" [(ngModel)]="item.discount" min="0" step="0.01" class="form-input">
             </div>
-            <button (click)="removeItem(i)" class="btn btn-danger btn-icon" style="margin-bottom: 2px;">
+            <button (click)="removeItem(i)" class="btn btn-danger btn-icon" [title]="'COMMON.DELETE' | translate">
               <lucide-icon [img]="Trash2Icon" [size]="16"></lucide-icon>
             </button>
           </div>
           
-          <div *ngIf="newOrder.items.length === 0" style="text-align: center; padding: 32px 0; border: 2px dashed var(--border-color); border-radius: 8px; color: var(--text-muted); font-size: 14px;">
-            No items added. Click "Add Item" to start.
+          <div *ngIf="newOrder.items.length === 0" class="form-empty-state">
+            {{ 'SALES_ORDERS.NO_ITEMS_ADDED' | translate }}
           </div>
         </div>
       </div>
 
       <div class="custom-modal-footer">
-        <button (click)="closeCreateModal()" class="btn btn-ghost">Cancel</button>
+        <button (click)="closeCreateModal()" class="btn btn-ghost">{{ 'COMMON.CANCEL' | translate }}</button>
         <button (click)="submitCreateSO()" class="btn btn-primary" [disabled]="submitting">
           <span class="spinner" *ngIf="submitting"></span>
-          Create Order
+          {{ 'SALES_ORDERS.CREATE_ORDER' | translate }}
         </button>
       </div>
     </div>
@@ -209,24 +209,24 @@
       <div class="custom-modal-header">
         <h3 class="custom-modal-title">
           <lucide-icon [img]="TruckIcon" [size]="18" style="display: inline; margin-right: 8px;"></lucide-icon>
-          Ship Sales Order
+          {{ 'SALES_ORDERS.SHIP_ORDER_TITLE' | translate }}
         </h3>
       </div>
       <div class="custom-modal-body">
         <div class="form-group">
-          <label class="form-label">Tracking Number *</label>
-          <input type="text" class="form-input" [(ngModel)]="shipPayload.trackingNumber" placeholder="e.g. TRK-123456789">
+          <label class="form-label">{{ 'SALES_ORDERS.TRACKING_NUMBER' | translate }} *</label>
+          <input type="text" class="form-input" [(ngModel)]="shipPayload.trackingNumber" [placeholder]="'SALES_ORDERS.TRACKING_PLACEHOLDER' | translate">
         </div>
         <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Shipping Notes</label>
-          <textarea class="form-input" [(ngModel)]="shipPayload.notes" rows="3" placeholder="Any special instructions or carrier notes..."></textarea>
+          <label class="form-label">{{ 'SALES_ORDERS.SHIPPING_NOTES' | translate }}</label>
+          <textarea class="form-textarea" [(ngModel)]="shipPayload.notes" rows="3" [placeholder]="'SALES_ORDERS.SHIPPING_NOTES_PLACEHOLDER' | translate"></textarea>
         </div>
       </div>
       <div class="custom-modal-footer">
-        <button (click)="closeShipModal()" class="btn btn-ghost">Cancel</button>
+        <button (click)="closeShipModal()" class="btn btn-ghost">{{ 'COMMON.CANCEL' | translate }}</button>
         <button (click)="submitShipOrder()" class="btn btn-primary" [disabled]="shipping">
           <span class="spinner" *ngIf="shipping"></span>
-          Confirm Shipment
+          {{ 'SALES_ORDERS.CONFIRM_SHIPMENT' | translate }}
         </button>
       </div>
     </div>

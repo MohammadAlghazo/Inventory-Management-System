@@ -2,8 +2,8 @@
   
   <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
     <div>
-      <h1 class="page-title" style="margin: 0 0 4px; font-size: 24px; font-weight: 700;">System Audit Logs</h1>
-      <p class="page-subtitle" style="margin: 0; color: var(--text-muted); font-size: 14px;">View comprehensive system activity and security events</p>
+      <h1 class="page-title" style="margin: 0 0 4px; font-size: 24px; font-weight: 700;">{{ 'AUDIT_LOG.TITLE' | translate }}</h1>
+      <p class="page-subtitle" style="margin: 0; color: var(--text-muted); font-size: 14px;">{{ 'AUDIT_LOG.SUBTITLE' | translate }}</p>
     </div>
   </div>
 
@@ -17,7 +17,7 @@
         <input 
           type="text" 
           (keyup)="onSearchChange($any($event.target).value)"
-          placeholder="Search logs by action, module, user, details..." 
+          [placeholder]="'AUDIT_LOG.SEARCH' | translate"
           class="form-input"
           style="padding-left: 36px;"
         >
@@ -26,11 +26,11 @@
       <div class="search-filter-controls" style="display: flex; gap: 10px;">
         <button class="btn btn-secondary btn-sm" (click)="exportToExcel()" [disabled]="isLoading || logs.length === 0">
           <lucide-icon [img]="icons.FileText" [size]="14" style="margin-right: 6px;"></lucide-icon>
-          Export Excel
+          {{ 'INVENTORY.EXPORT_EXCEL' | translate }}
         </button>
         <button class="btn btn-secondary btn-sm" (click)="exportToPdf()" [disabled]="isLoading || logs.length === 0">
           <lucide-icon [img]="icons.FileText" [size]="14" style="margin-right: 6px;"></lucide-icon>
-          Export PDF
+          {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
     </div>
@@ -41,13 +41,13 @@
       <table id="audit-logs-table" class="data-table">
         <thead>
           <tr>
-            <th style="width: 80px;">ID</th>
-            <th style="width: 160px;">Timestamp</th>
-            <th style="width: 140px;">User</th>
-            <th style="width: 140px;">Module</th>
-            <th style="width: 140px;">Action</th>
-            <th style="width: 120px;">IP Address</th>
-            <th>Details</th>
+            <th style="width: 80px;">{{ 'COMMON.ID' | translate }}</th>
+            <th style="width: 160px;">{{ 'AUDIT_LOG.TIMESTAMP' | translate }}</th>
+            <th style="width: 140px;">{{ 'AUDIT_LOG.USER' | translate }}</th>
+            <th style="width: 140px;">{{ 'AUDIT_LOG.MODULE' | translate }}</th>
+            <th style="width: 140px;">{{ 'AUDIT_LOG.ACTION' | translate }}</th>
+            <th style="width: 120px;">{{ 'AUDIT_LOG.IP_ADDRESS' | translate }}</th>
+            <th>{{ 'AUDIT_LOG.DETAILS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -63,8 +63,8 @@
             <td colspan="7">
               <div class="empty-state" style="text-align: center; padding: 48px 24px; color: var(--text-muted);">
                 <lucide-icon [img]="icons.Activity" [size]="48" style="margin-bottom: 16px; opacity: 0.5;"></lucide-icon>
-                <h3 style="margin: 0 0 8px; font-weight: 600;">No Activity Found</h3>
-                <p style="margin: 0; font-size: 14px;">Try adjusting your search filters to find what you're looking for.</p>
+                <h3 style="margin: 0 0 8px; font-weight: 600;">{{ 'AUDIT_LOG.NO_ACTIVITY' | translate }}</h3>
+                <p style="margin: 0; font-size: 14px;">{{ 'AUDIT_LOG.NO_ACTIVITY_HINT' | translate }}</p>
               </div>
             </td>
           </tr>
@@ -108,13 +108,13 @@
     <div class="pagination" *ngIf="totalPages > 0" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border-color);">
       <div style="display: flex; align-items: center; gap: 12px;">
         <span class="pagination-info" style="margin: 0; font-size: 13px; color: var(--text-secondary);">
-          Showing Page {{ page }} of {{ totalPages }} ({{ totalCount }} total records)
+          {{ 'AUDIT_LOG.PAGE_SUMMARY' | translate:{page: page, totalPages: totalPages, total: totalCount} }}
         </span>
         <select class="form-select" style="width: auto; padding: 4px 30px 4px 10px; font-size: 13px;" [(ngModel)]="pageSize" (ngModelChange)="onPageSizeChange()">
-          <option [value]="10">10 / page</option>
-          <option [value]="25">25 / page</option>
-          <option [value]="50">50 / page</option>
-          <option [value]="100">100 / page</option>
+          <option [value]="10">{{ 'AUDIT_LOG.PER_PAGE' | translate:{count: 10} }}</option>
+          <option [value]="25">{{ 'AUDIT_LOG.PER_PAGE' | translate:{count: 25} }}</option>
+          <option [value]="50">{{ 'AUDIT_LOG.PER_PAGE' | translate:{count: 50} }}</option>
+          <option [value]="100">{{ 'AUDIT_LOG.PER_PAGE' | translate:{count: 100} }}</option>
         </select>
       </div>
       <div class="pagination-controls" style="display: flex; gap: 4px;">

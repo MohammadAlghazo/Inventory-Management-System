@@ -106,7 +106,7 @@ export class LoginComponent {
     this.resetSuccess = '';
 
     if (!this.forgotPasswordEmail) {
-      this.resetError = 'Please enter your email.';
+      this.resetError = this.translate.instant('LOGIN.RESET_EMAIL_REQUIRED');
       return;
     }
 
@@ -114,11 +114,11 @@ export class LoginComponent {
     this.authService.forgotPassword(this.forgotPasswordEmail).subscribe({
       next: (res) => {
         this.isResetting = false;
-        this.resetSuccess = res.message || 'If that email exists in our system, a temporary password has been sent.';
+        this.resetSuccess = res.message || this.translate.instant('LOGIN.RESET_SUCCESS');
       },
       error: (err) => {
         this.isResetting = false;
-        this.resetError = err.error?.message || 'An error occurred. Please try again.';
+        this.resetError = err.error?.message || this.translate.instant('LOGIN.RESET_ERROR');
       }
     });
   }

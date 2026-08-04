@@ -376,13 +376,21 @@ body.is-resizing .main-content {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
 }
 
 .form-label {
+  display: block;
+  width: 100%;
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
+  line-height: 1.45;
+  text-align: start;
+  text-transform: none;
 }
 
 .form-input, .form-select, .form-textarea {
@@ -398,6 +406,119 @@ body.is-resizing .main-content {
   outline: none;
   -webkit-appearance: none;
   appearance: none;
+  min-width: 0;
+  min-height: 42px;
+  line-height: 1.4;
+  text-align: start;
+}
+
+.form-textarea,
+textarea.form-input {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.form-grid,
+.custom-modal-body > .grid-2,
+.custom-modal-body > .grid-3 {
+  display: grid;
+  align-items: start;
+  gap: 16px;
+}
+
+.form-grid-2,
+.custom-modal-body > .grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-grid-3,
+.custom-modal-body > .grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.form-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 24px;
+}
+
+.form-label-row .form-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.form-check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+}
+
+.form-check-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.form-check-row .form-label {
+  width: auto;
+  margin: 0;
+}
+
+.form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 12px;
+}
+
+.form-section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.form-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-item-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(100px, 0.32fr) minmax(130px, 0.42fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.form-item-row.with-discount {
+  grid-template-columns: minmax(220px, 1fr) minmax(90px, 0.28fr) minmax(120px, 0.38fr) minmax(110px, 0.34fr) auto;
+}
+
+.form-item-row.receive-item-row {
+  grid-template-columns: minmax(220px, 1fr) minmax(150px, 0.4fr);
+}
+
+.form-item-row .btn-icon {
+  min-height: 42px;
+  align-self: end;
+}
+
+.form-empty-state {
+  padding: 28px 16px;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
 }
 
 .form-select {
@@ -591,7 +712,12 @@ code {
 }
 
 .modal-body,
-.custom-modal-body { padding: 0 24px; }
+.custom-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 24px 0;
+}
 .modal-footer,
 .custom-modal-footer {
   display: flex;
@@ -766,6 +892,25 @@ code {
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .grid-4 { grid-template-columns: 1fr; }
   .page-wrapper { padding: calc(var(--header-height) + 16px) 16px 16px; }
+
+  .form-grid-3,
+  .custom-modal-body > .grid-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .form-item-row,
+  .form-item-row.with-discount {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .form-item-row .form-group:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .form-item-row .btn-icon {
+    justify-self: end;
+  }
 }
 
 .spinner {
@@ -1085,6 +1230,29 @@ body:not([data-theme="light"]) .app-layout .text-black {
   .modal-body {
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  .form-grid,
+  .form-grid-2,
+  .form-grid-3,
+  .custom-modal-body > .grid-2,
+  .custom-modal-body > .grid-3,
+  .form-item-row,
+  .form-item-row.with-discount {
+    grid-template-columns: 1fr;
+  }
+
+  .form-item-row .form-group:first-child {
+    grid-column: auto;
+  }
+
+  .form-item-row .btn-icon {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .form-label-row {
+    align-items: flex-start;
   }
 
   .custom-modal-footer,

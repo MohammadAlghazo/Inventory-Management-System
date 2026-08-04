@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../core/services/report.service';
-import { TranslatePipe } from '@ngx-translate/core';
-import { LucideAngularModule, DollarSign, TrendingUp, AlertCircle, RefreshCw } from 'lucide-angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { LucideAngularModule, DollarSign, TrendingUp, AlertCircle } from 'lucide-angular';
 
 @Component({
   selector: 'app-reports',
@@ -23,9 +23,8 @@ export class ReportsComponent implements OnInit {
   DollarSignIcon = DollarSign;
   TrendingUpIcon = TrendingUp;
   AlertCircleIcon = AlertCircle;
-  RefreshCwIcon = RefreshCw;
 
-  constructor(private reportService: ReportService) {}
+  constructor(private reportService: ReportService, private translate: TranslateService) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -48,7 +47,7 @@ export class ReportsComponent implements OnInit {
           this.loading = false;
         },
         error: (err: any) => {
-          this.error = 'Failed to load valuation report.';
+          this.error = this.translate.instant('REPORTS.VALUATION_LOAD_FAILED');
           this.loading = false;
         }
       });
@@ -60,7 +59,7 @@ export class ReportsComponent implements OnInit {
           this.loading = false;
         },
         error: (err: any) => {
-          this.error = 'Failed to load ABC analysis.';
+          this.error = this.translate.instant('REPORTS.ABC_LOAD_FAILED');
           this.loading = false;
         }
       });

@@ -15,6 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
 import Swal from 'sweetalert2';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -27,7 +28,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-ai-assistant',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './ai-assistant.component.html',
   styleUrls: ['./ai-assistant.component.css'],
 })
@@ -40,6 +41,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
 
   private aiService = inject(AiService);
   private authService = inject(AuthService);
+  private translate = inject(TranslateService);
 
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('chatInput') chatInput!: ElementRef<HTMLTextAreaElement>;
@@ -55,7 +57,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     if (this.messages.length === 0) {
       this.messages.push({
         role: 'assistant',
-        content: "**Hello! I'm Inventory-AI**. How can I help you manage your stock today?",
+        content: this.translate.instant('AI_ASSISTANT.WELCOME'),
         timestamp: new Date(),
       });
       this.saveChat();
@@ -168,7 +170,7 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
 
   private handleError(err: any): void {
     const idx = this.findLastLoadingIndex();
-    let errMsg = 'Something went wrong. Please try again.';
+    let errMsg = this.translate.instant('AI_ASSISTANT.ERROR');
 
     if (err?.error?.message) {
       const rawMessage = err.error.message as string;
@@ -232,14 +234,14 @@ export class AiAssistantComponent implements OnInit, OnDestroy {
     if (this.messages.length <= 1) return;
 
     Swal.fire({
-      title: 'Clear Chat History?',
-      text: 'Are you sure you want to delete all messages?',
+       title: this.translate.instant('AI_ASSISTANT.CLEAR_TITLE'),
+       text: this.translate.instant('AI_ASSISTANT.CLEAR_MESSAGE'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Clear',
-      cancelButtonText: 'Cancel'
+       confirmButtonText: this.translate.instant('AI_ASSISTANT.CLEAR'),
+       cancelButtonText: this.translate.instant('COMMON.CANCEL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.messages = [];

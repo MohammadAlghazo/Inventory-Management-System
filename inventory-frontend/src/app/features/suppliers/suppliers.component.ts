@@ -6,7 +6,7 @@ import { SupplierService, Supplier, ApiResponse } from '../../core/services/supp
 import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
@@ -54,7 +54,8 @@ export class SuppliersComponent implements OnInit, OnDestroy {
     private exportPdf: ExportPdfService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private sweetAlert: SweetAlertService
+    private sweetAlert: SweetAlertService,
+    private translate: TranslateService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -93,7 +94,7 @@ export class SuppliersComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: (err: any) => {
-        this.error = 'Failed to load suppliers';
+        this.error = this.translate.instant('SUPPLIERS.LOAD_FAILED');
         this.isLoading = false;
         this.cdr.markForCheck();
       }
@@ -192,21 +193,21 @@ export class SuppliersComponent implements OnInit, OnDestroy {
 
   saveSupplier() {
     if (!this.supplierForm.name?.trim()) {
-      this.sweetAlert.error('Validation Error', 'Supplier name is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SUPPLIERS.NAME_REQUIRED'));
       return;
     }
     if (this.editingSupplier) {
       this.supplierService.update(this.editingSupplier.id!, this.supplierForm).subscribe({
         next: () => {
           this.error = '';
-          this.sweetAlert.toast('Supplier updated successfully');
+          this.sweetAlert.toast(this.translate.instant('SUPPLIERS.UPDATE_SUCCESS'));
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = err.error?.message || 'Failed to update supplier';
-          this.sweetAlert.error('Error', this.error);
+          this.error = err.error?.message || this.translate.instant('SUPPLIERS.UPDATE_FAILED');
+          this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
           this.cdr.markForCheck();
         }
       });
@@ -214,14 +215,14 @@ export class SuppliersComponent implements OnInit, OnDestroy {
       this.supplierService.create(this.supplierForm).subscribe({
         next: () => {
           this.error = '';
-          this.sweetAlert.toast('Supplier created successfully');
+          this.sweetAlert.toast(this.translate.instant('SUPPLIERS.CREATE_SUCCESS'));
           this.loadSuppliers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = err.error?.message || 'Failed to create supplier';
-          this.sweetAlert.error('Error', this.error);
+          this.error = err.error?.message || this.translate.instant('SUPPLIERS.CREATE_FAILED');
+          this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
           this.cdr.markForCheck();
         }
       });
@@ -229,18 +230,18 @@ export class SuppliersComponent implements OnInit, OnDestroy {
   }
 
   deleteSupplier(id: number) {
-    this.sweetAlert.confirmDelete('this supplier').then((result) => {
+    this.sweetAlert.confirmDelete(this.translate.instant('SUPPLIERS.THIS_SUPPLIER')).then((result) => {
       if (result.isConfirmed) {
         this.supplierService.delete(id).subscribe({
           next: () => {
             this.error = '';
-            this.sweetAlert.success('Deleted', 'Supplier has been deleted.');
+            this.sweetAlert.success(this.translate.instant('COMMON.DELETED'), this.translate.instant('SUPPLIERS.DELETE_SUCCESS'));
             this.loadSuppliers();
             this.cdr.markForCheck();
           },
           error: (err: any) => {
-            this.error = err.error?.message || 'Failed to delete supplier';
-            this.sweetAlert.error('Error', this.error);
+            this.error = err.error?.message || this.translate.instant('SUPPLIERS.DELETE_FAILED');
+            this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
             this.cdr.markForCheck();
           }
         });

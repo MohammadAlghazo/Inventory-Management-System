@@ -5,7 +5,7 @@ import { LucideAngularModule, Search, Download, Plus, ClipboardList, ChevronLeft
 import { InventoryService } from '../../core/services/inventory.service';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { HttpClient } from '@angular/common/http';
@@ -59,7 +59,8 @@ export class InventoryComponent implements OnInit, OnDestroy {
     private exportPdf: ExportPdfService,
     private http: HttpClient,
     private sweetAlert: SweetAlertService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private translate: TranslateService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -218,7 +219,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
           qrbox: { width: 250, height: 150 }
         },
         (decodedText: string) => {
-          this.scanFeedback = `Scanned: ${decodedText}`;
+          this.scanFeedback = decodedText;
           this.cdr.markForCheck();
 
           this.inventoryService.searchByBarcode(decodedText).subscribe({
@@ -226,19 +227,19 @@ export class InventoryComponent implements OnInit, OnDestroy {
               const matched = res.data;
               if (matched) {
                 this.selectedProductId = matched.id;
-                this.scanFeedback = `Found: ${matched.name}`;
+                this.scanFeedback = matched.name;
                 this.cdr.markForCheck();
                 
                 setTimeout(() => {
                   this.stopScanner();
                 }, 1500);
               } else {
-                this.scanFeedback = `Code "${decodedText}" not matched.`;
+                this.scanFeedback = this.translate.instant('INVENTORY.CODE_NOT_MATCHED');
                 this.cdr.markForCheck();
               }
             },
             error: () => {
-              this.scanFeedback = `Code "${decodedText}" not matched.`;
+              this.scanFeedback = this.translate.instant('INVENTORY.CODE_NOT_MATCHED');
               this.cdr.markForCheck();
             }
           });
@@ -248,7 +249,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
         }
       ).catch((err: any) => {
         console.error('Error starting scanner:', err);
-        this.scanFeedback = 'Camera access denied or device not found.';
+        this.scanFeedback = this.translate.instant('INVENTORY.CAMERA_ERROR');
         this.cdr.markForCheck();
       });
     }, 100);
@@ -286,7 +287,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
       case 'sell': return 'INVENTORY.SELL_STOCK';
       case 'adjust': return 'INVENTORY.ADJUST_STOCK';
       case 'return': return 'INVENTORY.RETURN_STOCK';
-      case 'transfer': return 'Transfer Stock';
+      case 'transfer': return 'INVENTORY.TRANSFER_STOCK';
       default: return '';
     }
   }
@@ -297,22 +298,29 @@ export class InventoryComponent implements OnInit, OnDestroy {
       case 'sell': return 'INVENTORY.QTY_TO_SELL';
       case 'adjust': return 'INVENTORY.NEW_QTY';
       case 'return': return 'INVENTORY.QTY_TO_RETURN';
-      case 'transfer': return 'Transfer Quantity';
+      case 'transfer': return 'INVENTORY.TRANSFER_QTY';
       default: return 'INVENTORY.QUANTITY_LABEL';
     }
   }
 
+  getActionLabel(action: string) {
+    const key = action?.toUpperCase();
+    return ['ADD', 'SELL', 'ADJUST', 'RETURN', 'TRANSFER'].includes(key)
+      ? `INVENTORY.${key}`
+      : action;
+  }
+
   submitAction() {
     if (!this.selectedProductId) {
-      this.sweetAlert.error('Validation Error', 'Please select a product.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('INVENTORY.SELECT_PRODUCT_ERROR'));
       return;
     }
     if (this.quantity === null || this.quantity === undefined || this.quantity < 0) {
-      this.sweetAlert.error('Validation Error', 'Quantity cannot be negative.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('INVENTORY.NEGATIVE_QUANTITY_ERROR'));
       return;
     }
     if (this.actionModal !== 'adjust' && this.quantity <= 0) {
-      this.sweetAlert.error('Validation Error', 'Quantity must be greater than 0.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('INVENTORY.POSITIVE_QUANTITY_ERROR'));
       return;
     }
     
@@ -350,7 +358,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
         break;
       case 'transfer':
         if (!this.destinationWarehouseId) {
-          this.sweetAlert.error('Validation Error', 'Please select a destination warehouse.');
+          this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('INVENTORY.SELECT_DESTINATION_ERROR'));
           this.isSubmitting = false;
           return;
         }
@@ -366,14 +374,14 @@ export class InventoryComponent implements OnInit, OnDestroy {
       next: () => {
         this.isSubmitting = false;
         this.closeActionModal();
-        this.sweetAlert.success('Success', 'Inventory action completed successfully');
+        this.sweetAlert.success(this.translate.instant('COMMON.SUCCESS'), this.translate.instant('INVENTORY.ACTION_COMPLETED'));
         this.loadLogs();
         this.loadProducts(); 
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.isSubmitting = false;
-        this.actionError = err.error?.message || 'Operation failed. Please try again.';
+        this.actionError = err.error?.message || this.translate.instant('INVENTORY.OPERATION_FAILED');
         this.cdr.markForCheck();
       }
     });

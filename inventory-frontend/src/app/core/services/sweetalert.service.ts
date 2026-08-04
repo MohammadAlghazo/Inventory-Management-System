@@ -1,12 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import Swal, { SweetAlertIcon, SweetAlertResult } from 'sweetalert2';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SweetAlertService {
   
-  constructor() { }
+  constructor(private injector: Injector) { }
+
+  private get translate(): TranslateService {
+    // Resolve translations only when an alert is shown to avoid a loader/interceptor cycle.
+    return this.injector.get(TranslateService);
+  }
 
   success(title: string, text: string = '') {
     return Swal.fire({
@@ -49,13 +55,14 @@ export class SweetAlertService {
 
   confirmDelete(itemName: string): Promise<SweetAlertResult<any>> {
     return Swal.fire({
-      title: 'Are you sure?',
-      html: `You are about to delete ${itemName}. This action cannot be undone!`,
+      title: this.translate.instant('COMMON.ARE_YOU_SURE'),
+      html: this.translate.instant('COMMON.DELETE_CONFIRMATION', { item: itemName }),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonText: this.translate.instant('COMMON.YES_DELETE'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
       customClass: {
         confirmButton: 'btn btn-danger me-3 px-4 py-2 rounded-3',
         cancelButton: 'btn btn-secondary px-4 py-2 rounded-3'
@@ -64,7 +71,7 @@ export class SweetAlertService {
     });
   }
 
-  confirm(title: string, text: string, confirmButtonText: string = 'Confirm'): Promise<SweetAlertResult<any>> {
+  confirm(title: string, text: string, confirmButtonText?: string): Promise<SweetAlertResult<any>> {
     return Swal.fire({
       title,
       html: text,
@@ -72,7 +79,8 @@ export class SweetAlertService {
       showCancelButton: true,
       confirmButtonColor: '#4338ca',
       cancelButtonColor: '#6c757d',
-      confirmButtonText,
+      confirmButtonText: confirmButtonText || this.translate.instant('COMMON.CONFIRM'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
       customClass: {
         confirmButton: 'btn btn-primary me-3 px-4 py-2 rounded-3',
         cancelButton: 'btn btn-secondary px-4 py-2 rounded-3'

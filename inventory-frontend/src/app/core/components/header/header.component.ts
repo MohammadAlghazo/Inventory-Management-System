@@ -195,4 +195,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
   get userRole() {
     return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Employee';
   }
+
+  get userRoleLabel() {
+    const keys: Record<string, string> = {
+      SuperAdmin: 'USERS.ROLE_SUPER_ADMIN',
+      InventoryManager: 'USERS.ROLE_INVENTORY_MANAGER',
+      WarehouseStaff: 'USERS.ROLE_WAREHOUSE_STAFF',
+      PurchasingOfficer: 'USERS.ROLE_PURCHASING_OFFICER',
+      Sales: 'USERS.ROLE_SALES',
+      Accountant: 'USERS.ROLE_ACCOUNTANT',
+      Auditor: 'USERS.ROLE_AUDITOR',
+      Manager: 'USERS.ROLE_MANAGER',
+      Employee: 'USERS.ROLE_EMPLOYEE'
+    };
+    return this.translate.instant(keys[this.userRole] || this.userRole);
+  }
 }

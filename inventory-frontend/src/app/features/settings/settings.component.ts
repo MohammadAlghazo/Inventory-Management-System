@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SettingsService, Category, Brand, Unit, Warehouse } from '../../core/services/settings.service';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { LucideAngularModule, Edit2, Trash2 } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-settings',
@@ -25,7 +25,11 @@ export class SettingsComponent implements OnInit {
   formData: any = {};
   icons = { Edit2, Trash2 };
 
-  constructor(private settingsService: SettingsService, private sweetAlert: SweetAlertService) {}
+  constructor(
+    private settingsService: SettingsService,
+    private sweetAlert: SweetAlertService,
+    private translate: TranslateService
+  ) {}
 
   ngOnInit() { this.loadData(); }
 
@@ -71,13 +75,17 @@ export class SettingsComponent implements OnInit {
     this.isSaving = false;
   }
 
+  getModalTypeKey() {
+    return `SETTINGS.TYPE_${this.modalType.toUpperCase()}`;
+  }
+
   save() {
     if (!this.formData.name?.trim()) {
-      this.sweetAlert.error('Validation Error', 'Name is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SETTINGS.NAME_REQUIRED'));
       return;
     }
     if (this.modalType === 'unit' && !this.formData.abbreviation?.trim()) {
-      this.sweetAlert.error('Validation Error', 'Abbreviation is required for units.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SETTINGS.ABBREVIATION_REQUIRED'));
       return;
     }
     if (this.isSaving) return;
@@ -86,7 +94,10 @@ export class SettingsComponent implements OnInit {
     req.subscribe({
       next: () => {
         this.isSaving = false;
-        this.sweetAlert.success('Success', `${this.modalType} saved successfully.`);
+        this.sweetAlert.success(
+          this.translate.instant('COMMON.SUCCESS'),
+          this.translate.instant('SETTINGS.SAVE_SUCCESS', { type: this.translate.instant(this.getModalTypeKey()) })
+        );
         this.loadData();
         this.closeModal();
       },
@@ -117,7 +128,13 @@ export class SettingsComponent implements OnInit {
         else if (type === 'unit') req = this.settingsService.deleteUnit(id);
         else req = this.settingsService.deleteWarehouse(id);
         req.subscribe({
-          next: () => { this.sweetAlert.success('Deleted', type + ' has been deleted.'); this.loadData(); },
+          next: () => {
+            this.sweetAlert.success(
+              this.translate.instant('COMMON.DELETED'),
+              this.translate.instant('SETTINGS.DELETE_SUCCESS', { type: this.translate.instant(`SETTINGS.TYPE_${type.toUpperCase()}`) })
+            );
+            this.loadData();
+          },
           error: () => {}
         });
       }

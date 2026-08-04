@@ -21,8 +21,8 @@
           </div>
           
           <div class="d-flex gap-2 justify-content-center flex-wrap" style="max-width: 150px;">
-            <button class="btn btn-sm btn-primary rounded-pill shadow-sm" style="font-size: 11px; padding: 4px 10px;" (click)="openProfilePictureModal()">Upload Picture</button>
-            <button class="btn btn-sm btn-danger rounded-pill shadow-sm" style="font-size: 11px; padding: 4px 10px;" *ngIf="profile.profilePicture" (click)="deleteProfilePicture()">Delete</button>
+            <button class="btn btn-sm btn-primary rounded-pill shadow-sm" style="font-size: 11px; padding: 4px 10px;" (click)="openProfilePictureModal()">{{ 'PROFILE.UPLOAD_PICTURE' | translate }}</button>
+            <button class="btn btn-sm btn-danger rounded-pill shadow-sm" style="font-size: 11px; padding: 4px 10px;" *ngIf="profile.profilePicture" (click)="deleteProfilePicture()">{{ 'PROFILE.DELETE_PICTURE' | translate }}</button>
           </div>
         </div>
         <div class="profile-hero-info">
@@ -31,7 +31,7 @@
           <div class="profile-meta">
             <span class="badge" [ngClass]="getRoleBadgeClass()">
               <lucide-icon [img]="icons.ShieldCheck" [size]="12"></lucide-icon>
-              {{ profile.role }}
+              {{ getRoleKey(profile.role) | translate }}
             </span>
             <span class="profile-meta-item">
               <lucide-icon [img]="icons.Mail" [size]="13"></lucide-icon>

@@ -75,7 +75,7 @@
                     </button>
                   </div>
                   <div class="text-end mt-2">
-                    <a href="javascript:void(0)" class="text-white-50 text-decoration-none small hover-white" (click)="openForgotPassword()">Forgot Password?</a>
+                    <a href="javascript:void(0)" class="text-white-50 text-decoration-none small hover-white" (click)="openForgotPassword()">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
                   </div>
                 </div>
 
@@ -173,7 +173,7 @@
               </p>
               <div class="d-flex flex-column mt-auto border-top pt-3">
                 <span class="text-accent small fw-bold text-uppercase mb-1">{{ 'LOGIN.INVOICING' | translate }}</span>
-                <span class="text-dark-green fw-bold fs-5">Real-time</span>
+                <span class="text-dark-green fw-bold fs-5">{{ 'LOGIN.REAL_TIME' | translate }}</span>
               </div>
             </div>
           </div>
@@ -212,25 +212,25 @@
         <div class="col-md-3 col-6">
           <div class="stat-box">
             <span class="num text-white">99.9%</span>
-            <span class="label text-white-50">Uptime SLA</span>
+            <span class="label text-white-50">{{ 'LOGIN.UPTIME_SLA' | translate }}</span>
           </div>
         </div>
         <div class="col-md-3 col-6">
           <div class="stat-box">
             <span class="num text-white">2.5x</span>
-            <span class="label text-white-50">Logistics Velocity</span>
+            <span class="label text-white-50">{{ 'LOGIN.LOGISTICS_VELOCITY' | translate }}</span>
           </div>
         </div>
         <div class="col-md-3 col-6">
           <div class="stat-box">
             <span class="num text-white">100%</span>
-            <span class="label text-white-50">Secure Logs</span>
+            <span class="label text-white-50">{{ 'LOGIN.SECURE_LOGS' | translate }}</span>
           </div>
         </div>
         <div class="col-md-3 col-6">
           <div class="stat-box">
             <span class="num text-white">1-Click</span>
-            <span class="label text-white-50">Supplier Sync</span>
+            <span class="label text-white-50">{{ 'LOGIN.SUPPLIER_SYNC' | translate }}</span>
           </div>
         </div>
       </div>
@@ -321,17 +321,17 @@
               </ul>
             </div>
             <div class="col-4">
-              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">COMPANY</h6>
+              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">{{ 'LOGIN.COMPANY' | translate }}</h6>
               <ul class="list-unstyled small d-flex flex-column gap-2">
-                <li><a (click)="scrollToStats()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">Terms</a></li>
+                <li><a (click)="scrollToStats()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.TERMS' | translate }}</a></li>
                 <li><a (click)="scrollToStats()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.SECURITY' | translate }}</a></li>
               </ul>
             </div>
             <div class="col-4">
-              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">HELP</h6>
+              <h6 class="small text-uppercase tracking-wider text-white-50 fw-bold mb-3">{{ 'LOGIN.HELP' | translate }}</h6>
               <ul class="list-unstyled small d-flex flex-column gap-2">
                 <li><a (click)="openContactModal()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.CONTACT_SUPPORT' | translate }}</a></li>
-                <li><a (click)="scrollToSteps()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">Guides</a></li>
+                <li><a (click)="scrollToSteps()" style="cursor:pointer" class="text-white-50 text-decoration-none hover-white">{{ 'LOGIN.GUIDES' | translate }}</a></li>
               </ul>
             </div>
           </div>
@@ -348,7 +348,7 @@
   <div class="custom-modal-overlay" *ngIf="showForgotPasswordModal" (click)="$event.target === $event.currentTarget ? closeForgotPassword() : null" (window:keydown.escape)="closeForgotPassword()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width:400px; background: white; border-radius: 12px; padding: 24px; color: var(--text);" (click)="$event.stopPropagation()">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="m-0 fw-bold" style="color: var(--dark-green);">Reset Password</h4>
+        <h4 class="m-0 fw-bold" style="color: var(--dark-green);">{{ 'LOGIN.RESET_PASSWORD' | translate }}</h4>
         <button class="btn btn-ghost btn-sm btn-icon" (click)="closeForgotPassword()">
           <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
         </button>
@@ -358,22 +358,22 @@
       <div *ngIf="resetSuccess" class="alert alert-success p-2 small mb-3">{{ resetSuccess }}</div>
 
       <div *ngIf="!resetSuccess">
-        <p class="text-muted small mb-3">Enter your email address and we'll send you a temporary password.</p>
+        <p class="text-muted small mb-3">{{ 'LOGIN.RESET_DESCRIPTION' | translate }}</p>
         <div class="form-group mb-4">
-          <label class="form-label" style="font-weight: 600; font-size: 13px; margin-bottom: 6px; display: block;">Email Address *</label>
-          <input type="email" class="form-control" [(ngModel)]="forgotPasswordEmail" placeholder="e.g. user@example.com" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);" />
+          <label class="form-label">{{ 'LOGIN.EMAIL_ADDRESS' | translate }} *</label>
+          <input type="email" class="form-control" [(ngModel)]="forgotPasswordEmail" [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate" style="padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);" />
         </div>
         <div class="d-flex justify-content-end gap-2">
-          <button class="btn btn-ghost" (click)="closeForgotPassword()">Cancel</button>
+          <button class="btn btn-ghost" (click)="closeForgotPassword()">{{ 'COMMON.CANCEL' | translate }}</button>
           <button class="btn" style="background-color: var(--accent); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 600;" (click)="submitForgotPassword()" [disabled]="isResetting">
             <span class="spinner-border spinner-border-sm me-2" *ngIf="isResetting"></span>
-            Send Password
+            {{ 'LOGIN.SEND_PASSWORD' | translate }}
           </button>
         </div>
       </div>
       
       <div *ngIf="resetSuccess" class="text-center mt-2">
-        <button class="btn w-100" style="background-color: var(--accent); color: white; border: none; border-radius: 8px; padding: 10px; font-weight: 600;" (click)="closeForgotPassword()">Got it</button>
+        <button class="btn w-100" style="background-color: var(--accent); color: white; border: none; border-radius: 8px; padding: 10px; font-weight: 600;" (click)="closeForgotPassword()">{{ 'LOGIN.GOT_IT' | translate }}</button>
       </div>
     </div>
   </div>
@@ -386,8 +386,8 @@
       <div class="contact-modal-header">
         <div>
           <div class="contact-status-dot"></div>
-          <h4 class="contact-modal-title">Get in Touch</h4>
-          <p class="contact-modal-subtitle">Have questions or need support? Reach out directly.</p>
+          <h4 class="contact-modal-title">{{ 'LOGIN.CONTACT_MODAL_TITLE' | translate }}</h4>
+          <p class="contact-modal-subtitle">{{ 'LOGIN.CONTACT_MODAL_SUBTITLE' | translate }}</p>
         </div>
         <button class="contact-close-btn" (click)="closeContactModal()">
           <lucide-icon [img]="icons.X" [size]="18"></lucide-icon>
@@ -403,7 +403,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.23h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.06-.97a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
           </div>
           <div class="contact-item-info">
-            <span class="contact-item-label">Phone</span>
+            <span class="contact-item-label">{{ 'LOGIN.PHONE' | translate }}</span>
             <span class="contact-item-value">+962 77 291 3081</span>
           </div>
           <svg class="contact-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -415,7 +415,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           </div>
           <div class="contact-item-info">
-            <span class="contact-item-label">Email</span>
+            <span class="contact-item-label">{{ 'LOGIN.EMAIL' | translate }}</span>
             <span class="contact-item-value">mohammadalghazo2004m&#64;gmail.com</span>
           </div>
           <svg class="contact-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -427,7 +427,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
           </div>
           <div class="contact-item-info">
-            <span class="contact-item-label">Portfolio</span>
+            <span class="contact-item-label">{{ 'LOGIN.PORTFOLIO' | translate }}</span>
             <span class="contact-item-value">mohammadalghazo.pages.dev</span>
           </div>
           <svg class="contact-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -439,10 +439,10 @@
       <div class="contact-modal-footer">
         <span class="contact-available-badge">
           <span class="contact-available-dot"></span>
-          Available for support &amp; inquiries
+          {{ 'LOGIN.CONTACT_AVAILABLE' | translate }}
         </span>
         <button class="btn btn-solid-white rounded-pill px-4 py-2 small fw-bold" (click)="closeContactModal()">
-          Close
+          {{ 'LOGIN.CONTACT_CLOSE' | translate }}
         </button>
       </div>
 

@@ -52,10 +52,10 @@
         </select>
 
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredProducts().length === 0">
-          Excel
+          {{ 'COMMON.EXCEL' | translate }}
         </button>
         <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredProducts().length === 0">
-          PDF
+          {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
     </div>
@@ -163,13 +163,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" [attr.aria-label]="'COMMON.PREVIOUS_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" [attr.aria-label]="'COMMON.NEXT_PAGE' | translate">
           <lucide-icon [img]="icons.ChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -231,7 +231,7 @@
           {{ editProduct ? ('PRODUCTS.EDIT_PRODUCT' | translate) : ('PRODUCTS.ADD_PRODUCT' | translate) }}
         </h3>
       </div>
-      <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 16px; padding-top: 16px;">
+      <div class="custom-modal-body">
         <div class="form-group">
           <label class="form-label">{{ 'PRODUCTS.PRODUCT_NAME' | translate }} *</label>
           <input class="form-input" name="productName" autocomplete="on" [(ngModel)]="productForm.name" />
@@ -261,7 +261,10 @@
           </div>
           <div class="form-group">
             <label class="form-label">{{ 'PRODUCTS.UNIT' | translate }}</label>
-            <input class="form-input" [(ngModel)]="productForm.unit" [placeholder]="'PRODUCTS.UNIT_PLACEHOLDER' | translate" />
+            <select class="form-select" [(ngModel)]="productForm.unitId">
+              <option [ngValue]="null">{{ 'PRODUCTS.SELECT_UNIT' | translate }}</option>
+              <option *ngFor="let unit of units" [ngValue]="unit.id">{{ unit.name }}{{ unit.abbreviation ? ' (' + unit.abbreviation + ')' : '' }}</option>
+            </select>
           </div>
           <div class="form-group">
             <label class="form-label">{{ 'PRODUCTS.MIN_QTY' | translate }} *</label>
@@ -269,8 +272,15 @@
           </div>
         </div>
         <div class="form-group">
+          <label class="form-label">{{ 'PRODUCTS.SUPPLIER' | translate }} ({{ 'COMMON.OPTIONAL' | translate }})</label>
+          <select class="form-select" [(ngModel)]="productForm.supplierId">
+            <option [ngValue]="null">{{ 'PRODUCTS.SELECT_SUPPLIER' | translate }}</option>
+            <option *ngFor="let supplier of suppliers" [ngValue]="supplier.id">{{ supplier.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">{{ 'COMMON.DESCRIPTION' | translate }}</label>
-          <textarea class="form-input" rows="3" name="productDescription" autocomplete="on" [(ngModel)]="productForm.description"></textarea>
+          <textarea class="form-textarea" rows="3" name="productDescription" autocomplete="on" [(ngModel)]="productForm.description"></textarea>
         </div>
       </div>
       <div class="custom-modal-footer">
@@ -294,22 +304,22 @@
   <div class="custom-modal-overlay" *ngIf="showImportModal" (click)="$event.target === $event.currentTarget ? closeImportModal() : null" (window:keydown.escape)="closeImportModal()">
     <div class="custom-modal" role="dialog" aria-modal="true" style="max-width: 500px;" (click)="$event.stopPropagation()">
       <div class="custom-modal-header">
-        <h3 class="custom-modal-title">Bulk Import Products</h3>
+        <h3 class="custom-modal-title">{{ 'PRODUCTS.IMPORT_TITLE' | translate }}</h3>
       </div>
       <div class="custom-modal-body">
         <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-          Upload an Excel (.xlsx) file to import products. The Excel sheet should contain columns:
-          <strong>Name, SKU, Price, PurchasePrice, Quantity, MinQuantity, Category, Brand, Unit, Barcode, Description</strong>.
+          {{ 'PRODUCTS.IMPORT_DESCRIPTION' | translate }}
+          <strong>{{ 'PRODUCTS.IMPORT_COLUMNS' | translate }}</strong>.
         </p>
         
         <div style="margin-bottom: 20px;">
           <a (click)="downloadTemplate()" style="color: var(--primary); cursor: pointer; text-decoration: underline; font-size: 13px; font-weight: bold;">
-            Download Template Excel File
+            {{ 'PRODUCTS.DOWNLOAD_TEMPLATE' | translate }}
           </a>
         </div>
 
         <div class="form-group">
-          <label class="form-label" style="display: block; margin-bottom: 6px; font-weight: 500;">Select Excel File</label>
+          <label class="form-label">{{ 'PRODUCTS.SELECT_EXCEL_FILE' | translate }}</label>
           <input type="file" (change)="onFileSelected($event)" accept=".xlsx, .xls" class="form-input">
         </div>
 
@@ -321,10 +331,10 @@
         </div>
       </div>
       <div class="custom-modal-footer">
-        <button (click)="closeImportModal()" class="btn btn-ghost" [disabled]="importing">Close</button>
+        <button (click)="closeImportModal()" class="btn btn-ghost" [disabled]="importing">{{ 'COMMON.CLOSE' | translate }}</button>
         <button (click)="submitImport()" class="btn btn-primary" [disabled]="importing || !selectedImportFile">
           <app-spinner *ngIf="importing" padding="0"></app-spinner>
-          Upload & Import
+          {{ 'PRODUCTS.UPLOAD_IMPORT' | translate }}
         </button>
       </div>
     </div>

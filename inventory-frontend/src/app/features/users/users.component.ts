@@ -95,6 +95,21 @@ export class UsersComponent implements OnInit, OnDestroy {
     return this.currentUser?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
   }
 
+  getRoleKey(role: string | undefined) {
+    const keys: Record<string, string> = {
+      SuperAdmin: 'USERS.ROLE_SUPER_ADMIN',
+      InventoryManager: 'USERS.ROLE_INVENTORY_MANAGER',
+      WarehouseStaff: 'USERS.ROLE_WAREHOUSE_STAFF',
+      PurchasingOfficer: 'USERS.ROLE_PURCHASING_OFFICER',
+      Sales: 'USERS.ROLE_SALES',
+      Accountant: 'USERS.ROLE_ACCOUNTANT',
+      Auditor: 'USERS.ROLE_AUDITOR',
+      Manager: 'USERS.ROLE_MANAGER',
+      Employee: 'USERS.ROLE_EMPLOYEE'
+    };
+    return keys[role || ''] || role || '';
+  }
+
   loadUsers() {
     this.isLoading = true;
     let isActive: boolean | undefined = undefined;
@@ -178,7 +193,7 @@ export class UsersComponent implements OnInit, OnDestroy {
 
   toggleStatus(user: any) {
     this.userService.toggleStatus(user.id).subscribe(() => {
-      this.sweetAlert.toast('User status updated successfully');
+      this.sweetAlert.toast(this.translate.instant('USERS.STATUS_UPDATE_SUCCESS'));
       this.loadUsers();
     });
   }
@@ -192,7 +207,7 @@ export class UsersComponent implements OnInit, OnDestroy {
       next: () => { 
         this.isDeleting = false; 
         this.deleteConfirm = null; 
-        this.sweetAlert.toast('User deleted successfully');
+        this.sweetAlert.toast(this.translate.instant('USERS.DELETE_SUCCESS'));
         this.loadUsers(); 
       },
       error: () => this.isDeleting = false
@@ -212,12 +227,12 @@ export class UsersComponent implements OnInit, OnDestroy {
       next: () => { 
         this.isRegistering = false; 
         this.showRegisterModal = false; 
-        this.sweetAlert.toast('User registered successfully');
+        this.sweetAlert.toast(this.translate.instant('USERS.REGISTER_SUCCESS'));
         this.loadUsers(); 
       },
       error: (err) => {
         this.isRegistering = false;
-        this.registerError = err.error?.message || 'Failed to register user.';
+        this.registerError = err.error?.message || this.translate.instant('USERS.REGISTER_FAILED');
       }
     });
   }
@@ -279,34 +294,40 @@ export class UsersComponent implements OnInit, OnDestroy {
     if (this.selectedUserIdForPicture) {
       this.userService.updateProfilePicture(this.selectedUserIdForPicture, url).subscribe({
         next: () => {
-          this.sweetAlert.toast('Profile picture updated successfully');
+          this.sweetAlert.toast(this.translate.instant('PROFILE.PICTURE_UPDATED'));
           if (String(this.selectedUserIdForPicture) === String(this.currentUserId)) {
             this.profileService.updateProfilePictureInState(url);
           }
           this.loadUsers();
           this.selectedUserIdForPicture = null;
         },
-        error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Failed to update profile picture')
+        error: (err) => this.sweetAlert.error(
+          this.translate.instant('COMMON.ERROR'),
+          err.error?.message || this.translate.instant('PROFILE.PICTURE_UPDATE_FAILED')
+        )
       });
     }
   }
 
   deleteProfilePicture(user: any) {
     this.sweetAlert.confirm(
-      'Delete Profile Picture',
-      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete this profile picture?',
-      'Yes, delete it!'
+      this.translate.instant('PROFILE.DELETE_PICTURE_TITLE'),
+      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE'),
+      this.translate.instant('COMMON.YES_DELETE')
     ).then((result) => {
       if (result.isConfirmed) {
         this.userService.deleteProfilePicture(user.id).subscribe({
           next: () => {
-            this.sweetAlert.toast('Profile picture deleted successfully');
+            this.sweetAlert.toast(this.translate.instant('PROFILE.PICTURE_DELETED'));
             if (String(user.id) === String(this.currentUserId)) {
               this.profileService.updateProfilePictureInState(null);
             }
             this.loadUsers();
           },
-          error: (err) => this.sweetAlert.error('Error', err.error?.message || 'Failed to delete profile picture')
+          error: (err) => this.sweetAlert.error(
+            this.translate.instant('COMMON.ERROR'),
+            err.error?.message || this.translate.instant('PROFILE.PICTURE_DELETE_FAILED')
+          )
         });
       }
     });

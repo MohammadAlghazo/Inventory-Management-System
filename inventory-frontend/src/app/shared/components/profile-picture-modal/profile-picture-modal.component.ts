@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ImageCroppedEvent, ImageCropperComponent } from 'ngx-image-cropper';
 import { HttpClient } from '@angular/common/http';
 
@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./profile-picture-modal.component.css']
 })
 export class ProfilePictureModalComponent {
-  @Input() title: string = 'Update Profile Picture';
+  @Input() title: string = 'PROFILE.UPLOAD_PICTURE';
   @Input() cloudName: string = ''; // to be provided
   @Input() uploadPreset: string = ''; // to be provided
   @Output() close = new EventEmitter<void>();
@@ -23,7 +23,7 @@ export class ProfilePictureModalComponent {
   isUploading = false;
   uploadError = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private translate: TranslateService) {}
 
   fileChangeEvent(event: Event): void {
     this.imageChangedEvent = event;
@@ -43,7 +43,7 @@ export class ProfilePictureModalComponent {
   }
 
   loadImageFailed() {
-    this.uploadError = 'Failed to load image. Please try another one.';
+    this.uploadError = this.translate.instant('PROFILE.IMAGE_LOAD_FAILED');
   }
 
   cancel() {
@@ -52,12 +52,12 @@ export class ProfilePictureModalComponent {
 
   async upload() {
     if (!this.croppedImage) {
-      this.uploadError = 'Please crop an image first.';
+      this.uploadError = this.translate.instant('PROFILE.IMAGE_CROP_REQUIRED');
       return;
     }
     
     if (!this.cloudName || !this.uploadPreset) {
-      this.uploadError = 'Cloudinary configuration is missing. Please add Cloud Name and Upload Preset.';
+      this.uploadError = this.translate.instant('PROFILE.IMAGE_CONFIG_MISSING');
       return;
     }
 
@@ -79,12 +79,12 @@ export class ProfilePictureModalComponent {
           this.isUploading = false;
         },
         error: (err) => {
-          this.uploadError = 'Failed to upload image to cloud.';
+          this.uploadError = this.translate.instant('PROFILE.IMAGE_UPLOAD_FAILED');
           this.isUploading = false;
         }
       });
     } catch (e) {
-      this.uploadError = 'Failed to process image.';
+      this.uploadError = this.translate.instant('PROFILE.IMAGE_PROCESS_FAILED');
       this.isUploading = false;
     }
   }

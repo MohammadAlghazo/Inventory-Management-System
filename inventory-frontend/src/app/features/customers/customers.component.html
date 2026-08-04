@@ -37,10 +37,10 @@
         </select>
 
         <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || customers.length === 0">
-          Excel
+          {{ 'COMMON.EXCEL' | translate }}
         </button>
         <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || customers.length === 0">
-          PDF
+          {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
     </div>
@@ -113,13 +113,13 @@
         </select>
       </div>
       <div class="pagination-controls">
-        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" aria-label="Previous Page">
+        <button class="page-btn" [disabled]="page === 1" (click)="prevPage()" [attr.aria-label]="'COMMON.PREVIOUS_PAGE' | translate">
           <lucide-icon [img]="iconChevronLeft" [size]="14"></lucide-icon>
         </button>
         <button *ngFor="let pg of getPagesArray()" class="page-btn" [ngClass]="{ active: page === pg }" (click)="goToPage(pg)">
           {{ pg }}
         </button>
-        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" aria-label="Next Page">
+        <button class="page-btn" [disabled]="page === totalPages" (click)="nextPage()" [attr.aria-label]="'COMMON.NEXT_PAGE' | translate">
           <lucide-icon [img]="iconChevronRight" [size]="14"></lucide-icon>
         </button>
       </div>
@@ -135,7 +135,7 @@
       </h3>
     </div>
     
-    <div class="custom-modal-body" style="display: flex; flex-direction: column; gap: 14px; padding-top: 16px;">
+    <div class="custom-modal-body">
       <div class="form-group">
         <label class="form-label">{{ 'COMMON.NAME' | translate }} *</label>
         <input type="text" name="customerName" autocomplete="on" [(ngModel)]="customerForm.name" class="form-input">
@@ -157,9 +157,9 @@
         <textarea [(ngModel)]="customerForm.address" rows="2" class="form-textarea"></textarea>
       </div>
 
-      <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-        <input type="checkbox" [(ngModel)]="customerForm.isActive" id="isActiveCustomer" style="width: 16px; height: 16px;">
-        <label for="isActiveCustomer" class="form-label" style="margin: 0; text-transform: none;">{{ 'SUPPLIERS.IS_ACTIVE' | translate }}</label>
+      <div class="form-check-row">
+        <input type="checkbox" [(ngModel)]="customerForm.isActive" id="isActiveCustomer">
+        <label for="isActiveCustomer" class="form-label">{{ 'SUPPLIERS.IS_ACTIVE' | translate }}</label>
       </div>
     </div>
     

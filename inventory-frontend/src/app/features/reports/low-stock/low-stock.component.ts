@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../core/services/report.service';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { LucideAngularModule, AlertTriangle, AlertCircle } from 'lucide-angular';
 
 @Component({
@@ -19,7 +19,7 @@ export class LowStockComponent implements OnInit {
   AlertTriangleIcon = AlertTriangle;
   AlertCircleIcon = AlertCircle;
 
-  constructor(private reportService: ReportService) {}
+  constructor(private reportService: ReportService, private translate: TranslateService) {}
 
   ngOnInit(): void {
     this.loadAlerts();
@@ -34,7 +34,7 @@ export class LowStockComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load low stock alerts.';
+        this.error = this.translate.instant('LOW_STOCK.LOAD_FAILED');
         this.loading = false;
       }
     });

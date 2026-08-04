@@ -55,10 +55,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { label: 'SIDEBAR.SUPPLIERS', route: '/suppliers',  icon: Truck, color: '#14b8a6' }, // teal
     { label: 'SIDEBAR.CUSTOMERS', route: '/customers',  icon: Users2, color: '#f97316' }, // orange
     { label: 'SIDEBAR.USERS',     route: '/users',      icon: Users, color: '#6366f1' }, // indigo
-    { label: 'Audit Logs',        route: '/audit-log',  icon: Activity, color: '#f43f5e' }, // rose
+    { label: 'SIDEBAR.AUDIT_LOG', route: '/audit-log',  icon: Activity, color: '#f43f5e' }, // rose
     { label: 'SIDEBAR.PROFILE',   route: '/profile',    icon: User, color: '#a855f7' }, // violet
     { label: 'SIDEBAR.SETTINGS',  route: '/settings',   icon: Settings, color: '#64748b' }, // slate
-    { label: 'AI Assistant', route: '/ai-assistant', icon: Bot, color: '#ec4899' } // pink
+    { label: 'SIDEBAR.AI_ASSISTANT', route: '/ai-assistant', icon: Bot, color: '#ec4899' } // pink
   ];
 
   get filteredMenuItems() {
@@ -107,6 +107,21 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   get userRole() {
     return this.user?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || 'Employee';
+  }
+
+  getRoleKey(role: string) {
+    const keys: Record<string, string> = {
+      SuperAdmin: 'USERS.ROLE_SUPER_ADMIN',
+      InventoryManager: 'USERS.ROLE_INVENTORY_MANAGER',
+      WarehouseStaff: 'USERS.ROLE_WAREHOUSE_STAFF',
+      PurchasingOfficer: 'USERS.ROLE_PURCHASING_OFFICER',
+      Sales: 'USERS.ROLE_SALES',
+      Accountant: 'USERS.ROLE_ACCOUNTANT',
+      Auditor: 'USERS.ROLE_AUDITOR',
+      Manager: 'USERS.ROLE_MANAGER',
+      Employee: 'USERS.ROLE_EMPLOYEE'
+    };
+    return keys[role] || role;
   }
 
   logout() {

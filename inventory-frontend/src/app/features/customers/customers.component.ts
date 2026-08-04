@@ -6,7 +6,7 @@ import { CustomerService, Customer, ApiResponse } from '../../core/services/cust
 import { AuthService } from '../../core/services/auth.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
@@ -53,7 +53,8 @@ export class CustomersComponent implements OnInit, OnDestroy {
     private exportPdf: ExportPdfService,
     private cdr: ChangeDetectorRef,
     private authService: AuthService,
-    private sweetAlert: SweetAlertService
+    private sweetAlert: SweetAlertService,
+    private translate: TranslateService
   ) {
     this.user = this.authService.getCurrentUser();
   }
@@ -92,7 +93,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: (err: any) => {
-        this.error = 'Failed to load customers';
+        this.error = this.translate.instant('CUSTOMERS.LOAD_FAILED');
         this.isLoading = false;
         this.cdr.markForCheck();
       }
@@ -190,21 +191,21 @@ export class CustomersComponent implements OnInit, OnDestroy {
 
   saveCustomer() {
     if (!this.customerForm.name?.trim()) {
-      this.sweetAlert.error('Validation Error', 'Customer name is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('CUSTOMERS.NAME_REQUIRED'));
       return;
     }
     if (this.editingCustomer) {
       this.customerService.update(this.editingCustomer.id!, this.customerForm).subscribe({
         next: () => {
           this.error = '';
-          this.sweetAlert.toast('Customer updated successfully');
+          this.sweetAlert.toast(this.translate.instant('CUSTOMERS.UPDATE_SUCCESS'));
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = err.error?.message || 'Failed to update customer';
-          this.sweetAlert.error('Error', this.error);
+          this.error = err.error?.message || this.translate.instant('CUSTOMERS.UPDATE_FAILED');
+          this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
           this.cdr.markForCheck();
         }
       });
@@ -212,14 +213,14 @@ export class CustomersComponent implements OnInit, OnDestroy {
       this.customerService.create(this.customerForm).subscribe({
         next: () => {
           this.error = '';
-          this.sweetAlert.toast('Customer created successfully');
+          this.sweetAlert.toast(this.translate.instant('CUSTOMERS.CREATE_SUCCESS'));
           this.loadCustomers();
           this.closeModal();
           this.cdr.markForCheck();
         },
         error: (err: any) => {
-          this.error = err.error?.message || 'Failed to create customer';
-          this.sweetAlert.error('Error', this.error);
+          this.error = err.error?.message || this.translate.instant('CUSTOMERS.CREATE_FAILED');
+          this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
           this.cdr.markForCheck();
         }
       });
@@ -227,18 +228,18 @@ export class CustomersComponent implements OnInit, OnDestroy {
   }
 
   deleteCustomer(id: number) {
-    this.sweetAlert.confirmDelete('this customer').then((result) => {
+    this.sweetAlert.confirmDelete(this.translate.instant('CUSTOMERS.THIS_CUSTOMER')).then((result) => {
       if (result.isConfirmed) {
         this.customerService.delete(id).subscribe({
           next: () => {
             this.error = '';
-            this.sweetAlert.success('Deleted', 'Customer has been deleted.');
+            this.sweetAlert.success(this.translate.instant('COMMON.DELETED'), this.translate.instant('CUSTOMERS.DELETE_SUCCESS'));
             this.loadCustomers();
             this.cdr.markForCheck();
           },
           error: (err: any) => {
-            this.error = err.error?.message || 'Failed to delete customer';
-            this.sweetAlert.error('Error', this.error);
+            this.error = err.error?.message || this.translate.instant('CUSTOMERS.DELETE_FAILED');
+            this.sweetAlert.error(this.translate.instant('COMMON.ERROR'), this.error);
             this.cdr.markForCheck();
           }
         });

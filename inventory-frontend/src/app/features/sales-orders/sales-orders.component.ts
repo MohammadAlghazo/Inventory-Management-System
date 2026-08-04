@@ -8,7 +8,7 @@ import { LookupService } from '../../core/services/lookup.service';
 import { CustomerService } from '../../core/services/customer.service';
 import { ProductService } from '../../core/services/product.service';
 import { LucideAngularModule, Plus, Search, FileText, CheckCircle, Truck, X, Trash2, ChevronLeft, ChevronRight } from 'lucide-angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
@@ -69,7 +69,8 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
     private productService: ProductService,
     private sweetAlert: SweetAlertService,
     private exportExcel: ExportExcelService,
-    private exportPdf: ExportPdfService
+    private exportPdf: ExportPdfService,
+    private translate: TranslateService
   ) {}
 
   ngOnInit(): void {
@@ -141,7 +142,7 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
 
   submitShipOrder(): void {
     if (!this.shipPayload.trackingNumber) {
-      this.sweetAlert.error('Validation Error', 'Tracking number is required.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SALES_ORDERS.TRACKING_REQUIRED'));
       return;
     }
     this.shipping = true;
@@ -152,7 +153,10 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: () => {
         this.shipping = false;
-        this.sweetAlert.success('Sales Order Shipped Successfully', 'Inventory has been deducted.');
+        this.sweetAlert.success(
+          this.translate.instant('SALES_ORDERS.SHIP_SUCCESS_TITLE'),
+          this.translate.instant('SALES_ORDERS.SHIP_SUCCESS_MESSAGE')
+        );
         this.closeShipModal();
         this.loadOrders();
       },
@@ -172,6 +176,13 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
       case 'pending': return 'badge-warning';
       default: return 'badge-info';
     }
+  }
+
+  getStatusLabel(status: string): string {
+    const key = status?.toUpperCase();
+    return ['DRAFT', 'PENDING', 'SHIPPED', 'DELIVERED', 'COMPLETED', 'CANCELLED'].includes(key)
+      ? `SALES_ORDERS.STATUS_${key}`
+      : status;
   }
 
   // --- Create SO Flow ---
@@ -220,13 +231,13 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
     const wId = Number(this.newOrder.warehouseId);
 
     if (!cId || !wId || this.newOrder.items.length === 0) {
-      this.sweetAlert.error('Validation Error', 'Please select customer, warehouse, and add at least one item.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SALES_ORDERS.ORDER_REQUIRED'));
       return;
     }
 
     const hasInvalidItems = this.newOrder.items.some((i: any) => !i.productId || i.productId <= 0);
     if (hasInvalidItems) {
-      this.sweetAlert.error('Validation Error', 'Please select a product for all order items.');
+      this.sweetAlert.error(this.translate.instant('COMMON.VALIDATION_ERROR'), this.translate.instant('SALES_ORDERS.PRODUCTS_REQUIRED'));
       return;
     }
 
@@ -244,7 +255,7 @@ export class SalesOrdersComponent implements OnInit, OnDestroy {
     this.soService.createSalesOrder(this.newOrder).subscribe({
       next: () => {
         this.submitting = false;
-        this.sweetAlert.success('Success', 'Sales Order created successfully');
+        this.sweetAlert.success(this.translate.instant('COMMON.SUCCESS'), this.translate.instant('SALES_ORDERS.CREATE_SUCCESS'));
         this.closeCreateModal();
         this.loadOrders();
       },

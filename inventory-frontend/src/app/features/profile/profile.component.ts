@@ -137,6 +137,21 @@ export class ProfileComponent implements OnInit {
   getRoleBadgeClass(): string {
     return this.profile?.role === 'SuperAdmin' ? 'badge-accent' : 'badge-info';
   }
+
+  getRoleKey(role: string | undefined): string {
+    const keys: Record<string, string> = {
+      SuperAdmin: 'USERS.ROLE_SUPER_ADMIN',
+      InventoryManager: 'USERS.ROLE_INVENTORY_MANAGER',
+      WarehouseStaff: 'USERS.ROLE_WAREHOUSE_STAFF',
+      PurchasingOfficer: 'USERS.ROLE_PURCHASING_OFFICER',
+      Sales: 'USERS.ROLE_SALES',
+      Accountant: 'USERS.ROLE_ACCOUNTANT',
+      Auditor: 'USERS.ROLE_AUDITOR',
+      Manager: 'USERS.ROLE_MANAGER',
+      Employee: 'USERS.ROLE_EMPLOYEE'
+    };
+    return keys[role || ''] || role || '';
+  }
   openProfilePictureModal() {
     this.showProfilePictureModal = true;
   }
@@ -153,26 +168,32 @@ export class ProfileComponent implements OnInit {
         this.profileService.updateProfilePictureInState(url);
       },
       error: (err) => {
-        this.sweetAlert.error('Error', err.error?.message || 'Failed to update profile picture in database');
+        this.sweetAlert.error(
+          this.translate.instant('COMMON.ERROR'),
+          err.error?.message || this.translate.instant('PROFILE.PICTURE_UPDATE_FAILED')
+        );
       }
     });
   }
 
   deleteProfilePicture() {
     this.sweetAlert.confirm(
-      'Delete Profile Picture',
-      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE') || 'Are you sure you want to delete your profile picture?',
-      'Yes, delete it!'
+      this.translate.instant('PROFILE.DELETE_PICTURE_TITLE'),
+      this.translate.instant('PROFILE.CONFIRM_DELETE_PICTURE'),
+      this.translate.instant('COMMON.YES_DELETE')
     ).then((result) => {
       if (result.isConfirmed) {
         this.userService.deleteProfilePicture(this.profile.id).subscribe({
           next: (res) => {
             this.profile.profilePicture = null;
             this.profileService.updateProfilePictureInState(null);
-            this.sweetAlert.toast('Profile picture deleted successfully');
+            this.sweetAlert.toast(this.translate.instant('PROFILE.PICTURE_DELETED'));
           },
           error: (err) => {
-            this.sweetAlert.error('Error', err.error?.message || 'Failed to delete profile picture');
+            this.sweetAlert.error(
+              this.translate.instant('COMMON.ERROR'),
+              err.error?.message || this.translate.instant('PROFILE.PICTURE_DELETE_FAILED')
+            );
           }
         });
       }
