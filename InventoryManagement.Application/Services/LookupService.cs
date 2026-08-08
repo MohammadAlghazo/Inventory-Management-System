@@ -28,6 +28,10 @@ namespace InventoryManagement.Application.Services
             _cache = cache;
         }
 
+        // Reference data rarely changes — 2h TTL is a safe balance between freshness and performance
+        private static readonly MemoryCacheEntryOptions RefDataCacheOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromHours(2));
+
         public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()
         {
             if (_cache.TryGetValue(CategoriesCacheKey, out List<CategoryDto>? cached))
@@ -44,7 +48,7 @@ namespace InventoryManagement.Application.Services
                     ParentCategoryId = c.ParentCategoryId
                 }).ToListAsync();
                 
-            _cache.Set(CategoriesCacheKey, categories);
+            _cache.Set(CategoriesCacheKey, categories, RefDataCacheOptions);
             return ApiResponse<List<CategoryDto>>.Ok(categories);
         }
 
@@ -118,7 +122,7 @@ namespace InventoryManagement.Application.Services
                     Description = b.Description
                 }).ToListAsync();
 
-            _cache.Set(BrandsCacheKey, brands);
+            _cache.Set(BrandsCacheKey, brands, RefDataCacheOptions);
             return ApiResponse<List<BrandDto>>.Ok(brands);
         }
 
@@ -188,7 +192,7 @@ namespace InventoryManagement.Application.Services
                     Abbreviation = u.Abbreviation
                 }).ToListAsync();
                 
-            _cache.Set(UnitsCacheKey, units);
+            _cache.Set(UnitsCacheKey, units, RefDataCacheOptions);
             return ApiResponse<List<UnitDto>>.Ok(units);
         }
 
@@ -262,7 +266,7 @@ namespace InventoryManagement.Application.Services
                     IsDefault = w.IsDefault
                 }).ToListAsync();
                 
-            _cache.Set(WarehousesCacheKey, warehouses);
+            _cache.Set(WarehousesCacheKey, warehouses, RefDataCacheOptions);
             return ApiResponse<List<WarehouseDto>>.Ok(warehouses);
         }
 

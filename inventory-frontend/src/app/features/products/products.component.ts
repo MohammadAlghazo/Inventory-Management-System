@@ -1,14 +1,14 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus, Wand2 } from 'lucide-angular';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
-import { SupplierService } from '../../core/services/supplier.service';
+import { LookupStateService } from '../../core/services/lookup-state.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProfilePictureModalComponent } from '../../shared/components/profile-picture-modal/profile-picture-modal.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
@@ -27,8 +27,9 @@ import * as XLSX from 'xlsx';
   styleUrl: './products.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProductsComponent implements OnInit, OnDestroy {
+export class ProductsComponent implements OnInit {
   readonly icons = { Search, Package, Edit, Trash2, ChevronLeft, ChevronRight, Download, Upload, ImagePlus, LayoutGrid, List, Plus, Wand2 };
+  private readonly destroyRef = inject(DestroyRef);
 
   products: any[] = [];
   totalCount = 0;
@@ -39,7 +40,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   selectedCategory = '';
   selectedStockStatus = '';
   pageSize = 15;
+  /** True only on the very first load — shows skeleton rows */
   isLoading = false;
+  /** True during subsequent filter/page changes — dims existing data instead of clearing it */
+  isTransitioning = false;
   viewMode: 'table' | 'grid' = 'table';
 
   categories: any[] = [];
@@ -57,8 +61,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   constructor(
     private productService: ProductService,
     private authService: AuthService,
-    private http: HttpClient,
-    private supplierService: SupplierService,
+    private lookupState: LookupStateService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
     private sweetAlert: SweetAlertService,
@@ -70,13 +73,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadProducts();
-    this.loadCategories();
-    this.loadSuppliers();
-    this.loadUnits();
+    this.loadLookupData();
 
     this.searchSubject.pipe(
       debounceTime(300),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(query => {
       this.searchQuery = query;
       this.page = 1;
@@ -84,38 +86,22 @@ export class ProductsComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
-    this.searchSubject.complete();
-  }
-
-  loadCategories() {
-    this.http.get<any>(`${environment.apiUrl}/lookup/categories`).subscribe({
-      next: (res) => { 
-        this.categories = res.data || [];
-        this.cdr.markForCheck();
-      },
-      error: () => {}
-    });
-  }
-
-  loadSuppliers() {
-    this.supplierService.getAll(1, 500).subscribe({
-      next: (res) => {
-        this.suppliers = res.data?.items || [];
-        this.cdr.markForCheck();
-      },
-      error: () => {}
-    });
-  }
-
-  loadUnits() {
-    this.http.get<any>(`${environment.apiUrl}/lookup/units`).subscribe({
-      next: (res) => {
-        this.units = res.data || [];
-        this.cdr.markForCheck();
-      },
-      error: () => {}
-    });
+  /** Load all reference data in parallel using the shared LookupStateService cache */
+  loadLookupData() {
+    forkJoin({
+      categories: this.lookupState.categories$,
+      units: this.lookupState.units$,
+      suppliers: this.lookupState.suppliers$
+    }).pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ categories, units, suppliers }) => {
+          this.categories = categories.data || [];
+          this.units = units.data || [];
+          this.suppliers = suppliers.data?.items || [];
+          this.cdr.markForCheck();
+        },
+        error: () => {}
+      });
   }
 
   openImageModal(p: any) {
@@ -149,23 +135,34 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   loadProducts() {
-    this.isLoading = true;
-    this.productService.getProducts(this.page, this.pageSize, this.searchQuery, this.selectedCategory, this.selectedStockStatus).subscribe({
-      next: (res) => {
-        this.products = res.data?.items || [];
-        this.totalCount = res.data?.totalCount || 0;
-        this.totalPages = res.data?.totalPages || 1;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }
-    });
+    // First load: show full skeleton. Subsequent loads: dim existing data for smooth transition
+    if (this.products.length === 0) {
+      this.isLoading = true;
+    } else {
+      this.isTransitioning = true;
+    }
+
+    this.productService.getProducts(this.page, this.pageSize, this.searchQuery, this.selectedCategory, this.selectedStockStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.products = res.data?.items || [];
+          this.totalCount = res.data?.totalCount || 0;
+          this.totalPages = res.data?.totalPages || 1;
+          this.isLoading = false;
+          this.isTransitioning = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isLoading = false;
+          this.isTransitioning = false;
+          this.cdr.markForCheck();
+        }
+      });
   }
 
-  getFilteredProducts() {
+  /** Use a getter instead of a method to avoid repeated calls per render cycle */
+  get filteredProducts(): any[] {
     return this.products;
   }
 

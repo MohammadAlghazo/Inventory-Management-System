@@ -20,6 +20,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<PagedResult<PurchaseOrderDto>>> GetPurchaseOrdersAsync(int page, int pageSize, string? search)
         {
             var query = _uow.PurchaseOrders.Query()
+                .AsNoTracking()
                 .Include(p => p.Supplier)
                 .Include(p => p.Warehouse)
                 .Include(p => p.CreatedBy)
@@ -142,6 +143,18 @@ namespace InventoryManagement.Application.Services
             if (dto.Items == null || !dto.Items.Any())
                 return ApiResponse<object>.Fail("No received items were specified.");
 
+            // Pre-load all required products in a single query to avoid N+1
+            var productIds = dto.Items
+                .Where(i => i.QuantityReceived > 0)
+                .Select(i => i.ProductId)
+                .Distinct()
+                .ToList();
+
+            var products = await _uow.Products.Query()
+                .Include(p => p.ProductStocks)
+                .Where(p => productIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id);
+
             foreach (var receivedItem in dto.Items)
             {
                 if (receivedItem.QuantityReceived <= 0) continue;
@@ -153,11 +166,7 @@ namespace InventoryManagement.Application.Services
                 if (item.QuantityReceived + receivedItem.QuantityReceived > item.QuantityOrdered)
                     return ApiResponse<object>.Fail($"Cannot receive more than ordered for Product '{item.Product?.Name}'. Ordered: {item.QuantityOrdered}, Already Received: {item.QuantityReceived}, New Receipt: {receivedItem.QuantityReceived}");
 
-                var product = await _uow.Products.Query()
-                    .Include(p => p.ProductStocks)
-                    .FirstOrDefaultAsync(p => p.Id == item.ProductId);
-
-                if (product == null) continue;
+                if (!products.TryGetValue(item.ProductId, out var product)) continue;
 
                 var productStock = product.ProductStocks
                     .FirstOrDefault(ps => ps.WarehouseId == order.WarehouseId);

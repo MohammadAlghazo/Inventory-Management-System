@@ -258,7 +258,14 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<object>> TransferStockAsync(TransferStockDto dto, int userId)
         {
             var sourceWarehouseId = dto.SourceWarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
-            var destWarehouseId = dto.DestinationWarehouseId ?? (await _uow.Warehouses.Query().FirstOrDefaultAsync())?.Id ?? 0;
+            var destWarehouseId = dto.DestinationWarehouseId;
+
+            // If destination is not specified, fall back to default warehouse
+            if (destWarehouseId == null || destWarehouseId == 0)
+            {
+                var defaultWarehouse = await _uow.Warehouses.Query().FirstOrDefaultAsync();
+                destWarehouseId = defaultWarehouse?.Id ?? 0;
+            }
 
             if (sourceWarehouseId == 0 || destWarehouseId == 0) return ApiResponse<object>.Fail("No warehouse available.");
 
@@ -282,7 +289,7 @@ namespace InventoryManagement.Application.Services
             var destStock = product.ProductStocks.FirstOrDefault(s => s.WarehouseId == destWarehouseId);
             if (destStock == null)
             {
-                destStock = new ProductStock { WarehouseId = destWarehouseId, ProductId = product.Id };
+                destStock = new ProductStock { WarehouseId = destWarehouseId ?? 0, ProductId = product.Id };
                 destStock.InitializeStock(0, 0);
                 product.ProductStocks.Add(destStock);
             }
@@ -333,6 +340,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<PagedResult<InventoryLogDto>>> GetAllLogsAsync(InventoryLogQueryParams query)
         {
             var q = _uow.InventoryLogs.Query()
+                .AsNoTracking()
                 .Include(l => l.Product)
                 .Include(l => l.User)
                 .AsQueryable();
@@ -398,6 +406,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<List<InventoryLogDto>>> GetLogsByProductAsync(int productId)
         {
             var logs = await _uow.InventoryLogs.Query()
+                .AsNoTracking()
                 .Include(l => l.Product)
                 .Include(l => l.User)
                 .Where(l => l.ProductId == productId)

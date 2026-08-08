@@ -170,6 +170,43 @@ namespace InventoryManagement.Infrastructure.Data
                 entity.HasOne(s => s.SalesOrder).WithMany(so => so.Items).HasForeignKey(s => s.SalesOrderId).OnDelete(DeleteBehavior.Cascade);
                 entity.HasOne(s => s.Product).WithMany().HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict);
             });
+
+            // ─── Composite Indexes for Performance ─────────────────────────────
+            // Products: most common query patterns involve IsActive combined with CategoryId or date sorting
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => new { p.IsActive, p.CategoryId })
+                .HasDatabaseName("IX_Products_IsActive_CategoryId");
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => new { p.IsActive, p.CreatedAt })
+                .HasDatabaseName("IX_Products_IsActive_CreatedAt");
+
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => new { p.IsActive, p.Price })
+                .HasDatabaseName("IX_Products_IsActive_Price");
+
+            // InventoryLogs: filtered heavily by ProductId+date and Action+date
+            modelBuilder.Entity<InventoryLog>()
+                .HasIndex(l => new { l.ProductId, l.ActionDate })
+                .HasDatabaseName("IX_InventoryLogs_ProductId_ActionDate");
+
+            modelBuilder.Entity<InventoryLog>()
+                .HasIndex(l => new { l.ActionDate, l.Action })
+                .HasDatabaseName("IX_InventoryLogs_ActionDate_Action");
+
+            // PurchaseOrders: filtered by SupplierId and Status
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasIndex(p => new { p.SupplierId, p.Status })
+                .HasDatabaseName("IX_PurchaseOrders_SupplierId_Status");
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasIndex(p => p.OrderDate)
+                .HasDatabaseName("IX_PurchaseOrders_OrderDate");
+
+            // SalesOrders: similar patterns to PurchaseOrders
+            modelBuilder.Entity<SalesOrder>()
+                .HasIndex(s => new { s.CustomerId, s.Status })
+                .HasDatabaseName("IX_SalesOrders_CustomerId_Status");
         }
 
         public DbSet<Product> Products { get; set; }

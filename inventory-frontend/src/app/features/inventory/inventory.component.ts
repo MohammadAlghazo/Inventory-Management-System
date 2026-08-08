@@ -1,19 +1,20 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Download, Plus, ClipboardList, ChevronLeft, ChevronRight } from 'lucide-angular';
 import { InventoryService } from '../../core/services/inventory.service';
 import { ProductService } from '../../core/services/product.service';
 import { AuthService } from '../../core/services/auth.service';
+import { LookupStateService } from '../../core/services/lookup-state.service';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ExportExcelService } from '../../core/services/export-excel.service';
 import { ExportPdfService } from '../../core/services/export-pdf.service';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { SweetAlertService } from '../../core/services/sweetalert.service';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HasPermissionDirective } from '../../shared/directives/has-permission.directive';
 
 @Component({
@@ -36,6 +37,8 @@ export class InventoryComponent implements OnInit, OnDestroy {
   searchQuery = '';
   searchSubject = new Subject<string>();
   isLoading = false;
+  isTransitioning = false;
+  private readonly destroyRef = inject(DestroyRef);
 
   user: any;
 
@@ -55,9 +58,9 @@ export class InventoryComponent implements OnInit, OnDestroy {
     private inventoryService: InventoryService,
     private productService: ProductService,
     private authService: AuthService,
+    private lookupState: LookupStateService,
     private exportExcel: ExportExcelService,
     private exportPdf: ExportPdfService,
-    private http: HttpClient,
     private sweetAlert: SweetAlertService,
     private cdr: ChangeDetectorRef,
     private translate: TranslateService
@@ -90,7 +93,7 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   loadWarehouses() {
-    this.http.get<any>(`${environment.apiUrl}/lookup/warehouses`).subscribe({
+    this.lookupState.warehouses$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => {
         this.warehouses = res.data || [];
         this.cdr.markForCheck();
@@ -99,23 +102,33 @@ export class InventoryComponent implements OnInit, OnDestroy {
   }
 
   loadLogs() {
-    this.isLoading = true;
-    this.inventoryService.getInventoryLogs(this.page, this.pageSize, this.actionFilter, this.searchQuery).subscribe({
-      next: (res) => {
-        this.logs = res.data?.items || [];
-        this.totalCount = res.data?.totalCount || 0;
-        this.totalPages = res.data?.totalPages || 1;
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }
-    });
+    // First load: show skeleton. Subsequent filter/page changes: dim existing rows
+    if (this.logs.length === 0) {
+      this.isLoading = true;
+    } else {
+      this.isTransitioning = true;
+    }
+
+    this.inventoryService.getInventoryLogs(this.page, this.pageSize, this.actionFilter, this.searchQuery)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.logs = res.data?.items || [];
+          this.totalCount = res.data?.totalCount || 0;
+          this.totalPages = res.data?.totalPages || 1;
+          this.isLoading = false;
+          this.isTransitioning = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.isLoading = false;
+          this.isTransitioning = false;
+          this.cdr.markForCheck();
+        }
+      });
   }
 
-  getFilteredLogs() {
+  get filteredLogs(): any[] {
     return this.logs;
   }
 

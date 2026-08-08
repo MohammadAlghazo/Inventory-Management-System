@@ -51,10 +51,10 @@
           <option value="out-of-stock">{{ 'PRODUCTS.OUT_OF_STOCK' | translate }}</option>
         </select>
 
-        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || getFilteredProducts().length === 0">
+        <button class="btn btn-excel btn-sm" (click)="exportToExcel()" [disabled]="isLoading || filteredProducts.length === 0">
           {{ 'COMMON.EXCEL' | translate }}
         </button>
-        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || getFilteredProducts().length === 0">
+        <button class="btn btn-pdf btn-sm" (click)="exportToPdf()" [disabled]="isLoading || filteredProducts.length === 0">
           {{ 'COMMON.PDF' | translate }}
         </button>
       </div>
@@ -86,7 +86,7 @@
             </tr>
           </ng-container>
 
-          <tr *ngIf="!isLoading && getFilteredProducts().length === 0">
+          <tr *ngIf="!isLoading && filteredProducts.length === 0 && !isTransitioning">
             <td colspan="8">
               <app-empty-state [title]="'PRODUCTS.NO_PRODUCTS' | translate">
                 <lucide-icon [img]="icons.Package" [size]="40"></lucide-icon>
@@ -94,8 +94,10 @@
             </td>
           </tr>
 
-          <ng-container *ngIf="!isLoading && getFilteredProducts().length > 0">
-            <tr *ngFor="let p of getFilteredProducts()">
+          <ng-container *ngIf="!isLoading && filteredProducts.length > 0">
+            <tr *ngFor="let p of filteredProducts"
+                [style.opacity]="isTransitioning ? '0.45' : '1'"
+                [style.transition]="'opacity 0.2s ease'">
               <td [attr.data-label]="'COMMON.ID' | translate" style="font-weight: bold; color: var(--text-muted);">#{{ p.id }}</td>
               <td [attr.data-label]="'PRODUCTS.PRODUCT_NAME' | translate">
                                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -183,7 +185,9 @@
     </ng-container>
 
     <ng-container *ngIf="!isLoading">
-      <div *ngFor="let p of getFilteredProducts()" class="product-card">
+      <div *ngFor="let p of filteredProducts" class="product-card"
+           [style.opacity]="isTransitioning ? '0.45' : '1'"
+           [style.transition]="'opacity 0.2s ease'">
                   <div class="product-card-header">
             <div class="product-card-icon" style="overflow: hidden; padding: 0;">
               <img *ngIf="p.imageUrl" [src]="p.imageUrl" style="width: 100%; height: 100%; object-fit: cover;" />

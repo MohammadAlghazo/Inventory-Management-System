@@ -88,12 +88,20 @@ namespace InventoryManagement.Infrastructure.Data.Repositories
 
         public void AddNotification(string title, string message, string type, string targetRole)
         {
-            var users = _context.Users.Include(u => u.Role).Where(u => targetRole == "All" || (u.Role != null && u.Role.Name == targetRole)).ToList();
-            foreach (var u in users)
+            // Fetch only user IDs to avoid loading full entities and Role navigation properties
+            IQueryable<int> userIdsQuery = targetRole == "All"
+                ? _context.Users.Where(u => u.IsActive).Select(u => u.Id)
+                : _context.Users
+                    .Where(u => u.IsActive && u.Role != null && u.Role.Name == targetRole)
+                    .Select(u => u.Id);
+
+            var userIds = userIdsQuery.ToList();
+
+            foreach (var userId in userIds)
             {
                 _context.Notifications.Add(new Notification
                 {
-                    UserId = u.Id,
+                    UserId = userId,
                     Title = title,
                     Message = message,
                     Type = type,

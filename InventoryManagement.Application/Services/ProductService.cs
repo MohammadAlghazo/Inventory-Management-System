@@ -23,6 +23,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<PagedResult<ProductDto>>> GetAllAsync(ProductQueryParams query)
         {
             var q = _uow.Products.Query()
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -96,6 +97,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<ProductDto>> GetByIdAsync(int id)
         {
             var product = await _uow.Products.Query()
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -276,6 +278,7 @@ namespace InventoryManagement.Application.Services
         public async Task<ApiResponse<List<ProductDto>>> GetLowStockAsync()
         {
             var products = await _uow.Products.Query()
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .Include(p => p.Unit)
                 .Include(p => p.Brand)
@@ -304,18 +307,30 @@ namespace InventoryManagement.Application.Services
         {
             var today = DateTime.UtcNow.Date;
 
+            // Run all independent count queries in parallel to reduce total latency
+            var totalProductsTask      = _uow.Products.Query().AsNoTracking().CountAsync(p => p.IsActive);
+            var lowStockCountTask      = _uow.Products.Query().AsNoTracking().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0);
+            var outOfStockCountTask    = _uow.Products.Query().AsNoTracking().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0);
+            var totalInventoryValueTask = _uow.Products.Query().AsNoTracking().Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity));
+            var todayMovementsTask     = _uow.InventoryLogs.Query().AsNoTracking().CountAsync(l => l.ActionDate.Date == today);
+            var totalCategoriesTask    = _uow.Categories.Query().AsNoTracking().CountAsync();
+
+            await Task.WhenAll(totalProductsTask, lowStockCountTask, outOfStockCountTask, totalInventoryValueTask, todayMovementsTask, totalCategoriesTask);
+
             var stats = new DashboardStatsDto
             {
-                TotalProducts = await _uow.Products.Query().CountAsync(p => p.IsActive),
-                LowStockCount = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) <= p.ProductStocks.Sum(s => s.MinQuantity) && p.ProductStocks.Sum(s => s.Quantity) > 0),
-                OutOfStockCount = await _uow.Products.Query().CountAsync(p => p.IsActive && p.ProductStocks.Sum(s => s.Quantity) == 0),
-                TotalInventoryValue = await _uow.Products.Query().Where(p => p.IsActive).SumAsync(p => p.Price * p.ProductStocks.Sum(s => s.Quantity)),
-                TodayMovements = await _uow.InventoryLogs.Query().CountAsync(l => l.ActionDate.Date == today),
-                TotalCategories = await _uow.Categories.Query().CountAsync()
+                TotalProducts       = totalProductsTask.Result,
+                LowStockCount       = lowStockCountTask.Result,
+                OutOfStockCount     = outOfStockCountTask.Result,
+                TotalInventoryValue = totalInventoryValueTask.Result,
+                TodayMovements      = todayMovementsTask.Result,
+                TotalCategories     = totalCategoriesTask.Result
             };
 
             return ApiResponse<DashboardStatsDto>.Ok(stats);
         }
+
+        private const int MaxExcelImportRows = 5000;
 
         public async Task<ApiResponse<object>> ImportFromExcelAsync(Stream fileStream)
         {
@@ -325,6 +340,11 @@ namespace InventoryManagement.Application.Services
                 if (!rows.Any())
                 {
                     return ApiResponse<object>.Fail("The Excel file contains no data.");
+                }
+
+                if (rows.Count > MaxExcelImportRows)
+                {
+                    return ApiResponse<object>.Fail($"File exceeds the maximum allowed limit of {MaxExcelImportRows} rows. Please split your file and import in batches.");
                 }
 
                 var defaultWarehouse = await _uow.Warehouses.Query().FirstOrDefaultAsync();
